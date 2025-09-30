@@ -1,0 +1,24 @@
+{
+  "name": "fibonacci",
+  "version": "1.0.0",
+  "description": "javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mangila/fibonacci.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mangila/fibonacci/issues"
+  },
+  "homepage": "https://github.com/mangila/fibonacci#readme",
+  "dependencies": {
+    "bullmq": "^5.59.0",
+    "redis": "^5.8.2"
+  }
+}
