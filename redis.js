@@ -13,6 +13,11 @@ export const REDIS_QUEUE = process.env.REDIS_QUEUE
 export const REDIS_CHANNEL = process.env.REDIS_CHANNEL
 export const LOCAL_PUSH = process.env.LOCAL_PUSH === "true"
 
+console.log("REDIS_URL:", REDIS_URL)
+console.log("REDIS_QUEUE:", REDIS_QUEUE)
+console.log("REDIS_CHANNEL:", REDIS_CHANNEL)
+console.log("LOCAL_PUSH:", LOCAL_PUSH)
+
 export const REDIS_QUEUE_CLIENT = await createClient({
     url: REDIS_URL,
 })

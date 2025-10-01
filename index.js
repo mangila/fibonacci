@@ -14,9 +14,6 @@ function fibonacci(n) {
 
 async function main() {
     console.log("Starting Fibonacci Sequence Generator")
-    console.log("REDIS_QUEUE:", REDIS_QUEUE)
-    console.log("REDIS_CHANNEL:", REDIS_CHANNEL)
-    console.log("LOCAL_PUSH:", LOCAL_PUSH)
     if (LOCAL_PUSH) {
         await REDIS_QUEUE_CLIENT.lPush(REDIS_QUEUE, "10")
         await REDIS_SUBSCRIBER_CLIENT.subscribe(REDIS_CHANNEL, (message) => {
