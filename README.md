@@ -13,3 +13,10 @@ Run a fibonacci sequence and publish every sequence to a channel
 * REDIS_QUEUE=fibonacci - Queue to publish to
 * REDIS_CHANNEL=fibonacci-channel - Channel to publish to
 * LOCAL_PUSH=false - Set to true to push to the channel automatically
+
+## Redis
+
+- `LPUSH` to the queue
+- `BRPOP` Blocking Pop the queue
+- `PUBLISH` to the channel
+- `SUBSCRIBE` to the channel
