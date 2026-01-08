@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: fibonacci-java-spring
+  web:
+    resources:
+      add-mappings: false
+  threads:
+    virtual:
+      enabled: true
