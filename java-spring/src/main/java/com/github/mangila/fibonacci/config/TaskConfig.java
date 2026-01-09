@@ -12,7 +12,6 @@ public class TaskConfig {
         var executor = new SimpleAsyncTaskExecutor();
         executor.setThreadNamePrefix("task-");
         executor.setVirtualThreads(true);
-        executor.setConcurrencyLimit(-1);
         return executor;
     }
 
