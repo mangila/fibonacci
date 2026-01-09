@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -86,7 +87,8 @@ class WebSocketControllerTest {
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                log.info("Received headers: {} - Payload: {}", headers, payload);
+                var errorJson = new String((byte[]) payload);
+                assertThat(errorJson).contains("limit: must be greater than or equal to 1");
                 latch.countDown();
             }
 

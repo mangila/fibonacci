@@ -8,8 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
@@ -40,19 +43,18 @@ public class WebSocketController {
         taskExecutor.submitCompletable(new FibonacciTask(template, principal, option));
     }
 
-    @MessageExceptionHandler
+    @MessageExceptionHandler(MethodArgumentNotValidException.class)
     @SendToUser("/queue/errors")
-    public ErrorResponse handleValidationException(Exception ex, Principal principal) {
-        log.error("Error handling WebSocket message from {}: {}", principal.getName(), ex.getMessage());
-        return new ErrorResponse("hej");
+    public ProblemDetail handleValidationException(MethodArgumentNotValidException ex, Principal principal) {
+        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .reduce((a, b) -> a + "; " + b)
+                .orElse("Invalid request");
+
+        log.error("Error handling WebSocket message from {}: {}", principal.getName(), errorMessage);
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errorMessage);
+        problemDetail.setTitle("Validation Failed");
+        return problemDetail;
     }
-
-    public static class ErrorResponse {
-        public final String message;
-
-        public ErrorResponse(String message) {
-            this.message = message;
-        }
-    }
-
 }

@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.web;
+package com.github.mangila.fibonacci.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
