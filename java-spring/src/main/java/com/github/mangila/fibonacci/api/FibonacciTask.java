@@ -77,7 +77,6 @@ public record FibonacciTask(SimpMessagingTemplate template,
             SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
             accessor.setDestination(destination);
             accessor.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            // TODO: add offset in header or in the payload? String.valueOf is maybe not the best choice in tight loops
             accessor.setNativeHeader("offset", String.valueOf(currentOffset));
             Message<byte[]> msg = MessageBuilder.createMessage(value.toByteArray(), accessor.getMessageHeaders());
             FIBONACCI_MESSAGE_CACHE.put(currentOffset, msg);

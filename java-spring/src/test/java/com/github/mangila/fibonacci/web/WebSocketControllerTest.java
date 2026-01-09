@@ -54,7 +54,7 @@ class WebSocketControllerTest {
                 .connectAsync(url, new StompSessionHandlerAdapter() {
                 })
                 .join();
-        FibonacciOption option = new FibonacciOption(1, 1000);
+        FibonacciOption option = new FibonacciOption(1, 10_000);
         CountDownLatch latch = new CountDownLatch(option.limit());
         session.subscribe("/user/queue/results", new StompFrameHandler() {
             @Override
