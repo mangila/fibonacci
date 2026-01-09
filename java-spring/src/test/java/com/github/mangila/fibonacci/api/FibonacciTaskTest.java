@@ -5,28 +5,24 @@ import org.junit.jupiter.api.Test;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.util.StopWatch;
 
-import java.security.Principal;
 import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class FibonacciTaskTest {
 
     @Test
     void run() {
         SimpMessagingTemplate mockTemplate = mock(SimpMessagingTemplate.class);
-        Principal mockPrincipal = mock(Principal.class);
-        FibonacciOption option = new FibonacciOption(1, 100);
-        FibonacciTask task = new FibonacciTask(mockTemplate, mockPrincipal, option);
+        FibonacciOption option = new FibonacciOption(1, 10_000);
+        FibonacciTask task = new FibonacciTask(mockTemplate, "", option);
 
         var s = new StopWatch();
-        when(mockPrincipal.getName()).thenReturn("mock");
-        s.start("first run");
+        s.start("compute run");
         task.run();
         s.stop();
 
-        s.start("second run");
+        s.start("cache run");
         task.run();
         s.stop();
 

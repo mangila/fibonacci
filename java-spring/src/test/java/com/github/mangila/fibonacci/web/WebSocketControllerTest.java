@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.messaging.converter.*;
-import org.springframework.messaging.simp.stomp.StompCommand;
+import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
@@ -29,6 +29,7 @@ import static org.awaitility.Awaitility.await;
 class WebSocketControllerTest {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketControllerTest.class);
+
     @LocalServerPort
     private int port;
     private String url;
@@ -38,7 +39,8 @@ class WebSocketControllerTest {
     @BeforeEach
     void setUp() {
         this.url = "ws://localhost:" + port + "/stomp";
-        this.stompClient = new WebSocketStompClient(new StandardWebSocketClient());
+        var ws = new StandardWebSocketClient();
+        this.stompClient = new WebSocketStompClient(ws);
         List<MessageConverter> converters = new ArrayList<>();
         converters.add(new StringMessageConverter());
         converters.add(new JacksonJsonMessageConverter());
@@ -47,17 +49,18 @@ class WebSocketControllerTest {
     }
 
     @Test
-    void generateFibonacciSequences() throws InterruptedException {
+    void generateFibonacciSequences() {
         StompSession session = stompClient
                 .connectAsync(url, new StompSessionHandlerAdapter() {
                 })
                 .join();
-        FibonacciOption option = new FibonacciOption(1, 100);
+        FibonacciOption option = new FibonacciOption(1, 1000);
         CountDownLatch latch = new CountDownLatch(option.limit());
-        session.subscribe("/user/queue/results", new StompSessionHandlerAdapter() {
+        session.subscribe("/user/queue/results", new StompFrameHandler() {
             @Override
             public void handleFrame(StompHeaders headers, @Nullable Object payload) {
-                log.info("Received headers: {} - Payload: {}", headers, payload);
+                assertThat(headers.get("offset")).isNotNull();
+                assertThat(payload).isNotNull();
                 latch.countDown();
             }
 
@@ -73,13 +76,13 @@ class WebSocketControllerTest {
     }
 
     @Test
-    void failValidation() throws InterruptedException {
+    void failValidation() {
         StompSession session = stompClient.connectAsync(url, new StompSessionHandlerAdapter() {
                 })
                 .join();
         FibonacciOption option = new FibonacciOption(1, -10);
         CountDownLatch latch = new CountDownLatch(1);
-        session.subscribe("/user/queue/errors", new StompSessionHandlerAdapter() {
+        session.subscribe("/user/queue/errors", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return byte[].class;
@@ -87,15 +90,11 @@ class WebSocketControllerTest {
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
+                log.info("Received headers: {} - Payload: {}", headers, payload);
                 var errorJson = new String((byte[]) payload);
+                log.info("Error JSON: {}", errorJson);
                 assertThat(errorJson).contains("limit: must be greater than or equal to 1");
                 latch.countDown();
-            }
-
-            @Override
-            public void handleException(StompSession session, @Nullable StompCommand command, StompHeaders headers, byte[] payload, Throwable exception) {
-                log.error("Error handling WebSocket message: {}", exception.getMessage());
-                super.handleException(session, command, headers, payload, exception);
             }
         });
         session.send("/app/fibonacci", option);

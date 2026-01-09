@@ -16,6 +16,7 @@ import org.springframework.messaging.handler.annotation.support.MethodArgumentNo
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
@@ -25,14 +26,17 @@ public class WebSocketController {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketController.class);
 
-    private final SimpleAsyncTaskExecutor taskExecutor;
+    private final SimpleAsyncTaskExecutor ioAsyncTaskExecutor;
+    private final ThreadPoolTaskExecutor computeAsyncTaskExecutor;
     private final SimpMessagingTemplate template;
     private final SimpUserRegistry simpUserRegistry;
 
-    public WebSocketController(SimpleAsyncTaskExecutor taskExecutor,
+    public WebSocketController(@Qualifier("ioAsyncTaskExecutor") SimpleAsyncTaskExecutor ioAsyncTaskExecutor,
+                               @Qualifier("computeAsyncTaskExecutor") ThreadPoolTaskExecutor computeAsyncTaskExecutor,
                                @Qualifier("brokerMessagingTemplate") SimpMessagingTemplate template,
                                SimpUserRegistry simpUserRegistry) {
-        this.taskExecutor = taskExecutor;
+        this.ioAsyncTaskExecutor = ioAsyncTaskExecutor;
+        this.computeAsyncTaskExecutor = computeAsyncTaskExecutor;
         this.template = template;
         this.simpUserRegistry = simpUserRegistry;
     }
@@ -40,7 +44,9 @@ public class WebSocketController {
     @MessageMapping("fibonacci")
     public void generateFibonacciSequences(@Valid @NotNull FibonacciOption option, Principal principal) {
         log.info("Received request for fibonacci sequence {} from {}", option, principal.getName());
-        taskExecutor.submitCompletable(new FibonacciTask(template, principal, option));
+        final String destination = String.format("/user/%s/queue/results", principal.getName());
+        // Run on a platform thread for computation
+        var unused = computeAsyncTaskExecutor.submitCompletable(new FibonacciTask(template, destination, option));
     }
 
     @MessageExceptionHandler(MethodArgumentNotValidException.class)
