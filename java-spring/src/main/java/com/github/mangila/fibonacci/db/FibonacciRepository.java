@@ -1,5 +1,6 @@
 package com.github.mangila.fibonacci.db;
 
+import com.github.mangila.fibonacci.scheduler.FibonacciCompute;
 import io.github.mangila.ensure4j.Ensure;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -17,15 +18,17 @@ public class FibonacciRepository {
     }
 
     @Transactional
-    public void batchInsert(List<FibonacciResultEntity> results) {
-        Ensure.notNull(results);
-        Ensure.notEmpty(results);
-        Ensure.notContainsNull(results);
+    public void batchInsert(List<FibonacciCompute> fibonacciComputes) {
+        Ensure.notNull(fibonacciComputes);
+        Ensure.notEmpty(fibonacciComputes);
+        Ensure.notContainsNull(fibonacciComputes);
         // language=PostgreSQL
-        final String sql = "INSERT INTO fibonacci_results (id,result) VALUES (?,?)";
-        jdbcTemplate.batchUpdate(sql, results, results.size(), (ps, result) -> {
-            ps.setLong(1, result.id());
-            ps.setBytes(2, result.result().toByteArray());
+        final String sql = "INSERT INTO fibonacci_results (id, length, result) VALUES (?,?,?)";
+        jdbcTemplate.batchUpdate(sql, fibonacciComputes, fibonacciComputes.size(), (ps, compute) -> {
+            var bytes = compute.result().toByteArray();
+            ps.setLong(1, compute.id());
+            ps.setInt(2, bytes.length);
+            ps.setBytes(3, bytes);
         });
     }
 

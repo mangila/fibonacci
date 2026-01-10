@@ -2,7 +2,6 @@ package com.github.mangila.fibonacci.scheduler;
 
 import com.github.mangila.fibonacci.Fibonacci;
 import com.github.mangila.fibonacci.db.FibonacciRepository;
-import com.github.mangila.fibonacci.db.FibonacciResultEntity;
 import com.github.mangila.fibonacci.model.FibonacciOption;
 import com.github.mangila.fibonacci.model.FibonacciState;
 import org.slf4j.Logger;
@@ -23,7 +22,7 @@ public record FibonacciTask(FibonacciRepository repository, FibonacciOption opti
     public void run() {
         final int limit = option.limit();
         final long offset = option.offset();
-        final List<FibonacciResultEntity> batchBuffer = new ArrayList<>(limit);
+        final List<FibonacciCompute> batchBuffer = new ArrayList<>(limit);
         log.info("Starting FibonacciTask from offset {} - limit {}", offset, limit);
         // Generates and persists Fibonacci sequence; handles errors
         try {
@@ -31,8 +30,8 @@ public record FibonacciTask(FibonacciRepository repository, FibonacciOption opti
             long nextOffset = offset + 2;
             BigInteger previous = state.previous();
             BigInteger current = state.current();
-            batchBuffer.add(new FibonacciResultEntity(offset, previous));
-            batchBuffer.add(new FibonacciResultEntity(nextOffset - 1, current));
+            batchBuffer.add(new FibonacciCompute(offset, previous));
+            batchBuffer.add(new FibonacciCompute(nextOffset - 1, current));
             // Iterates, computes, and buffers Fibonacci sequence
             for (long i = 2; i < limit; i++) {
                 // Persists buffered results; introduces random delays
@@ -49,7 +48,7 @@ public record FibonacciTask(FibonacciRepository repository, FibonacciOption opti
                 }
                 previous = current;
                 current = next;
-                batchBuffer.add(new FibonacciResultEntity(nextOffset, next));
+                batchBuffer.add(new FibonacciCompute(nextOffset, next));
                 nextOffset++;
             }
             delay(durationJitterInMillis(10, 50));
