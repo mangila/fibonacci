@@ -3,6 +3,6 @@
 
 # fibonacci
 
-Generates fibonacci sequences with different programming languages and display in the client using SSE or WebSockets
+Generates fibonacci sequences with different programming languages and display in the client using SSE and WebSockets
 
-- java-spring with STOMP websockets
+- java-spring
