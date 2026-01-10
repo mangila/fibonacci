@@ -1,10 +1,14 @@
 package com.github.mangila.fibonacci.model;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import io.github.mangila.ensure4j.Ensure;
 
 public record FibonacciOption(
-        @Min(1) int offset,
-        @Min(1) @Max(100_000) int limit
+        long offset,
+        int limit
 ) {
+    public FibonacciOption {
+        Ensure.min(1, (int) offset);
+        Ensure.min(1, limit);
+        Ensure.max(100_000, limit);
+    }
 }

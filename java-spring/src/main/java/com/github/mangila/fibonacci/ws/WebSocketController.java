@@ -1,6 +1,5 @@
-package com.github.mangila.fibonacci.web;
+package com.github.mangila.fibonacci.ws;
 
-import com.github.mangila.fibonacci.api.FibonacciTask;
 import com.github.mangila.fibonacci.model.FibonacciOption;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -44,9 +43,6 @@ public class WebSocketController {
     @MessageMapping("fibonacci")
     public void generateFibonacciSequences(@Valid @NotNull FibonacciOption option, Principal principal) {
         log.info("Received request for fibonacci sequence {} from {}", option, principal.getName());
-        final String destination = String.format("/user/%s/queue/results", principal.getName());
-        // Run on a platform thread for computation
-        var unused = computeAsyncTaskExecutor.submitCompletable(new FibonacciTask(template, destination, option));
     }
 
     @MessageExceptionHandler(MethodArgumentNotValidException.class)

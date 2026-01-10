@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.web;
+package com.github.mangila.fibonacci.ws;
 
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;

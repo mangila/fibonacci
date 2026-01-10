@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.config;
+package com.github.mangila.fibonacci.ws;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;

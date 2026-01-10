@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.config;
+package com.github.mangila.fibonacci.ws;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.server.ServerHttpRequest;
