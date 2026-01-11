@@ -3,6 +3,7 @@ package com.github.mangila.fibonacci.db;
 import com.github.mangila.fibonacci.model.FibonacciOption;
 import com.github.mangila.fibonacci.model.FibonacciPair;
 import com.github.mangila.fibonacci.model.FibonacciResult;
+import com.github.mangila.fibonacci.model.FibonacciResultEntity;
 import io.github.mangila.ensure4j.Ensure;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -52,12 +53,28 @@ public class FibonacciRepository {
         if (latestPair.isEmpty()) {
             return FibonacciPair.DEFAULT;
         }
-        var previous = latestPair.getFirst();
-        var current = latestPair.get(1);
+        var previous = latestPair.get(1);
+        var current = latestPair.getFirst();
         return new FibonacciPair(
                 FibonacciResult.of(previous.id(), previous.result()),
                 FibonacciResult.of(current.id(), current.result())
         );
+    }
+
+    public FibonacciResultEntity queryById(int id) {
+        Ensure.min(1, id);
+        // language=PostgreSQL
+        final String sql = """
+                SELECT id,result,precision FROM fibonacci_results
+                WHERE id = ?
+                """;
+        return jdbcTemplate.queryForObject(sql,
+                (rs, _) -> new FibonacciResultEntity(
+                        rs.getInt("id"),
+                        rs.getBigDecimal("result"),
+                        rs.getInt("precision")
+                ),
+                id);
     }
 
     public List<FibonacciResultEntity> queryForOption(FibonacciOption option) {

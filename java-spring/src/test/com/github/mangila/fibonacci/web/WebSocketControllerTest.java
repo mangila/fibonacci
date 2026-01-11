@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.web;
 
 import com.github.mangila.fibonacci.PostgresTestContainerConfiguration;
+import com.github.mangila.fibonacci.model.FibonacciResultEntity;
 import com.github.mangila.fibonacci.model.FibonacciOption;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.ProblemDetail;
 import org.springframework.messaging.converter.*;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
@@ -101,6 +103,88 @@ class WebSocketControllerTest {
             }
         });
         session.send("/app/fibonacci", option);
+        await()
+                .atMost(Duration.ofSeconds(5))
+                .until(() -> latch.getCount() == 0);
+    }
+
+    @Test
+    void queueFibonacciFail() throws InterruptedException {
+        StompSession session = stompClient
+                .connectAsync(url, new StompSessionHandlerAdapter() {
+                })
+                .join();
+        FibonacciOption option = new FibonacciOption(-1, 100);
+        CountDownLatch latch = new CountDownLatch(1);
+        session.subscribe("/user/queue/errors", new StompFrameHandler() {
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return ProblemDetail.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers, @Nullable Object payload) {
+                log.info("Received headers: {} - Payload: {}", headers, payload);
+                assertThat(payload).isNotNull();
+                assertThat(payload).isInstanceOf(ProblemDetail.class);
+                latch.countDown();
+            }
+        });
+        session.send("/app/fibonacci", option);
+        await()
+                .atMost(Duration.ofSeconds(5))
+                .until(() -> latch.getCount() == 0);
+    }
+
+    @Test
+    void queueFibonacciById() throws InterruptedException {
+        StompSession session = stompClient
+                .connectAsync(url, new StompSessionHandlerAdapter() {
+                })
+                .join();
+        CountDownLatch latch = new CountDownLatch(1);
+        session.subscribe("/user/queue/fibonacci/id", new StompFrameHandler() {
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return FibonacciResultEntity.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers, @Nullable Object payload) {
+                log.info("Received headers: {} - Payload: {}", headers, payload);
+                assertThat(payload).isNotNull();
+                assertThat(payload).isInstanceOf(FibonacciResultEntity.class);
+                latch.countDown();
+            }
+        });
+        session.send("/app/fibonacci/id", 1);
+        await()
+                .atMost(Duration.ofSeconds(5))
+                .until(() -> latch.getCount() == 0);
+    }
+
+    @Test
+    void queueFibonacciByIdFail() throws InterruptedException {
+        StompSession session = stompClient
+                .connectAsync(url, new StompSessionHandlerAdapter() {
+                })
+                .join();
+        CountDownLatch latch = new CountDownLatch(1);
+        session.subscribe("/user/queue/errors", new StompFrameHandler() {
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return ProblemDetail.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers, @Nullable Object payload) {
+                log.info("Received headers: {} - Payload: {}", headers, payload);
+                assertThat(payload).isNotNull();
+                assertThat(payload).isInstanceOf(ProblemDetail.class);
+                latch.countDown();
+            }
+        });
+        session.send("/app/fibonacci/id", 5000);
         await()
                 .atMost(Duration.ofSeconds(5))
                 .until(() -> latch.getCount() == 0);

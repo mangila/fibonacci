@@ -1,7 +1,7 @@
 package com.github.mangila.fibonacci.ws;
 
 import com.github.mangila.fibonacci.db.FibonacciRepository;
-import com.github.mangila.fibonacci.db.FibonacciResultEntity;
+import com.github.mangila.fibonacci.model.FibonacciResultEntity;
 import com.github.mangila.fibonacci.model.FibonacciOption;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
@@ -58,20 +59,34 @@ public class WebSocketController {
 
     @MessageMapping("fibonacci")
     @SendToUser("/queue/fibonacci")
-    public List<FibonacciResultEntity> generateFibonacciSequences(@Valid @NotNull FibonacciOption option, Principal principal) {
+    public List<FibonacciResultEntity> queueFibonacciSequences(@Valid @NotNull FibonacciOption option, Principal principal) {
         log.info("Received request for fibonacci sequence {} from {}", option, principal.getName());
         return repository.queryForOption(option);
     }
 
-    @MessageExceptionHandler(MethodArgumentNotValidException.class)
-    @SendToUser("/queue/errors")
-    public ProblemDetail handleValidationException(MethodArgumentNotValidException ex, Principal principal) {
+    @MessageMapping("fibonacci/id")
+    @SendToUser("/queue/fibonacci/id")
+    public FibonacciResultEntity queryById(int id, Principal principal) {
+        log.info("Received request for fibonacci sequence {} from {}", id, principal.getName());
+        return repository.queryById(id);
+    }
+
+    @MessageExceptionHandler(Exception.class)
+    @SendToUser(value = "/queue/errors", broadcast = false)
+    public ProblemDetail handleValidationException(Exception ex, Principal principal) {
+        log.error("Error handling WebSocket message from {}", principal.getName(), ex);
+        return switch (ex) {
+            case MethodArgumentNotValidException m -> handleMethodArgumentNotValidException(m);
+            case DataAccessException d -> ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, d.getMessage());
+            default -> ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "something went wrong");
+        };
+    }
+
+    private ProblemDetail handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         String errorMessage = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .reduce((a, b) -> a + "; " + b)
                 .orElse("Invalid request");
-
-        log.error("Error handling WebSocket message from {}: {}", principal.getName(), errorMessage);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errorMessage);
         problemDetail.setTitle("Validation Failed");

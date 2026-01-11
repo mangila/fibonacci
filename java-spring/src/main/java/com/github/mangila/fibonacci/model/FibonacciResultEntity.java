@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.db;
+package com.github.mangila.fibonacci.model;
 
 import java.math.BigDecimal;
 

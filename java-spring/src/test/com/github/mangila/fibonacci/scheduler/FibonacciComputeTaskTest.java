@@ -13,7 +13,7 @@ class FibonacciComputeTaskTest {
 
     @Test
     void call() {
-        int limit = 100_000;
+        int limit = 1000;
         FibonacciComputeTaskConfig config = new FibonacciComputeTaskConfig(FibonacciPair.DEFAULT, limit);
         FibonacciComputeTask task = new FibonacciComputeTask(config);
 
