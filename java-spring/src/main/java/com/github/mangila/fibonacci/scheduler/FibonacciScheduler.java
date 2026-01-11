@@ -1,7 +1,9 @@
 package com.github.mangila.fibonacci.scheduler;
 
+import com.github.mangila.fibonacci.config.FibonacciComputeTaskConfig;
 import com.github.mangila.fibonacci.db.FibonacciRepository;
-import com.github.mangila.fibonacci.model.FibonacciOption;
+import com.github.mangila.fibonacci.model.FibonacciPair;
+import com.github.mangila.fibonacci.model.FibonacciResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -9,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -33,11 +36,20 @@ public class FibonacciScheduler {
             fixedDelay = 1,
             timeUnit = TimeUnit.SECONDS,
             scheduler = "simpleAsyncTaskScheduler")
-    public void insertBatch() {
+    public void insertComputeBatch() {
         log.info("Scheduled Fibonacci task started");
-        int nextOffset = repository.nextOffset();
-        var option = new FibonacciOption(nextOffset, 100);
-        var task = new FibonacciTask(option);
+        FibonacciPair latestPair = repository.queryLatestPairOrDefault();
+        // Persists the first Fibonacci sequence if the table is empty
+        if (latestPair.isDefault()) {
+            var l = new ArrayList<FibonacciResult>();
+            l.add(latestPair.previous());
+            l.add(latestPair.current());
+            repository.batchInsert(l);
+        }
+        var task = new FibonacciComputeTask(new FibonacciComputeTaskConfig(
+                latestPair,
+                100
+        ));
         // Run on platform thread for CPU stuffs
         var insertBatchFuture = CompletableFuture.supplyAsync(task::call, computeAsyncTaskExecutor)
                 .thenAcceptAsync(repository::batchInsert, ioAsyncTaskExecutor);

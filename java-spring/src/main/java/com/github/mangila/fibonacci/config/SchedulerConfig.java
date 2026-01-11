@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.scheduler;
+package com.github.mangila.fibonacci.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Import(PostgresTestContainerConfiguration.class)
 class FibonacciSchedulerTest {
 
@@ -29,14 +29,14 @@ class FibonacciSchedulerTest {
     private JdbcTemplate jdbcTemplate;
 
     @Test
-    void insertBatch() throws InterruptedException {
+    void insertComputeBatch() {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start("FibonacciScheduler");
-        fibonacciScheduler.insertBatch();
+        fibonacciScheduler.insertComputeBatch();
         stopWatch.stop();
         System.out.println(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
 
         var rows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "fibonacci_results");
-        assertThat(rows).isEqualTo(100);
+        assertThat(rows).isEqualTo(102);
     }
 }

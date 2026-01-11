@@ -11,7 +11,7 @@ public class TaskConfig {
     @Bean
     SimpleAsyncTaskExecutor ioAsyncTaskExecutor() {
         var executor = new SimpleAsyncTaskExecutor();
-        executor.setThreadNamePrefix("io-");
+        executor.setThreadNamePrefix("io-task-");
         executor.setVirtualThreads(true);
         return executor;
     }
@@ -19,7 +19,7 @@ public class TaskConfig {
     @Bean
     ThreadPoolTaskExecutor computeAsyncTaskExecutor() {
         var executor = new ThreadPoolTaskExecutor();
-        executor.setThreadNamePrefix("compute-");
+        executor.setThreadNamePrefix("compute-task-");
         executor.setCorePoolSize(Runtime.getRuntime().availableProcessors());
         executor.setMaxPoolSize(Runtime.getRuntime().availableProcessors());
         executor.setQueueCapacity(100);

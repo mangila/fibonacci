@@ -16,10 +16,13 @@ spring:
   sql:
     init:
       mode: always
+      encoding: UTF-8
+      separator: ^^
   docker:
     compose:
       skip:
         in-tests: true
+      lifecycle-management: start_only
   # Logging
   #logging:
   #  level:

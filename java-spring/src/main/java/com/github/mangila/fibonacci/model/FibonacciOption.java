@@ -9,6 +9,6 @@ public record FibonacciOption(
     public FibonacciOption {
         Ensure.min(1, offset);
         Ensure.min(1, limit);
-        Ensure.max(100_000, limit);
+        Ensure.max(1000, limit);
     }
 }

@@ -1,5 +1,6 @@
 package com.github.mangila.fibonacci.web;
 
+import com.github.mangila.fibonacci.PostgresTestContainerConfiguration;
 import com.github.mangila.fibonacci.model.FibonacciOption;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.messaging.converter.*;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
@@ -26,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(PostgresTestContainerConfiguration.class)
 class WebSocketControllerTest {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketControllerTest.class);
@@ -49,51 +52,51 @@ class WebSocketControllerTest {
     }
 
     @Test
-    void generateFibonacciSequences() {
+    void livestream() {
         StompSession session = stompClient
                 .connectAsync(url, new StompSessionHandlerAdapter() {
                 })
                 .join();
-        FibonacciOption option = new FibonacciOption(1, 10_000);
-        CountDownLatch latch = new CountDownLatch(option.limit());
-        session.subscribe("/user/queue/results", new StompFrameHandler() {
+        CountDownLatch latch = new CountDownLatch(3);
+        session.subscribe("/topic/livestream", new StompFrameHandler() {
             @Override
-            public void handleFrame(StompHeaders headers, @Nullable Object payload) {
-                assertThat(headers.get("offset")).isNotNull();
-                assertThat(payload).isNotNull();
-                latch.countDown();
+            public Type getPayloadType(StompHeaders headers) {
+                return List.class;
             }
 
             @Override
-            public Type getPayloadType(StompHeaders headers) {
-                return byte[].class;
+            public void handleFrame(StompHeaders headers, @Nullable Object payload) {
+                log.info("Received headers: {} - Payload: {}", headers, payload);
+                assertThat(payload).isInstanceOf(List.class);
+                latch.countDown();
             }
         });
-        session.send("/app/fibonacci", option);
         await()
                 .atMost(Duration.ofSeconds(5))
                 .until(() -> latch.getCount() == 0);
     }
 
     @Test
-    void failValidation() {
-        StompSession session = stompClient.connectAsync(url, new StompSessionHandlerAdapter() {
+    void queueFibonacci() throws InterruptedException {
+        StompSession session = stompClient
+                .connectAsync(url, new StompSessionHandlerAdapter() {
                 })
                 .join();
-        FibonacciOption option = new FibonacciOption(1, -10);
+        FibonacciOption option = new FibonacciOption(1, 100);
         CountDownLatch latch = new CountDownLatch(1);
-        session.subscribe("/user/queue/errors", new StompFrameHandler() {
+        session.subscribe("/user/queue/fibonacci", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return byte[].class;
+                return List.class;
             }
 
             @Override
-            public void handleFrame(StompHeaders headers, Object payload) {
+            public void handleFrame(StompHeaders headers, @Nullable Object payload) {
                 log.info("Received headers: {} - Payload: {}", headers, payload);
-                var errorJson = new String((byte[]) payload);
-                log.info("Error JSON: {}", errorJson);
-                assertThat(errorJson).contains("limit: must be greater than or equal to 1");
+                assertThat(payload).isNotNull();
+                assertThat(payload).isInstanceOf(List.class);
+                List<String> list = (List<String>) payload;
+                assertThat(list).hasSize(option.limit());
                 latch.countDown();
             }
         });
