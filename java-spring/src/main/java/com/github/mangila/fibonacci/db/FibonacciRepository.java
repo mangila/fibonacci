@@ -24,18 +24,19 @@ public class FibonacciRepository {
         Ensure.notContainsNull(fibonacciComputes);
         // language=PostgreSQL
         final String sql = "INSERT INTO fibonacci_results (id, length, result) VALUES (?,?,?)";
+        // Persists each computed Fibonacci result to database
         jdbcTemplate.batchUpdate(sql, fibonacciComputes, fibonacciComputes.size(), (ps, compute) -> {
             var bytes = compute.result().toByteArray();
-            ps.setLong(1, compute.id());
+            ps.setInt(1, compute.id());
             ps.setInt(2, bytes.length);
             ps.setBytes(3, bytes);
         });
     }
 
-    public long nextOffset() {
+    public int nextOffset() {
         // language=PostgreSQL
         final String sql = "SELECT COALESCE(MAX(id), 1) FROM fibonacci_results";
-        long max = Ensure.notNullOrElse(jdbcTemplate.queryForObject(sql, Long.class), 1L);
+        int max = Ensure.notNullOrElse(jdbcTemplate.queryForObject(sql, Integer.class), 1);
         if (max == 1) {
             return 1;
         }
