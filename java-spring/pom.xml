@@ -22,7 +22,7 @@
         <dependency>
             <groupId>io.github.mangila</groupId>
             <artifactId>ensure4j</artifactId>
-            <version>0.0.34</version>
+            <version>0.0.44</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -78,6 +78,16 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers-postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
 

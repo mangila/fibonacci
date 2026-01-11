@@ -50,9 +50,11 @@ public class FibonacciScheduler {
                 latestPair,
                 100
         ));
-        // Run on platform thread for CPU stuffs
+        // Spawn a platform thread for CPU stuffs
         var insertBatchFuture = CompletableFuture.supplyAsync(task::call, computeAsyncTaskExecutor)
+                // Then spawn a virtual thread for IO stuffs
                 .thenAcceptAsync(repository::batchInsert, ioAsyncTaskExecutor);
+        // Then block it back to the scheduler thread
         insertBatchFuture.join();
         log.info("Scheduled Fibonacci task finished");
     }

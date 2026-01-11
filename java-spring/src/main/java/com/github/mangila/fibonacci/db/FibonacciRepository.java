@@ -77,7 +77,7 @@ public class FibonacciRepository {
                 id);
     }
 
-    public List<FibonacciResultEntity> queryForOption(FibonacciOption option) {
+    public List<FibonacciResultEntity> queryForList(FibonacciOption option) {
         Ensure.notNull(option);
         // language=PostgreSQL
         final String sql = """

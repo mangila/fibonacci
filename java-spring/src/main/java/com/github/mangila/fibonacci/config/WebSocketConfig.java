@@ -1,5 +1,6 @@
-package com.github.mangila.fibonacci.ws;
+package com.github.mangila.fibonacci.config;
 
+import com.github.mangila.fibonacci.ws.AnonymousHandshakeHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;

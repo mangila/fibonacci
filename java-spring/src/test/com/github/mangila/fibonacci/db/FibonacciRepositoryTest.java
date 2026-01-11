@@ -81,8 +81,8 @@ class FibonacciRepositoryTest {
     }
 
     @Test
-    void queryForOption() {
-        var l = repository.queryForOption(new FibonacciOption(0, 10));
+    void queryForList() {
+        var l = repository.queryForList(new FibonacciOption(0, 10));
         assertThat(l).isNotNull();
         assertThat(l).hasSize(2);
     }

@@ -1,5 +1,6 @@
 package com.github.mangila.fibonacci.db;
 
+import com.github.mangila.fibonacci.event.PgNotificationPayload;
 import com.github.mangila.fibonacci.event.SpringApplicationPublisher;
 import org.postgresql.PGNotification;
 import org.postgresql.jdbc.PgConnection;
@@ -10,6 +11,8 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
+import java.util.List;
 
 public class PostgresNotificationListener {
 
@@ -40,7 +43,10 @@ public class PostgresNotificationListener {
                 while (running && !Thread.currentThread().isInterrupted()) {
                     try {
                         PGNotification[] pgNotifications = pgConnection.getNotifications(0);
-                        publisher.publishNotification(pgNotifications);
+                        List<String> jsonPayloads = Arrays.stream(pgNotifications)
+                                .map(PGNotification::getParameter)
+                                .toList();
+                        publisher.publishNotification(new PgNotificationPayload(jsonPayloads));
                     } catch (SQLException e) {
                         log.error("Error while listening for notifications", e);
                         break;

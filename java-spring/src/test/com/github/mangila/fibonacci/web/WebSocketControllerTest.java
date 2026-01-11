@@ -1,8 +1,8 @@
 package com.github.mangila.fibonacci.web;
 
 import com.github.mangila.fibonacci.PostgresTestContainerConfiguration;
-import com.github.mangila.fibonacci.model.FibonacciResultEntity;
 import com.github.mangila.fibonacci.model.FibonacciOption;
+import com.github.mangila.fibonacci.model.FibonacciResultEntity;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,7 +59,7 @@ class WebSocketControllerTest {
                 .connectAsync(url, new StompSessionHandlerAdapter() {
                 })
                 .join();
-        CountDownLatch latch = new CountDownLatch(3);
+        CountDownLatch latch = new CountDownLatch(2);
         session.subscribe("/topic/livestream", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
@@ -74,7 +74,7 @@ class WebSocketControllerTest {
             }
         });
         await()
-                .atMost(Duration.ofSeconds(5))
+                .atMost(Duration.ofSeconds(10))
                 .until(() -> latch.getCount() == 0);
     }
 

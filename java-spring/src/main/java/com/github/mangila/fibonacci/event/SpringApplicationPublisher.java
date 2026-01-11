@@ -1,6 +1,5 @@
 package com.github.mangila.fibonacci.event;
 
-import org.postgresql.PGNotification;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +12,7 @@ public class SpringApplicationPublisher {
         this.publisher = publisher;
     }
 
-    public void publishNotification(PGNotification[] pgNotifications) {
-        publisher.publishEvent(pgNotifications);
+    public void publishNotification(PgNotificationPayload payload) {
+        publisher.publishEvent(payload);
     }
 }
