@@ -11,7 +11,7 @@ spring:
     resources:
       add-mappings: false
   datasource:
-    url: jdbc:postgresql://localhost:5432/fibonacci?reWriteBatchedInserts=true
+    url: jdbc:postgresql://localhost:5432/fibonacci
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
