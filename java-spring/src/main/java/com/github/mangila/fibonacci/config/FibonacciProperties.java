@@ -14,10 +14,6 @@ public class FibonacciProperties {
     private int limit = 1000;
     private Duration delay = Duration.ofSeconds(1);
 
-    public void setAlgorithm(FibonacciAlgorithm algorithm) {
-        this.algorithm = algorithm;
-    }
-
     public FibonacciAlgorithm getAlgorithm() {
         return algorithm;
     }
@@ -26,14 +22,28 @@ public class FibonacciProperties {
         return limit;
     }
 
-    public void setLimit(int limit) {
-        this.limit = limit;
-    }
 
     public Duration getDelay() {
         return delay;
     }
 
+    /**
+     * The algorithm to use for computing Fibonacci numbers.
+     */
+    public void setAlgorithm(FibonacciAlgorithm algorithm) {
+        this.algorithm = algorithm;
+    }
+
+    /**
+     * The maximum Fibonacci index to compute.
+     */
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+
+    /**
+     * The delay between computation tasks.
+     */
     public void setDelay(Duration delay) {
         this.delay = delay;
     }
