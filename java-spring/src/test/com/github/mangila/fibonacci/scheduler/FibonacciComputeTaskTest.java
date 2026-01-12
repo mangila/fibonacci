@@ -12,9 +12,7 @@ class FibonacciComputeTaskTest {
     @Test
     void call() {
         int index = 1000;
-        FibonacciComputeTask task = new FibonacciComputeTask(
-                ITERATIVE, index
-        );
+        FibonacciComputeTask task = new FibonacciComputeTask(ITERATIVE, index);
 
         var stopWatch = new StopWatch();
         stopWatch.start("FibonacciTask");
