@@ -27,6 +27,7 @@ public class FibonacciScheduler {
     private final FibonacciRepository repository;
     private final FibonacciProperties fibonacciProperties;
     private final AtomicInteger fibonacciSequence;
+    private final AtomicInteger fibonacciLimit;
 
     public FibonacciScheduler(SimpleAsyncTaskScheduler simpleAsyncTaskScheduler,
                               ThreadPoolTaskExecutor computeAsyncTaskExecutor,
@@ -38,6 +39,7 @@ public class FibonacciScheduler {
         this.repository = repository;
         this.fibonacciProperties = fibonacciProperties;
         this.fibonacciSequence = new AtomicInteger(fibonacciProperties.getOffset());
+        this.fibonacciLimit = new AtomicInteger(fibonacciProperties.getLimit());
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -52,9 +54,9 @@ public class FibonacciScheduler {
             return;
         }
         final FibonacciAlgorithm algorithm = fibonacciProperties.getAlgorithm();
-        final int limit = fibonacciProperties.getLimit();
-        if (offset >= limit) {
-            log.info("Fibonacci computation limit reached: {}", limit);
+        if (fibonacciLimit.get() == 0) {
+            log.info("Fibonacci computation limit reached, closing scheduler");
+            simpleAsyncTaskScheduler.close();
             return;
         }
         log.info("Fibonacci computation for sequence {} with algorithm {}", offset, algorithm);
@@ -70,6 +72,7 @@ public class FibonacciScheduler {
                     return null;
                 });
         fibCompute.join();
+        fibonacciLimit.decrementAndGet();
     }
 
 }
