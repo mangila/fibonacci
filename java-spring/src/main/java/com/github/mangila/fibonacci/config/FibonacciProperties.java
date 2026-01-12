@@ -56,8 +56,6 @@ public class FibonacciProperties {
 
     /**
      * The offset to start computing Fibonacci numbers from.
-     *
-     * @param offset
      */
     public void setOffset(int offset) {
         Ensure.min(1, offset);
