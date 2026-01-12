@@ -22,6 +22,8 @@ Three common computational approaches to calculating Fibonacci numbers are:
 
 - Naive recursive
 - "Normal" iterative
-- "Normal" iterative with memoization
 - Fast doubling algorithm
+
+For even faster execution, memoization can be used. 
+
 

@@ -9,7 +9,7 @@ public final class FibonacciCalculator {
 
     /**
      * Naive recursive approach to calculate Fibonacci sequence.
-     * Time Complexity: O(2^n)
+     * Time Complexity: O(n)
      * Space Complexity: O(n)
      *
      * @param n The index of the Fibonacci number to calculate.
@@ -24,7 +24,7 @@ public final class FibonacciCalculator {
     /**
      * Normal iterative approach to calculate Fibonacci sequence.
      * Time Complexity: O(n)
-     * Space Complexity: O(1)
+     * Space Complexity: O(n)
      *
      * @param n The index of the Fibonacci number to calculate.
      * @return The n-th Fibonacci number.
@@ -32,14 +32,14 @@ public final class FibonacciCalculator {
     public static BigInteger iterative(int n) {
         if (n <= 0) return BigInteger.ZERO;
         if (n == 1) return BigInteger.ONE;
-        BigInteger a = BigInteger.ZERO;
-        BigInteger b = BigInteger.ONE;
+        BigInteger previous = BigInteger.ZERO;
+        BigInteger current = BigInteger.ONE;
         for (int i = 2; i <= n; i++) {
-            BigInteger next = a.add(b);
-            a = b;
-            b = next;
+            BigInteger next = previous.add(current);
+            previous = current;
+            current = next;
         }
-        return b;
+        return current;
     }
 
     /**
