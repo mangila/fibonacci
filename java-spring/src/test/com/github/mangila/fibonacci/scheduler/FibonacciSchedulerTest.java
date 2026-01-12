@@ -29,14 +29,14 @@ class FibonacciSchedulerTest {
     private JdbcTemplate jdbcTemplate;
 
     @Test
-    void insertComputeBatch() {
+    void insertComputeTask() {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start("FibonacciScheduler");
-        fibonacciScheduler.insertComputeBatch();
+        fibonacciScheduler.insertComputeTask();
         stopWatch.stop();
         System.out.println(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
 
         var rows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "fibonacci_results");
-        assertThat(rows).isEqualTo(102);
+        assertThat(rows).isEqualTo(1);
     }
 }

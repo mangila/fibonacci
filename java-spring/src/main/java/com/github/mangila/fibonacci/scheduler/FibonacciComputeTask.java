@@ -1,34 +1,25 @@
 package com.github.mangila.fibonacci.scheduler;
 
-import com.github.mangila.fibonacci.config.FibonacciComputeTaskConfig;
+import com.github.mangila.fibonacci.FibonacciAlgorithm;
+import com.github.mangila.fibonacci.FibonacciCalculator;
 import com.github.mangila.fibonacci.model.FibonacciResult;
-import io.github.mangila.ensure4j.Ensure;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigInteger;
 import java.util.concurrent.Callable;
 
-public record FibonacciComputeTask(FibonacciComputeTaskConfig config) implements Callable<List<FibonacciResult>> {
+public record FibonacciComputeTask(FibonacciAlgorithm algorithm, int index) implements Callable<FibonacciResult> {
 
-    /**
-     * Computes subsequent Fibonacci numbers given prior state
-     */
     @Override
-    public List<FibonacciResult> call() {
-        Ensure.notNull(config);
-        final int limit = config.limit();
-        int offset = config.latestPair().current().sequence();
-        final List<FibonacciResult> fibonacciResults = new ArrayList<>(limit);
-        BigDecimal previous = config.latestPair().previous().result();
-        BigDecimal current = config.latestPair().current().result();
-        for (int i = 0; i < limit; i++) {
-            BigDecimal next = previous.add(current);
-            previous = current;
-            current = next;
-            fibonacciResults.add(new FibonacciResult(offset, next, next.precision()));
-            offset++;
-        }
-        return fibonacciResults;
+    public FibonacciResult call() {
+        BigInteger fib = switch (algorithm) {
+            case FAST_DOUBLING -> FibonacciCalculator.fastDoubling(index);
+            case ITERATIVE -> FibonacciCalculator.iterative(index);
+            case RECURSIVE -> FibonacciCalculator.naiveRecursive(index);
+            default -> throw new IllegalArgumentException("Unsupported algorithm: " + algorithm);
+        };
+        var asDecimal = new BigDecimal(fib);
+        fib = null;
+        return new FibonacciResult(index, asDecimal, asDecimal.precision());
     }
 }

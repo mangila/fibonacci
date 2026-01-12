@@ -98,7 +98,6 @@ class WebSocketControllerTest {
                 assertThat(payload).isNotNull();
                 assertThat(payload).isInstanceOf(List.class);
                 List<String> list = (List<String>) payload;
-                assertThat(list).hasSize(option.limit());
                 latch.countDown();
             }
         });

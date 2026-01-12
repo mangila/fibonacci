@@ -2,7 +2,6 @@ package com.github.mangila.fibonacci.db;
 
 import com.github.mangila.fibonacci.PostgresTestContainerConfiguration;
 import com.github.mangila.fibonacci.model.FibonacciOption;
-import com.github.mangila.fibonacci.model.FibonacciPair;
 import com.github.mangila.fibonacci.model.FibonacciResult;
 import com.github.mangila.fibonacci.model.FibonacciResultEntity;
 import org.junit.jupiter.api.AfterEach;
@@ -18,7 +17,6 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,11 +34,10 @@ class FibonacciRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        var pair = FibonacciPair.DEFAULT;
-        var l = new ArrayList<FibonacciResult>();
-        l.add(pair.previous());
-        l.add(pair.current());
-        repository.batchInsert(l);
+        var first = FibonacciResult.of(1, BigDecimal.ZERO);
+        var second = FibonacciResult.of(2, BigDecimal.ONE);
+        repository.insert(first);
+        repository.insert(second);
         int rows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "fibonacci_results");
         assertThat(rows).isEqualTo(2);
     }
@@ -48,21 +45,6 @@ class FibonacciRepositoryTest {
     @AfterEach
     void tearDown() {
         JdbcTestUtils.deleteFromTables(jdbcTemplate, "fibonacci_results");
-    }
-
-    @Test
-    void queryLatestPairOrDefault() {
-        var data = new ArrayList<FibonacciResult>();
-        var previous = FibonacciResult.of(3, BigDecimal.ONE);
-        var current = FibonacciResult.of(4, BigDecimal.TEN);
-        data.add(previous);
-        data.add(current);
-        repository.batchInsert(data);
-        FibonacciPair pair = repository.queryLatestPairOrDefault();
-        assertThat(pair).isNotNull();
-        assertThat(pair.isDefault()).isFalse();
-        var p = new FibonacciPair(previous, current);
-        assertThat(p.equals(pair)).isTrue();
     }
 
     @Test
