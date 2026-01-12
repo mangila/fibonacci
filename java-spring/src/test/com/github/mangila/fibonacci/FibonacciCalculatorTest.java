@@ -24,7 +24,7 @@ class FibonacciCalculatorTest {
 
     @TestFactory
     Collection<DynamicTest> fibonacciNumbers() {
-        return Stream.of(HUNDRED, THOUSAND, TEN_THOUSAND, ONE_HUNDRED_THOUSAND, FIVE_HUNDRED_THOUSAND, ONE_HUNDRED_THOUSAND)
+        return Stream.of(HUNDRED, THOUSAND, TEN_THOUSAND, ONE_HUNDRED_THOUSAND, FIVE_HUNDRED_THOUSAND, ONE_MILLION)
                 .map(testInt -> DynamicTest.dynamicTest("Fibonacci number " + testInt, () -> {
                     var stopWatch = new StopWatch();
                     stopWatch.start("iterative");
