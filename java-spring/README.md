@@ -1,6 +1,8 @@
 # 🔢 Fibonacci Java Spring
 
-A reactive and highly scalable Spring Boot application that computes Fibonacci numbers and streams updates in real-time. Built with **Java 25**, it leverages **Virtual Threads** (Project Loom) and modern communication protocols to provide a robust and efficient experience.
+A reactive and highly scalable Spring Boot application that computes Fibonacci numbers and streams updates in real-time.
+Built with **Java 25**, it leverages **Virtual Threads** (Project Loom) and modern communication protocols to provide a
+robust and efficient experience.
 
 ---
 
@@ -10,8 +12,10 @@ A reactive and highly scalable Spring Boot application that computes Fibonacci n
 - **Real-time Streaming**:
     - **WebSockets (STOMP)**: Two-way communication for querying results and receiving live updates.
     - **Server-Sent Events (SSE)**: Efficient one-way streaming of new results and on-demand queries.
-- **Advanced Concurrency**: Uses **Project Loom** (Virtual Threads) for I/O-bound tasks and **Platform Threads** for CPU-intensive computations.
-- **PostgreSQL Notifications**: Utilizes `LISTEN/NOTIFY` via `pg_notify` to trigger application events whenever a new Fibonacci number is inserted, ensuring near-instant updates.
+- **Advanced Concurrency**: Uses **Project Loom** (Virtual Threads) for I/O-bound tasks and **Platform Threads** for
+  CPU-intensive computations.
+- **PostgreSQL Notifications**: Utilizes `LISTEN/NOTIFY` via `pg_notify` to trigger application events whenever a new
+  Fibonacci number is inserted, ensuring near-instant updates.
 - **Flexible Algorithms**: Choose between several computation methods via configuration.
 
 ---
@@ -46,7 +50,8 @@ A reactive and highly scalable Spring Boot application that computes Fibonacci n
    ```
 
 2. **Start the database**:
-   The application uses `spring-boot-docker-compose` to automatically spin up a PostgreSQL instance. Just make sure Docker is running.
+   The application uses `spring-boot-docker-compose` to automatically spin up a PostgreSQL instance. Just make sure
+   Docker is running.
 
 3. **Build and Run**:
    ```bash
@@ -61,14 +66,14 @@ The application will be accessible at `http://localhost:8080`.
 
 ### Server-Sent Events (SSE)
 
-| Endpoint | Method | Description |
-| :--- | :---: | :--- |
-| `/api/v1/sse/fibonacci/subscribe/{username}` | `GET` | Subscribe to standard updates |
-| `/api/v1/sse/fibonacci/subscribe/livestream/{username}` | `GET` | Subscribe to the live computation stream |
-| `/api/v1/sse/fibonacci/subscribe/{username}` | `DELETE` | Unsubscribe from standard updates |
-| `/api/v1/sse/fibonacci/subscribe/livestream/{username}` | `DELETE` | Unsubscribe from the livestream |
-| `/api/v1/sse/fibonacci/{username}` | `POST` | Query a list of results (Body: `{"offset": 0, "limit": 100}`) |
-| `/api/v1/sse/fibonacci/{username}?id={id}` | `GET` | Query a specific result by ID |
+| Endpoint                                                |  Method  | Description                                                   |
+|:--------------------------------------------------------|:--------:|:--------------------------------------------------------------|
+| `/api/v1/sse/fibonacci/subscribe/{username}`            |  `GET`   | Subscribe to standard updates                                 |
+| `/api/v1/sse/fibonacci/subscribe/livestream/{username}` |  `GET`   | Subscribe to the live computation stream                      |
+| `/api/v1/sse/fibonacci/subscribe/{username}`            | `DELETE` | Unsubscribe from standard updates                             |
+| `/api/v1/sse/fibonacci/subscribe/livestream/{username}` | `DELETE` | Unsubscribe from the livestream                               |
+| `/api/v1/sse/fibonacci/{username}`                      |  `POST`  | Query a list of results (Body: `{"offset": 0, "limit": 100}`) |
+| `/api/v1/sse/fibonacci/{username}?id={id}`              |  `GET`   | Query a specific result by ID                                 |
 
 ### WebSockets (STOMP)
 
@@ -87,11 +92,12 @@ The application will be accessible at `http://localhost:8080`.
 
 Configuration is managed via `src/main/resources/application.yaml`.
 
-| Property | Default | Description |
-| :--- | :--- | :--- |
+| Property                  | Default         | Description                                                 |
+|:--------------------------|:----------------|:------------------------------------------------------------|
 | `app.fibonacci.algorithm` | `FAST_DOUBLING` | Algorithm to use: `ITERATIVE`, `RECURSIVE`, `FAST_DOUBLING` |
-| `app.fibonacci.limit` | `1000` | Maximum Fibonacci index to compute |
-| `app.fibonacci.delay` | `1s` | Delay between computation tasks |
+| `app.fibonacci.offset`    | `1`             | Start Fibonacci index to compute                            |
+| `app.fibonacci.limit`     | `1000`          | Maximum Fibonacci index to compute                          |
+| `app.fibonacci.delay`     | `1s`            | Delay between computation tasks                             |
 
 ---
 
@@ -107,10 +113,12 @@ The application supports three different approaches for calculating Fibonacci nu
 
 ## 🗄 Database Schema
 
-The application uses a PostgreSQL table `fibonacci_results` and a trigger function `notify_new_fibonacci_result_fn` to notify the application of new inserts.
+The application uses a PostgreSQL table `fibonacci_results` and a trigger function `notify_new_fibonacci_result_fn` to
+notify the application of new inserts.
 
 ```sql
-CREATE TABLE IF NOT EXISTS fibonacci_results (
+CREATE TABLE IF NOT EXISTS fibonacci_results
+(
     id        SERIAL PRIMARY KEY,
     result    NUMERIC NOT NULL,
     precision INT     NOT NULL

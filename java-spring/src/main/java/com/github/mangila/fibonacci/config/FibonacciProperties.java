@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.config;
 
 import com.github.mangila.fibonacci.FibonacciAlgorithm;
+import io.github.mangila.ensure4j.Ensure;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,11 +12,16 @@ import java.time.Duration;
 public class FibonacciProperties {
 
     private FibonacciAlgorithm algorithm = FibonacciAlgorithm.ITERATIVE;
+    private int offset = 1;
     private int limit = 1000;
     private Duration delay = Duration.ofSeconds(1);
 
     public FibonacciAlgorithm getAlgorithm() {
         return algorithm;
+    }
+
+    public int getOffset() {
+        return offset;
     }
 
     public int getLimit() {
@@ -46,5 +52,15 @@ public class FibonacciProperties {
      */
     public void setDelay(Duration delay) {
         this.delay = delay;
+    }
+
+    /**
+     * The offset to start computing Fibonacci numbers from.
+     *
+     * @param offset
+     */
+    public void setOffset(int offset) {
+        Ensure.min(1, offset);
+        this.offset = offset;
     }
 }

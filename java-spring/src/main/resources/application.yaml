@@ -1,6 +1,7 @@
 app:
   fibonacci:
     algorithm: fast_doubling
+    offset: 1
     limit: 1000
     delay: 2s
 # Spring
@@ -28,7 +29,3 @@ spring:
       skip:
         in-tests: true
       lifecycle-management: start_only
-  # Logging
-  #logging:
-  #  level:
-  #   org.springframework.jdbc.core.JdbcTemplate: DEBUG

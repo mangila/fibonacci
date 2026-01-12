@@ -62,16 +62,4 @@ public class FibonacciRepository {
                 option.offset(), option.limit()
         );
     }
-
-    public int latestSequence() {
-        // language=PostgreSQL
-        final String sql = """
-                SELECT COALESCE(MAX(id), 0) FROM fibonacci_results
-                """;
-        Integer result = jdbcTemplate.queryForObject(sql, Integer.class);
-        if (result == null) {
-            return 0;
-        }
-        return result;
-    }
 }

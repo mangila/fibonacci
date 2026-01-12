@@ -1,5 +1,6 @@
 package com.github.mangila.fibonacci.scheduler;
 
+import com.github.mangila.fibonacci.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.config.FibonacciProperties;
 import com.github.mangila.fibonacci.db.FibonacciRepository;
 import jakarta.annotation.PostConstruct;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class FibonacciScheduler {
@@ -23,6 +25,7 @@ public class FibonacciScheduler {
     private final SimpleAsyncTaskExecutor ioAsyncTaskExecutor;
     private final FibonacciRepository repository;
     private final FibonacciProperties fibonacciProperties;
+    private final AtomicInteger fibonacciSequence;
 
     public FibonacciScheduler(SimpleAsyncTaskScheduler simpleAsyncTaskScheduler,
                               ThreadPoolTaskExecutor computeAsyncTaskExecutor,
@@ -33,6 +36,7 @@ public class FibonacciScheduler {
         this.ioAsyncTaskExecutor = ioAsyncTaskExecutor;
         this.repository = repository;
         this.fibonacciProperties = fibonacciProperties;
+        this.fibonacciSequence = new AtomicInteger(fibonacciProperties.getOffset());
     }
 
     @PostConstruct
@@ -41,16 +45,15 @@ public class FibonacciScheduler {
     }
 
     public void insertComputeTask() {
-        var latestSequence = repository.latestSequence();
-        var nextSequence = latestSequence + 1;
-        var algorithm = fibonacciProperties.getAlgorithm();
-        var limit = fibonacciProperties.getLimit();
-        if (nextSequence >= limit) {
+        final int offset = fibonacciSequence.get();
+        final FibonacciAlgorithm algorithm = fibonacciProperties.getAlgorithm();
+        final int limit = fibonacciProperties.getLimit();
+        if (offset >= limit) {
             log.info("Fibonacci computation limit reached: {}", limit);
             return;
         }
-        log.info("Fibonacci computation for sequence {} with algorithm {}", nextSequence, algorithm);
-        var task = new FibonacciComputeTask(algorithm, nextSequence);
+        log.info("Fibonacci computation for sequence {} with algorithm {}", offset, algorithm);
+        var task = new FibonacciComputeTask(algorithm, offset);
         // Spawn a platform thread for CPU stuffs
         var fibCompute = CompletableFuture.supplyAsync(task::call, computeAsyncTaskExecutor)
                 // Then spawn a virtual thread for IO stuffs
@@ -58,10 +61,11 @@ public class FibonacciScheduler {
                 .orTimeout(3, TimeUnit.MINUTES)
                 .exceptionally(e -> {
                     var message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-                    log.error("Fibonacci computation failed for sequence {}: {}", nextSequence, message);
+                    log.error("Fibonacci computation failed for sequence {}: {}", offset, message);
                     return null;
                 });
         fibCompute.join();
+        fibonacciSequence.incrementAndGet();
     }
 
 }
