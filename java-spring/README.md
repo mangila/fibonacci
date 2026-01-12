@@ -1,35 +1,41 @@
-# Fibonacci Java Spring
+# 🔢 Fibonacci Java Spring
 
-A reactive and highly scalable Spring Boot application that computes Fibonacci numbers and streams updates in real-time using modern Java features and efficient communication protocols.
+A reactive and highly scalable Spring Boot application that computes Fibonacci numbers and streams updates in real-time. Built with **Java 25**, it leverages **Virtual Threads** (Project Loom) and modern communication protocols to provide a robust and efficient experience.
 
-## Features
+---
+
+## 🚀 Key Features
 
 - **Fibonacci Generation**: Automatically computes Fibonacci numbers and persists them to a PostgreSQL database.
 - **Real-time Streaming**:
     - **WebSockets (STOMP)**: Two-way communication for querying results and receiving live updates.
-    - **Server-Sent Events (SSE)**: One-way streaming of new results and on-demand queries.
-- **PostgreSQL Notifications**: Uses `LISTEN/NOTIFY` via `pg_notify` to trigger application events whenever a new Fibonacci number is inserted.
-- **Modern Java**: Built with **Java 25**, leveraging **Virtual Threads** (Project Loom) for high-concurrency I/O operations.
-- **Scalable Architecture**: Decouples computation (Platform Threads) from I/O (Virtual Threads) for optimal resource utilization.
+    - **Server-Sent Events (SSE)**: Efficient one-way streaming of new results and on-demand queries.
+- **Advanced Concurrency**: Uses **Project Loom** (Virtual Threads) for I/O-bound tasks and **Platform Threads** for CPU-intensive computations.
+- **PostgreSQL Notifications**: Utilizes `LISTEN/NOTIFY` via `pg_notify` to trigger application events whenever a new Fibonacci number is inserted, ensuring near-instant updates.
+- **Flexible Algorithms**: Choose between several computation methods via configuration.
 
-## Tech Stack
+---
 
-- **Java 25**
+## 🛠 Tech Stack
+
+- **Java 25** (with Virtual Threads enabled)
 - **Spring Boot 4.0.1**
 - **Spring Web** & **Spring WebSocket**
 - **Spring JDBC**
 - **PostgreSQL 18**
 - **Maven**
-- **Testcontainers** (for integration testing)
-- **Docker Compose** (for local development)
+- **Testcontainers** (for seamless integration testing)
+- **Docker Compose** (for local development environments)
 
-## Getting Started
+---
+
+## 🏁 Getting Started
 
 ### Prerequisites
 
-- JDK 25
-- Docker & Docker Compose
-- Maven 3.9+
+- **JDK 25**
+- **Docker & Docker Compose**
+- **Maven 3.9+**
 
 ### Running the Application
 
@@ -40,26 +46,29 @@ A reactive and highly scalable Spring Boot application that computes Fibonacci n
    ```
 
 2. **Start the database**:
-   The application uses `spring-boot-docker-compose` to automatically start PostgreSQL. Ensure Docker is running.
+   The application uses `spring-boot-docker-compose` to automatically spin up a PostgreSQL instance. Just make sure Docker is running.
 
 3. **Build and Run**:
    ```bash
    ./mvnw spring-boot:run
    ```
 
-The application will start at `http://localhost:8080`.
+The application will be accessible at `http://localhost:8080`.
 
-## API Documentation
+---
+
+## 📖 API Documentation
 
 ### Server-Sent Events (SSE)
 
-- **Subscribe**: `GET /api/v1/sse/fibonacci/subscribe/{username}`
-- **Subscribe to Livestream**: `GET /api/v1/sse/fibonacci/subscribe/livestream/{username}`
-- **Unsubscribe**: `DELETE /api/v1/sse/fibonacci/subscribe/{username}`
-- **Unsubscribe from Livestream**: `DELETE /api/v1/sse/fibonacci/subscribe/livestream/{username}`
-- **Query List**: `POST /api/v1/sse/fibonacci/{username}`
-    - Body: `{"offset": 0, "limit": 100}`
-- **Query by ID**: `GET /api/v1/sse/fibonacci/{username}?id={id}`
+| Endpoint | Method | Description |
+| :--- | :---: | :--- |
+| `/api/v1/sse/fibonacci/subscribe/{username}` | `GET` | Subscribe to standard updates |
+| `/api/v1/sse/fibonacci/subscribe/livestream/{username}` | `GET` | Subscribe to the live computation stream |
+| `/api/v1/sse/fibonacci/subscribe/{username}` | `DELETE` | Unsubscribe from standard updates |
+| `/api/v1/sse/fibonacci/subscribe/livestream/{username}` | `DELETE` | Unsubscribe from the livestream |
+| `/api/v1/sse/fibonacci/{username}` | `POST` | Query a list of results (Body: `{"offset": 0, "limit": 100}`) |
+| `/api/v1/sse/fibonacci/{username}?id={id}` | `GET` | Query a specific result by ID |
 
 ### WebSockets (STOMP)
 
@@ -72,7 +81,31 @@ The application will start at `http://localhost:8080`.
     - `fibonacci`: Send `FibonacciOption` to receive a list of results.
     - `fibonacci/id`: Send an `int` ID to receive a specific result.
 
-## Database Schema
+---
+
+## ⚙️ Configuration
+
+Configuration is managed via `src/main/resources/application.yaml`.
+
+| Property | Default | Description |
+| :--- | :--- | :--- |
+| `app.fibonacci.algorithm` | `FAST_DOUBLING` | Algorithm to use: `ITERATIVE`, `RECURSIVE`, `FAST_DOUBLING` |
+| `app.fibonacci.limit` | `1000` | Maximum Fibonacci index to compute |
+| `app.fibonacci.delay` | `1s` | Delay between computation tasks |
+
+---
+
+## 🧮 Computational Algorithms
+
+The application supports three different approaches for calculating Fibonacci numbers:
+
+1. **Fast Doubling**: $O(\log n)$ - Most efficient for large numbers.
+2. **Iterative**: $O(n)$ - Standard approach with good performance.
+3. **Naive Recursive**: $O(2^n)$ - Educational purposes only; use with caution for high indices.
+
+---
+
+## 🗄 Database Schema
 
 The application uses a PostgreSQL table `fibonacci_results` and a trigger function `notify_new_fibonacci_result_fn` to notify the application of new inserts.
 
@@ -83,7 +116,3 @@ CREATE TABLE IF NOT EXISTS fibonacci_results (
     precision INT     NOT NULL
 );
 ```
-
-## Configuration
-
-Configuration can be found in `src/main/resources/application.yaml`. It includes datasource settings and Spring Boot Docker Compose configurations.
