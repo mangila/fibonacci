@@ -92,22 +92,12 @@ The application will be accessible at `http://localhost:8080`.
 
 Configuration is managed via `src/main/resources/application.yaml`.
 
-| Property                  | Default         | Description                                                 |
-|:--------------------------|:----------------|:------------------------------------------------------------|
-| `app.fibonacci.algorithm` | `FAST_DOUBLING` | Algorithm to use: `ITERATIVE`, `RECURSIVE`, `FAST_DOUBLING` |
-| `app.fibonacci.offset`    | `1`             | Start Fibonacci index to compute                            |
-| `app.fibonacci.limit`     | `1000`          | Maximum Fibonacci index to compute                          |
-| `app.fibonacci.delay`     | `1s`            | Delay between computation tasks                             |
-
----
-
-## 🧮 Computational Algorithms
-
-The application supports three different approaches for calculating Fibonacci numbers:
-
-1. **Fast Doubling**: $O(\log n)$ - Most efficient for large numbers.
-2. **Iterative**: $O(n)$ - Standard approach with good performance.
-3. **Naive Recursive**: $O(2^n)$ - Educational purposes only; use with caution for high indices.
+| Property                  | Default     | Description                                                 |
+|:--------------------------|:------------|:------------------------------------------------------------|
+| `app.fibonacci.algorithm` | `ITERATIVE` | Algorithm to use: `ITERATIVE`, `RECURSIVE`, `FAST_DOUBLING` |
+| `app.fibonacci.offset`    | `1`         | Start Fibonacci index to compute                            |
+| `app.fibonacci.limit`     | `1000`      | Maximum Fibonacci index to compute                          |
+| `app.fibonacci.delay`     | `1s`        | Delay between computation tasks                             |
 
 ---
 

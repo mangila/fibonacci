@@ -29,9 +29,9 @@ The sequence starts: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, ...
 
 Three common computational approaches to calculating Fibonacci numbers are:
 
-- Naive recursive
-- "Normal" iterative
-- Fast doubling algorithm
+1. **Fast Doubling**: $O(\log n)$ - Most efficient for large numbers.
+2. **Iterative**: $O(n)$ - Standard approach with good performance.
+3. **Naive Recursive**: $O(2^n)$ – Educational purposes only; use it with caution for high indices.
 
 For even faster execution, memoization can be used. 
 

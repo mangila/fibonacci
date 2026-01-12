@@ -9,8 +9,6 @@ public final class FibonacciCalculator {
 
     /**
      * Naive recursive approach to calculate Fibonacci sequence.
-     * Time Complexity: O(n)
-     * Space Complexity: O(n)
      *
      * @param n The index of the Fibonacci number to calculate.
      * @return The n-th Fibonacci number.
@@ -23,8 +21,6 @@ public final class FibonacciCalculator {
 
     /**
      * Normal iterative approach to calculate Fibonacci sequence.
-     * Time Complexity: O(n)
-     * Space Complexity: O(n)
      *
      * @param n The index of the Fibonacci number to calculate.
      * @return The n-th Fibonacci number.
@@ -46,8 +42,6 @@ public final class FibonacciCalculator {
      * Fast doubling approach to calculate Fibonacci sequence.
      * F(2n) = Fn * (2*F(n+1) - Fn)
      * F(2n+1) = F(n+1)^2 + Fn^2
-     * Time Complexity: O(log n)
-     * Space Complexity: O(log n) due to recursion
      *
      * @param n The index of the Fibonacci number to calculate.
      * @return The n-th Fibonacci number.
