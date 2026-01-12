@@ -16,10 +16,7 @@ public record FibonacciComputeTask(FibonacciAlgorithm algorithm, int index) impl
             case FAST_DOUBLING -> FibonacciCalculator.fastDoubling(index);
             case ITERATIVE -> FibonacciCalculator.iterative(index);
             case RECURSIVE -> FibonacciCalculator.naiveRecursive(index);
-            default -> throw new IllegalArgumentException("Unsupported algorithm: " + algorithm);
         };
-        var asDecimal = new BigDecimal(fib);
-        fib = null;
-        return new FibonacciResult(index, asDecimal, asDecimal.precision());
+        return FibonacciResult.of(index, new BigDecimal(fib));
     }
 }

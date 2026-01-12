@@ -2,7 +2,7 @@ app:
   fibonacci:
     algorithm: fast_doubling
     limit: 1000
-    delay: 1s
+    delay: 2s
 # Spring
 spring:
   application:
