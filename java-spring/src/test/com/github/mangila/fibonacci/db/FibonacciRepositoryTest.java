@@ -68,4 +68,11 @@ class FibonacciRepositoryTest {
         assertThat(l).isNotNull();
         assertThat(l).hasSize(2);
     }
+
+    @Test
+    void hasSequence() {
+        assertThat(repository.hasSequence(1)).isTrue();
+        assertThat(repository.hasSequence(2)).isTrue();
+        assertThat(repository.hasSequence(3)).isFalse();
+    }
 }

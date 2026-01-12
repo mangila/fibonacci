@@ -62,4 +62,14 @@ public class FibonacciRepository {
                 option.offset(), option.limit()
         );
     }
+
+    public boolean hasSequence(int id) {
+        Ensure.min(1, id);
+        // language=PostgreSQL
+        final String sql = "SELECT 1 FROM fibonacci_results WHERE id = ? LIMIT 1";
+
+        List<Integer> results = jdbcTemplate.queryForList(sql, Integer.class, id);
+
+        return !results.isEmpty();
+    }
 }

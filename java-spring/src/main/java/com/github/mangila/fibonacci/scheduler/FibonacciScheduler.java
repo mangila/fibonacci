@@ -3,9 +3,10 @@ package com.github.mangila.fibonacci.scheduler;
 import com.github.mangila.fibonacci.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.config.FibonacciProperties;
 import com.github.mangila.fibonacci.db.FibonacciRepository;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.concurrent.SimpleAsyncTaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -39,13 +40,17 @@ public class FibonacciScheduler {
         this.fibonacciSequence = new AtomicInteger(fibonacciProperties.getOffset());
     }
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
     void init() {
         simpleAsyncTaskScheduler.scheduleWithFixedDelay(this::insertComputeTask, fibonacciProperties.getDelay());
     }
 
     public void insertComputeTask() {
         final int offset = fibonacciSequence.getAndIncrement();
+        if (repository.hasSequence(offset)) {
+            log.info("Fibonacci sequence {} already computed", offset);
+            return;
+        }
         final FibonacciAlgorithm algorithm = fibonacciProperties.getAlgorithm();
         final int limit = fibonacciProperties.getLimit();
         if (offset >= limit) {
