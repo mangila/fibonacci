@@ -54,7 +54,7 @@ public class FibonacciScheduler {
             return;
         }
         final FibonacciAlgorithm algorithm = fibonacciProperties.getAlgorithm();
-        if (fibonacciLimit.get() == 0) {
+        if (fibonacciLimit.getAndDecrement() == 0) {
             log.info("Fibonacci computation limit reached, closing scheduler");
             simpleAsyncTaskScheduler.close();
             return;
@@ -72,7 +72,6 @@ public class FibonacciScheduler {
                     return null;
                 });
         fibCompute.join();
-        fibonacciLimit.decrementAndGet();
     }
 
 }

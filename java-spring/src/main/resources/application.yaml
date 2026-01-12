@@ -4,7 +4,7 @@ app:
     algorithm: fast_doubling
     offset: 1
     limit: 1000
-    delay: 15ms
+    delay: 1s
 # Spring
 spring:
   application:

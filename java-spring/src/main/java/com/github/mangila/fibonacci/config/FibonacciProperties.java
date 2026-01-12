@@ -44,6 +44,7 @@ public class FibonacciProperties {
      * The maximum Fibonacci index to compute.
      */
     public void setLimit(int limit) {
+        Ensure.min(1, limit);
         this.limit = limit;
     }
 
