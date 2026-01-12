@@ -45,7 +45,7 @@ public class FibonacciScheduler {
     }
 
     public void insertComputeTask() {
-        final int offset = fibonacciSequence.get();
+        final int offset = fibonacciSequence.getAndIncrement();
         final FibonacciAlgorithm algorithm = fibonacciProperties.getAlgorithm();
         final int limit = fibonacciProperties.getLimit();
         if (offset >= limit) {
@@ -65,7 +65,6 @@ public class FibonacciScheduler {
                     return null;
                 });
         fibCompute.join();
-        fibonacciSequence.incrementAndGet();
     }
 
 }
