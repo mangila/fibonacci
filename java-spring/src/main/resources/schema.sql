@@ -13,7 +13,7 @@ DECLARE
     channel        TEXT := 'livestream';
     notify_payload TEXT;
 BEGIN
-    -- Only send the id and the length of the numeric value in the notification
+    -- Only send the id and the length(precision) of the numeric value in the notification
     notify_payload := json_build_object(
             'id', NEW.id,
             'precision', length(NEW.precision::TEXT)
