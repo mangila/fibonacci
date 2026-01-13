@@ -1,6 +1,6 @@
 # 🔢 Fibonacci Java Spring
 
-A reactive and highly scalable Spring Boot application that computes Fibonacci numbers and streams updates in real-time.
+Spring Boot application that computes Fibonacci numbers and streams updates in real-time.
 Built with **Java 25**, it leverages **Virtual Threads** (Project Loom) and modern communication protocols to provide a
 robust and efficient experience.
 
@@ -106,11 +106,6 @@ Configuration is managed via `src/main/resources/application.yaml`.
 The application uses a PostgreSQL table `fibonacci_results` and a trigger function `notify_new_fibonacci_result_fn` to
 notify the application of new inserts.
 
-```sql
-CREATE TABLE IF NOT EXISTS fibonacci_results
-(
-    id        SERIAL PRIMARY KEY,
-    result    NUMERIC NOT NULL,
-    precision INT     NOT NULL
-);
-```
+---
+
+Built with ❤️ by [Junie](https://github.com/features/junie)
