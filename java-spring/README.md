@@ -108,4 +108,4 @@ notify the application of new inserts.
 
 ---
 
-Built with ❤️ by [Junie](https://github.com/features/junie)
+Built with ❤️ by Junie
