@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.web;
+package com.github.mangila.fibonacci.ws;
 
 import com.github.mangila.fibonacci.PostgresTestContainerConfiguration;
 import com.github.mangila.fibonacci.model.FibonacciOption;
