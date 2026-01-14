@@ -72,8 +72,8 @@ The application will be accessible at `http://localhost:8080`.
 | `/api/v1/sse/fibonacci/subscribe/livestream/{username}` |  `GET`   | Subscribe to the live computation stream                      |
 | `/api/v1/sse/fibonacci/subscribe/{username}`            | `DELETE` | Unsubscribe from standard updates                             |
 | `/api/v1/sse/fibonacci/subscribe/livestream/{username}` | `DELETE` | Unsubscribe from the livestream                               |
-| `/api/v1/sse/fibonacci/{username}`                      |  `POST`  | Query a list of results (Body: `{"offset": 0, "limit": 100}`) |
-| `/api/v1/sse/fibonacci/{username}?id={id}`              |  `GET`   | Query a specific result by ID                                 |
+| `/api/v1/sse/fibonacci/{username}`                      |  `POST`  | Query a list of results (Body: `{"offset": 0, "limit": 100}`) to the subsribed user SSE stream |
+| `/api/v1/sse/fibonacci/{username}?id={id}`              |  `GET`   | Query a specific result by ID to the subscribed user SSE stream               |
 
 ### WebSockets (STOMP)
 
