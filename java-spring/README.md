@@ -1,3 +1,6 @@
+<!-- Watermark: Junie - 2026-01-14 -->
+README created 2026-01-14
+
 # 🔢 Fibonacci Java Spring
 
 Spring Boot application that computes Fibonacci numbers and streams updates in real-time.
@@ -107,5 +110,3 @@ The application uses a PostgreSQL table `fibonacci_results` and a trigger functi
 notify the application of new inserts.
 
 ---
-
-Built with ❤️ by Junie
