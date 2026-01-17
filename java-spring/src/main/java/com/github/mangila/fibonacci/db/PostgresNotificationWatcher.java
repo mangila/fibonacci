@@ -27,7 +27,7 @@ public class PostgresNotificationWatcher implements SmartLifecycle {
     @Override
     public void start() {
         log.info("Starting Postgres notification listener");
-        this.runningTask = postgresExecutor.submitCompletable(listener::start);
+        this.runningTask = postgresExecutor.submitCompletable(listener);
     }
 
     @Override

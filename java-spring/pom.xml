@@ -22,7 +22,7 @@
         <dependency>
             <groupId>io.github.mangila</groupId>
             <artifactId>ensure4j</artifactId>
-            <version>0.0.44</version>
+            <version>2.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

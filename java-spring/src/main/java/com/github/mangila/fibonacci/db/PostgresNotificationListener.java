@@ -13,12 +13,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class PostgresNotificationListener {
+public class PostgresNotificationListener implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(PostgresNotificationListener.class);
 
     private volatile boolean running = false;
+
     private final String channel;
     private final SingleConnectionDataSource dataSource;
     private final SpringApplicationPublisher publisher;
@@ -31,15 +33,19 @@ public class PostgresNotificationListener {
         this.publisher = publisher;
     }
 
-    public void start() {
+    @Override
+    public void run() {
         running = true;
         while (running && !Thread.currentThread().isInterrupted()) {
             // Listens for notifications; reconnects after connection errors
             try (Connection connection = dataSource.getConnection()) {
                 PgConnection pgConnection = connection.unwrap(PgConnection.class);
                 try (Statement stmt = pgConnection.createStatement()) {
+                    // LISTEN does not support '?' placeholders.
+                    // Ensure channel is a valid identifier.
                     stmt.execute("LISTEN %s".formatted(channel));
                 }
+                log.info("Listening for notifications on channel {}", channel);
                 while (running && !Thread.currentThread().isInterrupted()) {
                     try {
                         PGNotification[] pgNotifications = pgConnection.getNotifications(0);
@@ -55,7 +61,7 @@ public class PostgresNotificationListener {
             } catch (SQLException e) {
                 log.error("Error while getting connection - will try to reconnect in 5s", e);
                 try {
-                    Thread.sleep(5000);
+                    TimeUnit.SECONDS.sleep(5);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                 }
