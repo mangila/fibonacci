@@ -1,11 +1,84 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
+import FibonacciSse from "./_components/FibonacciSse.jsx";
+import FibonacciWs from "./_components/FibonacciWs.jsx";
 ---
 
 <Layout>
-	<Welcome />
+  <form
+    id="protocol-form"
+    class="flex justify-center space-x-4 mt-6 text-xl gap-4"
+  >
+    <input
+      id="ws-radio"
+      class="btn w-32 h-16"
+      type="radio"
+      name="data-protocol"
+      aria-label="Websocket"
+    />
+    <input
+      id="sse-radio"
+      class="btn w-32 h-16"
+      type="radio"
+      name="data-protocol"
+      aria-label="Server Sent Events"
+    />
+  </form>
+  <div class="small-divider"></div>
+  <form
+    id="source-form"
+    class="flex justify-center space-x-4 mt-6 text-xl gap-4 mb-4"
+  >
+    <input
+      class="btn w-32 h-16"
+      type="radio"
+      name="data-source"
+      aria-label="Livestream"
+    />
+    <input
+      class="btn w-32 h-16"
+      type="radio"
+      name="data-source"
+      aria-label="Query"
+    />
+  </form>
+  <FibonacciSse client:load />
+  <FibonacciWs client:load />
 </Layout>
+
+<script>
+  import { $ws, $sse, INIT_VALUE } from "../common/nanostore";
+
+  const protocolForm = document.querySelector("#protocol-form");
+
+  protocolForm.addEventListener("change", (e) => {
+    if (e.target.id === "ws-radio") {
+      $ws.setKey("selected", true);
+      $sse.set(INIT_VALUE);
+    } else if (e.target.id === "sse-radio") {
+      $sse.setKey("selected", true);
+      $ws.set(INIT_VALUE);
+    }
+  });
+
+  const sourceForm = document.querySelector("#source-form");
+
+  sourceForm.addEventListener("change", (e) => {
+    if ($ws.get().selected) {
+      $ws.setKey("dataSource", e.target.ariaLabel);
+    } else {
+      $sse.setKey("dataSource", e.target.ariaLabel);
+    }
+  });
+</script>
+
+<style>
+  .small-divider {
+    width: 360px; /* The specific width of your divider */
+    height: 3px; /* The thickness */
+    background-color: #5e6776; /* A nice blue */
+    border: none;
+    border-radius: 99px; /* Makes the ends rounded */
+    margin: 2rem auto; /* Centering: auto handles left/right */
+  }
+</style>

@@ -1,0 +1,10 @@
+/// <reference path="../.astro/types.d.ts" />
+/// <reference types="astro/client" />
+// src/env.d.ts
+interface ImportMetaEnv {
+  readonly PUBLIC_FIBONACCI_API_URL: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
