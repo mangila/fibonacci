@@ -1,6 +1,4 @@
-import { map } from "nanostores";
+import { atom } from "nanostores";
 
-export const INIT_VALUE = { selected: false, dataSource: "" };
-
-export const $ws = map(INIT_VALUE);
-export const $sse = map(INIT_VALUE);
+export const $wsSelection = atom(false);
+export const $sseSelection = atom(false);

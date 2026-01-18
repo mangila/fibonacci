@@ -4,51 +4,38 @@ import Fibonacci from "./_components/Fibonacci";
 ---
 
 <Layout>
-  <form
-    id="protocol-form"
-    class="flex justify-center space-x-4 mt-6 text-xl gap-4"
-  >
-    <input
-      id="ws-radio"
-      class="btn w-32 h-16"
-      type="radio"
-      name="data-protocol"
-      aria-label="Websocket"
-    />
-    <input
-      id="sse-radio"
-      class="btn w-32 h-16"
-      type="radio"
-      name="data-protocol"
-      aria-label="Server Sent Events"
-    />
+  <form id="protocol-form" class="mt-4">
+    <div class="flex justify-center items-center gap-4">
+      <input
+        id="ws-radio"
+        class="btn w-32 h-16"
+        type="radio"
+        name="data-protocol"
+        aria-label="Websocket"
+      />
+      <div class="divider divider-horizontal">OR</div>
+      <input
+        id="sse-radio"
+        class="btn w-32 h-16"
+        type="radio"
+        name="data-protocol"
+        aria-label="Server Sent Events"
+      />
+    </div>
   </form>
-  <div class="small-divider"></div>
-  <form
-    id="source-form"
-    class="flex justify-center space-x-4 mt-6 text-xl gap-4 mb-4"
-  >
-    <input
-      class="btn w-32 h-16"
-      type="radio"
-      name="data-source"
-      aria-label="Livestream"
-    />
-    <input
-      class="btn w-32 h-16"
-      type="radio"
-      name="data-source"
-      aria-label="Query"
-    />
-  </form>
-  <Fibonacci client:load />
+  <div class="mt-4">
+    <Fibonacci client:load />
+  </div>
 </Layout>
 
 <script>
-  import { $ws, $sse, INIT_VALUE } from "../common/nanostore";
+  import { $wsSelection, $sseSelection } from "../common/nanostore";
   import { getElementByIdOrThrow } from "../common/utils";
 
-  const protocolForm = getElementByIdOrThrow("protocol-form");
+  const protocolForm = getElementByIdOrThrow(
+    "protocol-form",
+  ) as HTMLFormElement;
+  protocolForm.reset();
 
   protocolForm.addEventListener("change", (e: Event) => {
     const target = e.target as HTMLElement | null;
@@ -62,47 +49,13 @@ import Fibonacci from "./_components/Fibonacci";
     }
 
     if (id === "ws-radio") {
-      $ws.setKey("selected", true);
-      $sse.set(INIT_VALUE);
+      $wsSelection.set(true);
+      $sseSelection.set(false);
     } else if (id === "sse-radio") {
-      $sse.setKey("selected", true);
-      $ws.set(INIT_VALUE);
-    }
-  });
-
-  const sourceForm = getElementByIdOrThrow("source-form");
-
-  sourceForm.addEventListener("change", (e: Event) => {
-    const target = e.target as HTMLElement | null;
-    if (target == null) {
-      throw new Error("Target is null");
-    }
-
-    const id = target.id;
-    if (id == null) {
-      throw new Error("Target id is null");
-    }
-
-    const label = target.ariaLabel;
-    if (label == null) {
-      throw new Error("Target ariaLabel is null");
-    }
-
-    if ($ws.get().selected) {
-      $ws.setKey("dataSource", label);
-    } else if ($sse.get().selected) {
-      $sse.setKey("dataSource", label);
+      $sseSelection.set(true);
+      $wsSelection.set(false);
+    } else {
+      throw new Error(`Unknown id: ${id}`);
     }
   });
 </script>
-
-<style>
-  .small-divider {
-    width: 360px; /* The specific width of your divider */
-    height: 3px; /* The thickness */
-    background-color: #5e6776; /* A nice blue */
-    border: none;
-    border-radius: 99px; /* Makes the ends rounded */
-    margin: 2rem auto; /* Centering: auto handles left/right */
-  }
-</style>
