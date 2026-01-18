@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import FibonacciSse from "./_components/FibonacciSse.jsx";
-import FibonacciWs from "./_components/FibonacciWs.jsx";
+import Fibonacci from "./_components/Fibonacci";
 ---
 
 <Layout>
@@ -42,32 +41,57 @@ import FibonacciWs from "./_components/FibonacciWs.jsx";
       aria-label="Query"
     />
   </form>
-  <FibonacciSse client:load />
-  <FibonacciWs client:load />
+  <Fibonacci client:load />
 </Layout>
 
 <script>
   import { $ws, $sse, INIT_VALUE } from "../common/nanostore";
+  import { getElementByIdOrThrow } from "../common/utils";
 
-  const protocolForm = document.querySelector("#protocol-form");
+  const protocolForm = getElementByIdOrThrow("protocol-form");
 
-  protocolForm.addEventListener("change", (e) => {
-    if (e.target.id === "ws-radio") {
+  protocolForm.addEventListener("change", (e: Event) => {
+    const target = e.target as HTMLElement | null;
+    if (target == null) {
+      throw new Error("Target is null");
+    }
+
+    const id = target.id;
+    if (id == null) {
+      throw new Error("Target id is null");
+    }
+
+    if (id === "ws-radio") {
       $ws.setKey("selected", true);
       $sse.set(INIT_VALUE);
-    } else if (e.target.id === "sse-radio") {
+    } else if (id === "sse-radio") {
       $sse.setKey("selected", true);
       $ws.set(INIT_VALUE);
     }
   });
 
-  const sourceForm = document.querySelector("#source-form");
+  const sourceForm = getElementByIdOrThrow("source-form");
 
-  sourceForm.addEventListener("change", (e) => {
+  sourceForm.addEventListener("change", (e: Event) => {
+    const target = e.target as HTMLElement | null;
+    if (target == null) {
+      throw new Error("Target is null");
+    }
+
+    const id = target.id;
+    if (id == null) {
+      throw new Error("Target id is null");
+    }
+
+    const label = target.ariaLabel;
+    if (label == null) {
+      throw new Error("Target ariaLabel is null");
+    }
+
     if ($ws.get().selected) {
-      $ws.setKey("dataSource", e.target.ariaLabel);
-    } else {
-      $sse.setKey("dataSource", e.target.ariaLabel);
+      $ws.setKey("dataSource", label);
+    } else if ($sse.get().selected) {
+      $sse.setKey("dataSource", label);
     }
   });
 </script>
