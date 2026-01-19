@@ -1,5 +1,7 @@
+import type { Status } from "../_types/types";
+
 interface Props {
-  status: boolean;
+  status: Status;
 }
 
 const ConnectionStatus = ({ status }: Props) => {

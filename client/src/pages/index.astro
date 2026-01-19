@@ -29,8 +29,8 @@ import Fibonacci from "./_components/Fibonacci";
 </Layout>
 
 <script>
-  import { $wsSelection, $sseSelection } from "../common/nanostore";
-  import { getElementByIdOrThrow } from "../common/utils";
+  import { $wsSelection, $sseSelection } from "./_utils/nanostore";
+  import { getElementByIdOrThrow } from "./_utils/utils";
 
   const protocolForm = getElementByIdOrThrow(
     "protocol-form",
