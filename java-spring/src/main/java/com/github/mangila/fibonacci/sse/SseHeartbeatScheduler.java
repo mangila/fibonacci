@@ -28,22 +28,15 @@ public class SseHeartbeatScheduler {
             scheduler = "heartbeatScheduler")
     public void heartbeatLivestream() {
         log.info("Sending heartbeat to livestream sessions");
-        livestreamEmitterRegistry.asMap().forEach((sessionId, sessions) -> {
-            sessions.removeIf(session -> {
-                try {
-                    log.info("Sending heartbeat to livestream session {}: {}", sessionId, session.streamKey());
-                    session.sendHeartbeat();
-                    return false;
-                } catch (IOException e) {
-                    log.error("Error sending heartbeat to livestream session {}: {}", sessionId, session.streamKey());
-                    session.completeWithError(e);
-                    return true;
-                }
-            });
-            if (sessions.isEmpty()) {
-                livestreamEmitterRegistry.remove(sessionId);
-            }
-        });
+        livestreamEmitterRegistry.getAllSession()
+                .forEach(sseSession -> {
+                    try {
+                        sseSession.sendHeartbeat();
+                    } catch (IOException e) {
+                        log.error("Error sending heartbeat to livestream session {}", sseSession.streamKey());
+                        sseSession.completeWithError(e);
+                    }
+                });
     }
 
     @Scheduled(fixedRate = 5,
@@ -51,18 +44,14 @@ public class SseHeartbeatScheduler {
             scheduler = "heartbeatScheduler")
     public void heartbeatQuery() {
         log.info("Sending heartbeat to query sessions");
-        queryEmitterRegistry.asMap().forEach((sessionId, sessions) -> {
-            sessions.removeIf(session -> {
-                try {
-                    log.info("Sending heartbeat to query session {}: {}", sessionId, session.streamKey());
-                    session.sendHeartbeat();
-                    return false;
-                } catch (IOException e) {
-                    log.error("Error sending heartbeat to query session {}: {}", sessionId, session.streamKey());
-                    session.completeWithError(e);
-                    return true;
-                }
-            });
-        });
+        queryEmitterRegistry.getAllSession()
+                .forEach(sseSession -> {
+                    try {
+                        sseSession.sendHeartbeat();
+                    } catch (IOException e) {
+                        log.error("Error sending heartbeat to query session {}", sseSession.streamKey());
+                        sseSession.completeWithError(e);
+                    }
+                });
     }
 }

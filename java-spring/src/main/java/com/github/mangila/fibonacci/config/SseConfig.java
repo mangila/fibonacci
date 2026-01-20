@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.mangila.fibonacci.sse.SseEmitterRegistry;
 import com.github.mangila.fibonacci.sse.SseSession;
+import com.github.mangila.fibonacci.sse.SseSessionCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -32,12 +33,12 @@ public class SseConfig {
 
     @Bean
     SseEmitterRegistry queryEmitterRegistry() {
-        return new SseEmitterRegistry(sseSessionCache());
+        return new SseEmitterRegistry(new SseSessionCache(sseSessionCache()));
     }
 
     @Bean
     SseEmitterRegistry livestreamEmitterRegistry() {
-        return new SseEmitterRegistry(sseSessionCache());
+        return new SseEmitterRegistry(new SseSessionCache(sseSessionCache()));
     }
 
     @Bean("heartbeatScheduler")

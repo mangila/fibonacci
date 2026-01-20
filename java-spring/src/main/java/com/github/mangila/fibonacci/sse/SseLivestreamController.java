@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.Collection;
-
 @RestController
 @RequestMapping("api/v1/sse/livestream")
 public class SseLivestreamController {
@@ -30,18 +28,12 @@ public class SseLivestreamController {
 
     @EventListener
     public void sseLivestream(PgNotificationPayload payload) {
-        log.info("Received notification {}", payload);
-        log.info("Total connected livestream sessions: {}", emitterRegistry.size());
-        emitterRegistry.asMap()
-                .values()
-                .stream()
-                .flatMap(Collection::stream)
+        emitterRegistry.getAllSession()
                 .forEach(sseSession -> {
-                    log.info("Send livestream to session {} for stream key {}", sseSession.sessionId(), sseSession.streamKey());
                     try {
                         sseSession.send("livestream", payload.value());
                     } catch (Exception e) {
-                        emitterRegistry.removeWithError(sseSession.sessionId(), sseSession.streamKey(), e);
+                        sseSession.completeWithError(e);
                     }
                 });
     }

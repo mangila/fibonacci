@@ -2,14 +2,20 @@ package com.github.mangila.fibonacci.sse;
 
 import io.github.mangila.ensure4j.Ensure;
 import org.springframework.http.MediaType;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.Set;
 
 public record SseSession(
         String sessionId,
         String streamKey,
         SseEmitter emitter) {
+
+    private static final Set<ResponseBodyEmitter.DataWithMediaType> HEART_BEAT_MESSAGE = SseEmitter.event()
+            .comment("heartbeat")
+            .build();
 
     public SseSession {
         Ensure.notBlank(sessionId);
@@ -28,7 +34,7 @@ public record SseSession(
     }
 
     public void sendHeartbeat() throws IOException {
-        emitter.send(SseEmitter.event().comment("heartbeat").build());
+        emitter.send(HEART_BEAT_MESSAGE);
     }
 
     public void complete() {
