@@ -84,6 +84,7 @@ public class SseEmitterRegistry implements SmartLifecycle, BeanNameAware {
         return asMap()
                 .compute(id, (_, existingSet) -> {
                     var set = existingSet == null ? new CopyOnWriteArraySet<SseSession>() : existingSet;
+                    // with an HTTP2 connection, we can bump this number
                     Ensure.max(6, set.size(), "Too many SSE sessions for %s".formatted(id));
                     var emitter = new SseEmitter(Duration.ofMinutes(60).toMillis());
                     var session = new SseSession(id, streamKey, emitter);
