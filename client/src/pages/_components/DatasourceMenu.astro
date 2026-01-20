@@ -1,0 +1,13 @@
+---
+const { title } = Astro.props;
+---
+
+<div class="prose mx-auto text-center mt-4">
+  <h1>{title}</h1>
+  <div class="flex justify-center gap-4">
+    <a href="/sse/livestream">SSE Livestream</a>
+    <a href="/sse/query">SSE Query</a>
+    <a href="/ws/livestream">WS Livestream</a>
+    <a href="/ws/query">WS Query</a>
+  </div>
+</div>

@@ -5,26 +5,32 @@ import org.springframework.http.MediaType;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-public record SseSession(String username,
-                         AtomicBoolean livestream,
-                         SseEmitter emitter) {
+public record SseSession(
+        String sessionId,
+        String streamKey,
+        SseEmitter emitter) {
 
     public SseSession {
-        Ensure.notNull(username);
-        Ensure.notNull(livestream);
-        Ensure.notBlank(username);
+        Ensure.notNull(sessionId);
+        Ensure.notBlank(sessionId);
+        Ensure.notNull(streamKey);
+        Ensure.notBlank(streamKey);
         Ensure.notNull(emitter);
     }
 
     public void send(String eventName, Object payload) throws IOException {
         var event = SseEmitter.event()
-                .id(username)
+                .id(streamKey)
                 .name(eventName)
                 .data(payload, MediaType.APPLICATION_JSON)
+                .comment(sessionId)
                 .build();
         emitter.send(event);
+    }
+
+    public void sendHeartbeat() throws IOException {
+        emitter.send(SseEmitter.event().comment("heartbeat").build());
     }
 
     public void complete() {
@@ -33,13 +39,5 @@ public record SseSession(String username,
 
     public void completeWithError(Throwable throwable) {
         emitter.completeWithError(throwable);
-    }
-
-    public boolean isLivestream() {
-        return livestream.get();
-    }
-
-    public void setLivestream(boolean livestream) {
-        this.livestream.set(livestream);
     }
 }

@@ -124,7 +124,7 @@ class SseControllerTest {
                 .thenAwait(Duration.ofSeconds(2))
                 .then(() -> webClient.get()
                         .uri(uriBuilder -> uriBuilder
-                                .path("/api/v1/sse/fibonacci/{username}")
+                                .path("/api/v1/sse/fibonacci/{streamKey}")
                                 .queryParam("id", 1)
                                 .build(username))
                         .retrieve()

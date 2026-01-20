@@ -1,61 +1,18 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Fibonacci from "./_components/Fibonacci";
+import DatasourceMenu from "./_components/DatasourceMenu.astro";
 ---
 
 <Layout>
-  <form id="protocol-form" class="mt-4">
-    <div class="flex justify-center items-center gap-4">
-      <input
-        id="ws-radio"
-        class="btn w-32 h-16"
-        type="radio"
-        name="data-protocol"
-        aria-label="Websocket"
-      />
-      <div class="divider divider-horizontal">OR</div>
-      <input
-        id="sse-radio"
-        class="btn w-32 h-16"
-        type="radio"
-        name="data-protocol"
-        aria-label="Server Sent Events"
-      />
-    </div>
-  </form>
-  <div class="mt-4">
-    <Fibonacci client:load />
+  <div class="prose mx-auto">
+    <h1>Fibonacci</h1>
+    <p>
+      The Fibonacci sequence is a series of numbers where each number is the sum
+      of the two preceding ones, usually starting with 0 and 1.
+    </p>
+    <p>
+      Stream with Server Sent Events or Websocket with the STOMP sub-protocol
+    </p>
+    <DatasourceMenu />
   </div>
 </Layout>
-
-<script>
-  import { $wsSelection, $sseSelection } from "./_utils/nanostore";
-  import { getElementByIdOrThrow } from "./_utils/utils";
-
-  const protocolForm = getElementByIdOrThrow(
-    "protocol-form",
-  ) as HTMLFormElement;
-  protocolForm.reset();
-
-  protocolForm.addEventListener("change", (e: Event) => {
-    const target = e.target as HTMLElement | null;
-    if (target == null) {
-      throw new Error("Target is null");
-    }
-
-    const id = target.id;
-    if (id == null) {
-      throw new Error("Target id is null");
-    }
-
-    if (id === "ws-radio") {
-      $wsSelection.set(true);
-      $sseSelection.set(false);
-    } else if (id === "sse-radio") {
-      $sseSelection.set(true);
-      $wsSelection.set(false);
-    } else {
-      throw new Error(`Unknown id: ${id}`);
-    }
-  });
-</script>

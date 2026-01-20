@@ -1,19 +1,17 @@
 import axios from "axios";
 import { URL_BASE, SSE_BASE_PATH } from "./utils";
 
-export function unsubscribe(username: string) {
-  const base = new URL(URL_BASE);
-  const apiBase = SSE_BASE_PATH;
-  const url = new URL(apiBase + `/subscribe/${username}`, base);
+const BASE = new URL(URL_BASE);
+const API_BASE = SSE_BASE_PATH;
 
-  fetch(url, {
-    method: "DELETE",
-    keepalive: true,
-  }).then((response) => {
-    if (response.ok) {
-      console.log("ok");
-    } else {
-      console.log("err");
-    }
+
+export async function queryForList(username: string) {
+  const url = new URL(API_BASE + `/${username}`, BASE);
+
+  const response = await axios.post(url.href, {
+    offset: 0,
+    limit: 1000,
   });
+
+  return response.data;
 }

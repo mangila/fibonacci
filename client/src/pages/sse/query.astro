@@ -1,0 +1,12 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import DatasourceMenu from "../_components/DatasourceMenu.astro";
+import { SseQuery } from "./_components/SseQuery";
+---
+
+<Layout>
+  <div class="prose mx-auto text-center mt-4">
+    <DatasourceMenu title="SSE Query" />
+  </div>
+  <SseQuery client:load />
+</Layout>
