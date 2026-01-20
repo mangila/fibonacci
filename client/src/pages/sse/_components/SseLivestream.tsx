@@ -11,8 +11,8 @@ export const SseLivestream = ({ url }: Props) => {
   const [status, setStatus] = useState<SseStatus>("offline");
 
   useEffect(() => {
-    const streamKey = crypto.randomUUID()
-    url.searchParams.append("streamKey",streamKey)
+    const streamKey = crypto.randomUUID();
+    url.searchParams.append("streamKey", streamKey);
     const sse = new EventSource(url);
 
     sse.onopen = () => {
@@ -20,8 +20,8 @@ export const SseLivestream = ({ url }: Props) => {
     };
 
     sse.addEventListener("livestream", (e) => {
-      const data: FibonacciData = JSON.parse(e.data);
-      push(data);
+      const data: FibonacciData[] = JSON.parse(e.data);
+      data.flatMap((value) => push(value));
     });
 
     sse.addEventListener("id", (e) => {
@@ -41,7 +41,16 @@ export const SseLivestream = ({ url }: Props) => {
 
   return (
     <>
-      {list} - {status}
+      {status}
+      {list.map((value) => {
+        return (
+          <div key={value.id}>
+            <p>
+              {value.id} - {value.precision}
+            </p>
+          </div>
+        );
+      })}
     </>
   );
 };

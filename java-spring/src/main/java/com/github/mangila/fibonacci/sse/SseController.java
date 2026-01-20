@@ -3,7 +3,6 @@ package com.github.mangila.fibonacci.sse;
 import com.github.mangila.fibonacci.db.FibonacciRepository;
 import com.github.mangila.fibonacci.model.FibonacciOption;
 import com.github.mangila.fibonacci.model.FibonacciResultEntity;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -68,8 +67,7 @@ public class SseController {
     public void sseQueryForList(
             @PathVariable String channel,
             @RequestParam String streamKey,
-            @RequestBody @Valid @NotNull FibonacciOption option,
-            HttpSession httpSession) {
+            @RequestBody @Valid @NotNull FibonacciOption option) {
         log.info("Received request for fibonacci sequence {}:{}", streamKey, channel);
         SseSession session = emitterRegistry.getSession(channel, streamKey);
         List<FibonacciResultEntity> result = repository.queryForList(option);
