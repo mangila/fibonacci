@@ -1,7 +1,7 @@
 package com.github.mangila.fibonacci.ws;
 
 import com.github.mangila.fibonacci.db.FibonacciRepository;
-import com.github.mangila.fibonacci.event.PgNotificationPayload;
+import com.github.mangila.fibonacci.event.PgNotificationCollection;
 import com.github.mangila.fibonacci.model.FibonacciOption;
 import com.github.mangila.fibonacci.model.FibonacciResultEntity;
 import jakarta.validation.Valid;
@@ -38,7 +38,7 @@ public class WebSocketController {
     }
 
     @EventListener
-    public void wsLivestream(PgNotificationPayload payload) {
+    public void wsLivestream(PgNotificationCollection payload) {
         template.convertAndSend("/topic/livestream", payload.value());
     }
 

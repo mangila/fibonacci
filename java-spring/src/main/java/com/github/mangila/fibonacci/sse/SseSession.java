@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Set;
 
 public record SseSession(
-        String sessionId,
+        String channel,
         String streamKey,
         SseEmitter emitter) {
 
@@ -18,7 +18,7 @@ public record SseSession(
             .build();
 
     public SseSession {
-        Ensure.notBlank(sessionId);
+        Ensure.notBlank(channel);
         Ensure.notBlank(streamKey);
         Ensure.notNull(emitter);
     }
@@ -28,7 +28,7 @@ public record SseSession(
                 .id(streamKey)
                 .name(eventName)
                 .data(payload, MediaType.APPLICATION_JSON)
-                .comment(sessionId)
+                .comment(channel)
                 .build();
         emitter.send(event);
     }

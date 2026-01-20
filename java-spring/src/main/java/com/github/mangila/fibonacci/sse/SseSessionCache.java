@@ -19,8 +19,8 @@ public class SseSessionCache {
     }
 
     @Nullable
-    public SseSession getSession(String sessionId, String streamKey) {
-        var set = cache.getIfPresent(sessionId);
+    public SseSession getSession(String channel, String streamKey) {
+        var set = cache.getIfPresent(channel);
         if (set != null) {
             return set.stream()
                     .filter(session -> session.streamKey().equals(streamKey))
@@ -30,21 +30,21 @@ public class SseSessionCache {
         return null;
     }
 
-    public void tryAdd(String sessionId, String streamKey) throws EnsureException {
+    public void tryAdd(String channel, String streamKey) throws EnsureException {
         cache.asMap()
-                .compute(sessionId, (_, existingSet) -> {
+                .compute(channel, (_, existingSet) -> {
                     var set = existingSet == null ? new CopyOnWriteArraySet<SseSession>() : existingSet;
                     // with an HTTP2 connection, we can bump this number
-                    Ensure.max(6, set.size(), "Too many SSE sessions for %s".formatted(sessionId));
+                    Ensure.max(6, set.size(), "Too many SSE sessions for %s".formatted(channel));
                     var emitter = new SseEmitter(Duration.ofMinutes(60).toMillis());
-                    var session = new SseSession(sessionId, streamKey, emitter);
+                    var session = new SseSession(channel, streamKey, emitter);
                     set.add(session);
                     return set;
                 });
     }
 
-    public void removeSession(String sessionId, String streamKey) {
-        cache.asMap().computeIfPresent(sessionId, (_, sessions) -> {
+    public void removeSession(String channel, String streamKey) {
+        cache.asMap().computeIfPresent(channel, (_, sessions) -> {
             sessions.removeIf(session -> session.streamKey().equals(streamKey));
             return sessions;
         });
@@ -57,16 +57,16 @@ public class SseSessionCache {
                 .flatMap(CopyOnWriteArraySet::stream);
     }
 
-    public boolean hasSessions(String sessionId) {
-        var set = cache.getIfPresent(sessionId);
+    public boolean hasSessions(String channel) {
+        var set = cache.getIfPresent(channel);
         if (set != null) {
             return set.isEmpty();
         }
         return false;
     }
 
-    public void invalidate(String sessionId) {
-        cache.invalidate(sessionId);
+    public void invalidate(String channel) {
+        cache.invalidate(channel);
     }
 
     public void invalidateAll() {

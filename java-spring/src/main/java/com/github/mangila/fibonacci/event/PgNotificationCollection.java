@@ -2,5 +2,5 @@ package com.github.mangila.fibonacci.event;
 
 import java.util.List;
 
-public record PgNotificationPayload(List<String> value) {
+public record PgNotificationCollection(List<PgNotification> value) {
 }

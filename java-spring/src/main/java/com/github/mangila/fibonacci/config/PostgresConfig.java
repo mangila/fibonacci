@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 public class PostgresConfig {
-
 
     @Bean
     public SimpleAsyncTaskExecutor postgresListenerExecutor() {
@@ -21,7 +21,8 @@ public class PostgresConfig {
 
     @Bean
     public PostgresNotificationListener postgresNotificationListener(HikariConfig hikariConfig,
-                                                                     SpringApplicationPublisher publisher) {
+                                                                     SpringApplicationPublisher publisher,
+                                                                     ObjectMapper objectMapper) {
         var dataSource = new SingleConnectionDataSource(
                 hikariConfig.getJdbcUrl(),
                 hikariConfig.getUsername(),
@@ -29,7 +30,7 @@ public class PostgresConfig {
                 false
         );
         dataSource.setAutoCommit(true);
-        return new PostgresNotificationListener("livestream", dataSource, publisher);
+        return new PostgresNotificationListener("livestream", dataSource, publisher, objectMapper);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.sse;
 
 import io.github.mangila.ensure4j.Ensure;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
@@ -21,20 +22,20 @@ public class SseEmitterRegistry implements SmartLifecycle, BeanNameAware {
         this.cache = cache;
     }
 
-    public SseSession subscribe(String sessionId, String streamKey) {
+    public SseSession subscribe(String channel, String streamKey) {
         Ensure.isTrue(open, "Registry %s is not open".formatted(beanName));
-        cache.tryAdd(sessionId, streamKey);
-        SseSession session = cache.getSession(sessionId, streamKey);
-        Ensure.notNull(session, "Session not found for %s:%s".formatted(sessionId, streamKey));
+        cache.tryAdd(channel, streamKey);
+        SseSession session = cache.getSession(channel, streamKey);
+        Ensure.notNull(session, "Session not found for %s:%s".formatted(channel, streamKey));
         // noinspection ConstantConditions
         SseEmitter emitter = session.emitter();
-        emitter.onError((ex) -> log.warn("SSE Error for user {}: {}", sessionId, streamKey, ex));
-        emitter.onTimeout(() -> log.warn("SSE Timeout for user {}: {}", sessionId, streamKey));
+        emitter.onError((ex) -> log.warn("SSE Error for user {}: {}", channel, streamKey, ex));
+        emitter.onTimeout(() -> log.warn("SSE Timeout for user {}: {}", channel, streamKey));
         emitter.onCompletion(() -> {
-            log.info("SSE Completed for user {}: {}", sessionId, streamKey);
-            cache.removeSession(sessionId, streamKey);
-            if (!cache.hasSessions(sessionId)) {
-                cache.invalidate(sessionId);
+            log.info("SSE Completed for user {}: {}", channel, streamKey);
+            cache.removeSession(channel, streamKey);
+            if (!cache.hasSessions(channel)) {
+                cache.invalidate(channel);
             }
         });
         return session;
@@ -42,6 +43,14 @@ public class SseEmitterRegistry implements SmartLifecycle, BeanNameAware {
 
     public Stream<SseSession> getAllSession() {
         return cache.getAllSession();
+    }
+
+    @NonNull
+    public SseSession getSession(String channel, String streamKey) {
+        SseSession session = cache.getSession(channel, streamKey);
+        Ensure.notNull(session, "Session not found for %s:%s".formatted(channel, streamKey));
+        // noinspection ConstantConditions
+        return session;
     }
 
     @Override
@@ -63,7 +72,8 @@ public class SseEmitterRegistry implements SmartLifecycle, BeanNameAware {
     }
 
     @Override
-    public void setBeanName(String name) {
+    public void setBeanName(@NonNull String name) {
+        Ensure.notNull(name, "Bean name cannot be null");
         this.beanName = name;
     }
 }

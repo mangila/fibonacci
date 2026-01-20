@@ -33,7 +33,6 @@ public class SseHeartbeatScheduler {
                     try {
                         sseSession.sendHeartbeat();
                     } catch (IOException e) {
-                        log.error("Error sending heartbeat to livestream session {}", sseSession.streamKey());
                         sseSession.completeWithError(e);
                     }
                 });
@@ -49,7 +48,6 @@ public class SseHeartbeatScheduler {
                     try {
                         sseSession.sendHeartbeat();
                     } catch (IOException e) {
-                        log.error("Error sending heartbeat to query session {}", sseSession.streamKey());
                         sseSession.completeWithError(e);
                     }
                 });

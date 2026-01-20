@@ -28,7 +28,7 @@ public class SpringApplicationPublisher {
             maxDelay = 3000
     )
     @ConcurrencyLimit(limit = 1)
-    public void publishNotification(@NonNull PgNotificationPayload payload) {
+    public void publishNotification(@NonNull PgNotificationCollection payload) {
         try {
             Ensure.notNull(payload, "Payload cannot be null");
             publisher.publishEvent(payload);

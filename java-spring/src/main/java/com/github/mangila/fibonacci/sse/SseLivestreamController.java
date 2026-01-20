@@ -1,17 +1,13 @@
 package com.github.mangila.fibonacci.sse;
 
-import com.github.mangila.fibonacci.event.PgNotificationPayload;
-import jakarta.servlet.http.HttpSession;
+import com.github.mangila.fibonacci.event.PgNotificationCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
@@ -27,7 +23,7 @@ public class SseLivestreamController {
     }
 
     @EventListener
-    public void sseLivestream(PgNotificationPayload payload) {
+    public void sseLivestream(PgNotificationCollection payload) {
         emitterRegistry.getAllSession()
                 .forEach(sseSession -> {
                     try {
@@ -38,10 +34,11 @@ public class SseLivestreamController {
                 });
     }
 
-    @GetMapping
-    public ResponseEntity<SseEmitter> subscribeLivestream(@RequestParam String streamKey, HttpSession httpSession) {
-        log.info("Received request for subscription to {} - {}", httpSession.getId(), streamKey);
-        SseSession session = emitterRegistry.subscribe(httpSession.getId(), streamKey);
+    @GetMapping("{channel}")
+    public ResponseEntity<SseEmitter> subscribeLivestream(
+            @PathVariable String channel,
+            @RequestParam String streamKey) {
+        SseSession session = emitterRegistry.subscribe(channel, streamKey);
         return ResponseEntity.ok()
                 .header("Cache-Control", "no-cache, no-store, must-revalidate")
                 // nginx buffer stuffs
