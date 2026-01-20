@@ -12,9 +12,7 @@ public record SseSession(
         SseEmitter emitter) {
 
     public SseSession {
-        Ensure.notNull(sessionId);
         Ensure.notBlank(sessionId);
-        Ensure.notNull(streamKey);
         Ensure.notBlank(streamKey);
         Ensure.notNull(emitter);
     }

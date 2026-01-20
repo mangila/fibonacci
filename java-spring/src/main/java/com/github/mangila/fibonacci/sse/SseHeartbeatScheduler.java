@@ -23,7 +23,9 @@ public class SseHeartbeatScheduler {
         this.livestreamEmitterRegistry = livestreamEmitterRegistry;
     }
 
-    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 5,
+            timeUnit = TimeUnit.SECONDS,
+            scheduler = "heartbeatScheduler")
     public void heartbeatLivestream() {
         log.info("Sending heartbeat to livestream sessions");
         livestreamEmitterRegistry.asMap().forEach((sessionId, sessions) -> {
@@ -44,7 +46,9 @@ public class SseHeartbeatScheduler {
         });
     }
 
-    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 5,
+            timeUnit = TimeUnit.SECONDS,
+            scheduler = "heartbeatScheduler")
     public void heartbeatQuery() {
         log.info("Sending heartbeat to query sessions");
         queryEmitterRegistry.asMap().forEach((sessionId, sessions) -> {

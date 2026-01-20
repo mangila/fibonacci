@@ -4,17 +4,21 @@ import com.github.benmanes.caffeine.cache.Cache;
 import io.github.mangila.ensure4j.Ensure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.Duration;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class SseEmitterRegistry {
+public class SseEmitterRegistry implements SmartLifecycle, BeanNameAware {
 
     private static final Logger log = LoggerFactory.getLogger(SseEmitterRegistry.class);
 
     private final Cache<String, CopyOnWriteArraySet<SseSession>> sseSessionCache;
+    private String beanName;
+    private volatile boolean running = false;
 
     public SseEmitterRegistry(Cache<String, CopyOnWriteArraySet<SseSession>> sseSessionCache) {
         this.sseSessionCache = sseSessionCache;
@@ -89,10 +93,34 @@ public class SseEmitterRegistry {
     }
 
     public void clear() {
+        asMap().forEach((_, sessions) -> sessions.forEach(SseSession::complete));
         sseSessionCache.invalidateAll();
     }
 
     public long size() {
         return sseSessionCache.estimatedSize();
+    }
+
+    @Override
+    public void start() {
+        log.info("Starting bean {}: {}", beanName, this);
+        running = true;
+    }
+
+    @Override
+    public void stop() {
+        log.info("Stopping bean {}: {}", beanName, this);
+        running = false;
+        clear();
+    }
+
+    @Override
+    public boolean isRunning() {
+        return running;
+    }
+
+    @Override
+    public void setBeanName(String name) {
+        this.beanName = name;
     }
 }

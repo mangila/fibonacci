@@ -1,7 +1,6 @@
 package com.github.mangila.fibonacci.sse;
 
 import com.github.mangila.fibonacci.event.PgNotificationPayload;
-import io.github.mangila.ensure4j.Ensure;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +31,7 @@ public class SseLivestreamController {
     @EventListener
     public void sseLivestream(PgNotificationPayload payload) {
         log.info("Received notification {}", payload);
-        log.info("Total connected sessions: {}", emitterRegistry.size());
+        log.info("Total connected livestream sessions: {}", emitterRegistry.size());
         emitterRegistry.asMap()
                 .values()
                 .stream()
