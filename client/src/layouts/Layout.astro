@@ -1,5 +1,6 @@
 ---
 import "normalize.css";
+import Navbar from "./Navbar.astro";
 ---
 
 <!doctype html>
@@ -15,14 +16,17 @@ import "normalize.css";
     <title>Fibonacci</title>
   </head>
   <body>
-    <div class="navbar bg-base-100 shadow-sm">
-      <a class="btn btn-ghost text-xl">Fibonacci</a>
-    </div>
-    <slot />
+    <nav>
+      <Navbar />
+    </nav>
+    <main>
+      <slot />
+    </main>
   </body>
 </html>
 
 <style>
   @import "tailwindcss";
+  @plugin "@tailwindcss/typography";
   @plugin "daisyui";
 </style>

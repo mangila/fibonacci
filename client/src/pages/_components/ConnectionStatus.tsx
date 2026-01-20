@@ -1,23 +1,20 @@
-import type { Status } from "../_types/types";
+import type { SseStatus } from "../_types/types";
 
 interface Props {
-  status: Status;
+  sseStatus: SseStatus;
 }
 
-const ConnectionStatus = ({ status }: Props) => {
-  return (
-    <>
-      {status ? (
-        <>
-          <div className="badge badge-success">Connected</div>
-        </>
-      ) : (
-        <>
-          <div className="badge badge-neutral">Offline</div>
-        </>
-      )}
-    </>
-  );
+const ConnectionStatus = ({ sseStatus }: Props) => {
+  switch (sseStatus) {
+    case "offline":
+      return <div className="badge badge-neutral">{sseStatus}</div>;
+    case "connecting":
+      return <div className="badge badge-info">{sseStatus}</div>;
+    case "open":
+      return <div className="badge badge-success">{sseStatus}</div>;
+    case "error":
+      return <div className="badge badge-error">{sseStatus}</div>;
+  }
 };
 
 export default ConnectionStatus;

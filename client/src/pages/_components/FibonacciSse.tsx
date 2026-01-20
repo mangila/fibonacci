@@ -6,18 +6,19 @@ import { useSse } from "../_hooks/useSse";
 const username = "mangila";
 
 const FibonacciSse = () => {
-  const { status, data } = useSse(username);
+  const { sseStatus, list, liveData } = useSse(username);
 
   return (
     <>
       <div className="p-4 border rounded-lg shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-3">
-          <ConnectionStatus status={status} />
-          <DatasourceRadio />
-          <FibonacciCount count={12} />
+          <ConnectionStatus sseStatus={sseStatus} />
+          <DatasourceRadio username={username} />
+          <FibonacciCount count={list.length} />
         </div>
       </div>
-      {data}
+      {liveData}
+      {list}
     </>
   );
 };

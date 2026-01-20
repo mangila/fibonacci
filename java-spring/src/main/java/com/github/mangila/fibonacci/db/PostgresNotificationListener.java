@@ -1,12 +1,14 @@
 package com.github.mangila.fibonacci.db;
 
-import com.github.mangila.fibonacci.event.PgNotificationPayload;
+import com.github.mangila.fibonacci.event.PgNotification;
+import com.github.mangila.fibonacci.event.PgNotificationCollection;
 import com.github.mangila.fibonacci.event.SpringApplicationPublisher;
 import org.postgresql.PGNotification;
 import org.postgresql.jdbc.PgConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import tools.jackson.databind.ObjectMapper;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -24,13 +26,16 @@ public class PostgresNotificationListener implements Runnable {
     private final String channel;
     private final SingleConnectionDataSource dataSource;
     private final SpringApplicationPublisher publisher;
+    private final ObjectMapper objectMapper;
 
     public PostgresNotificationListener(String channel,
                                         SingleConnectionDataSource dataSource,
-                                        SpringApplicationPublisher publisher) {
+                                        SpringApplicationPublisher publisher,
+                                        ObjectMapper objectMapper) {
         this.channel = channel;
         this.dataSource = dataSource;
         this.publisher = publisher;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -49,10 +54,11 @@ public class PostgresNotificationListener implements Runnable {
                 while (running && !Thread.currentThread().isInterrupted()) {
                     try {
                         PGNotification[] pgNotifications = pgConnection.getNotifications(0);
-                        List<String> jsonPayloads = Arrays.stream(pgNotifications)
+                        List<PgNotification> notifications = Arrays.stream(pgNotifications)
                                 .map(PGNotification::getParameter)
+                                .map(json -> objectMapper.readValue(json, PgNotification.class))
                                 .toList();
-                        publisher.publishNotification(new PgNotificationPayload(jsonPayloads));
+                        publisher.publishNotification(new PgNotificationCollection(notifications));
                     } catch (SQLException e) {
                         log.error("Error while listening for notifications", e);
                         break;

@@ -2,29 +2,39 @@ package com.github.mangila.fibonacci.sse;
 
 import io.github.mangila.ensure4j.Ensure;
 import org.springframework.http.MediaType;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Set;
 
-public record SseSession(String username,
-                         AtomicBoolean livestream,
-                         SseEmitter emitter) {
+public record SseSession(
+        String channel,
+        String streamKey,
+        SseEmitter emitter) {
+
+    private static final Set<ResponseBodyEmitter.DataWithMediaType> HEART_BEAT_MESSAGE = SseEmitter.event()
+            .comment("heartbeat")
+            .build();
 
     public SseSession {
-        Ensure.notNull(username);
-        Ensure.notNull(livestream);
-        Ensure.notBlank(username);
+        Ensure.notBlank(channel);
+        Ensure.notBlank(streamKey);
         Ensure.notNull(emitter);
     }
 
     public void send(String eventName, Object payload) throws IOException {
         var event = SseEmitter.event()
-                .id(username)
+                .id(streamKey)
                 .name(eventName)
                 .data(payload, MediaType.APPLICATION_JSON)
+                .comment(channel)
                 .build();
         emitter.send(event);
+    }
+
+    public void sendHeartbeat() throws IOException {
+        emitter.send(HEART_BEAT_MESSAGE);
     }
 
     public void complete() {
@@ -33,13 +43,5 @@ public record SseSession(String username,
 
     public void completeWithError(Throwable throwable) {
         emitter.completeWithError(throwable);
-    }
-
-    public boolean isLivestream() {
-        return livestream.get();
-    }
-
-    public void setLivestream(boolean livestream) {
-        this.livestream.set(livestream);
     }
 }

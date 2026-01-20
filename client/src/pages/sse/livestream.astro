@@ -1,0 +1,17 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import DatasourceMenu from "../_components/DatasourceMenu.astro";
+import { URL_BASE, SSE_BASE_PATH } from "../_utils/utils";
+import { SseLivestream } from "./_components/SseLivestream";
+
+const channel = "mangila-livestream";
+const path = SSE_BASE_PATH + `/livestream/${channel}`;
+const livestreamUrl = new URL(path, new URL(URL_BASE));
+---
+
+<Layout>
+  <div class="prose mx-auto text-center mt-4">
+    <DatasourceMenu title="SSE Livestream" />
+  </div>
+  <SseLivestream client:load url={livestreamUrl} />
+</Layout>

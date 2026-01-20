@@ -3,27 +3,49 @@ package com.github.mangila.fibonacci.config;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.github.mangila.fibonacci.sse.SseEmitterRegistry;
 import com.github.mangila.fibonacci.sse.SseSession;
+import com.github.mangila.fibonacci.sse.SseSessionCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.SimpleAsyncTaskScheduler;
+
+import java.util.concurrent.CopyOnWriteArraySet;
 
 @Configuration
 public class SseConfig {
 
     private static final Logger log = LoggerFactory.getLogger(SseConfig.class);
 
-    @Bean
-    Cache<String, SseSession> sseSessionCache() {
+    Cache<String, CopyOnWriteArraySet<SseSession>> sseSessionCache() {
         return Caffeine.newBuilder()
                 .maximumSize(100)
-                .removalListener((String username, SseSession session, RemovalCause cause) -> {
+                .removalListener((String sessionId, CopyOnWriteArraySet<SseSession> sessions, RemovalCause cause) -> {
                     if (cause.wasEvicted()) {
-                        log.warn("Session evicted for {}", username);
-                        session.completeWithError(new RuntimeException("Session evicted"));
+                        log.warn("Session evicted for {}", sessionId);
+                        sessions.forEach(sseSession -> sseSession.completeWithError(new RuntimeException("Session evicted")));
                     }
                 })
                 .build();
+    }
+
+    @Bean
+    SseEmitterRegistry queryEmitterRegistry() {
+        return new SseEmitterRegistry(new SseSessionCache(sseSessionCache()));
+    }
+
+    @Bean
+    SseEmitterRegistry livestreamEmitterRegistry() {
+        return new SseEmitterRegistry(new SseSessionCache(sseSessionCache()));
+    }
+
+    @Bean("heartbeatScheduler")
+    SimpleAsyncTaskScheduler heartbeatScheduler() {
+        var scheduler = new SimpleAsyncTaskScheduler();
+        scheduler.setThreadNamePrefix("sse-heartbeat-");
+        scheduler.setVirtualThreads(true);
+        return scheduler;
     }
 }

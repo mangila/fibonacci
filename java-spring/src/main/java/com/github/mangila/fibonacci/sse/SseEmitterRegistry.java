@@ -1,84 +1,80 @@
 package com.github.mangila.fibonacci.sse;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import io.github.mangila.ensure4j.Ensure;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.time.Duration;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
-@Component
-public class SseEmitterRegistry {
+public class SseEmitterRegistry implements SmartLifecycle, BeanNameAware {
 
     private static final Logger log = LoggerFactory.getLogger(SseEmitterRegistry.class);
 
-    private final Cache<String, SseSession> sseSessionCache;
+    private final SseSessionCache cache;
+    private String beanName;
+    private volatile boolean open = false;
 
-    public SseEmitterRegistry(Cache<String, SseSession> sseSessionCache) {
-        this.sseSessionCache = sseSessionCache;
+    public SseEmitterRegistry(SseSessionCache cache) {
+        this.cache = cache;
     }
 
-    public void add(String id, SseSession emitter) {
-        sseSessionCache.put(id, emitter);
-    }
-
-    public void remove(String id) {
-        SseSession session = getOrThrow(id);
-        session.complete();
-        sseSessionCache.invalidate(id);
-    }
-
-    public void removeWithError(String id, Throwable throwable) {
-        SseSession session = getOrThrow(id);
-        session.completeWithError(throwable);
-        sseSessionCache.invalidate(id);
-    }
-
-    public SseSession getOrThrow(String id) {
-        return Ensure.notNullOrElseThrow(sseSessionCache.getIfPresent(id),
-                () -> new IllegalArgumentException("SSE session not found for id: " + id));
-    }
-
-    public ConcurrentMap<String, SseSession> asMap() {
-        return sseSessionCache.asMap();
-    }
-
-    public SseEmitter subscribe(String username) {
-        var emitter = new SseEmitter(Duration.ofMinutes(60).toMillis());
-        var session = new SseSession(username, new AtomicBoolean(false), emitter);
-        add(username, session);
-        emitter.onError((ex) -> {
-            log.error("SSE Error for user {}: {}", username, ex.getMessage());
-            remove(username);
-        });
-
-        emitter.onTimeout(() -> {
-            log.warn("SSE Timeout for user {}", username);
-            remove(username);
-        });
-
+    public SseSession subscribe(String channel, String streamKey) {
+        Ensure.isTrue(open, "Registry %s is not open".formatted(beanName));
+        cache.tryAdd(channel, streamKey);
+        SseSession session = cache.getSession(channel, streamKey);
+        Ensure.notNull(session, "Session not found for %s:%s".formatted(channel, streamKey));
+        // noinspection ConstantConditions
+        SseEmitter emitter = session.emitter();
+        emitter.onError((ex) -> log.warn("SSE Error for user {}: {}", channel, streamKey, ex));
+        emitter.onTimeout(() -> log.warn("SSE Timeout for user {}: {}", channel, streamKey));
         emitter.onCompletion(() -> {
-            log.info("SSE Completed for user {}", username);
-            remove(username);
+            log.info("SSE Completed for user {}: {}", channel, streamKey);
+            cache.removeSession(channel, streamKey);
+            if (!cache.hasSessions(channel)) {
+                cache.invalidate(channel);
+            }
         });
-        return emitter;
+        return session;
     }
 
-    public void subscribeLivestream(String username) {
-        SseSession session = getOrThrow(username);
-        session.setLivestream(true);
+    public Stream<SseSession> getAllSession() {
+        return cache.getAllSession();
     }
 
-    public void unsubscribe(String username) {
-        remove(username);
+    @NonNull
+    public SseSession getSession(String channel, String streamKey) {
+        SseSession session = cache.getSession(channel, streamKey);
+        Ensure.notNull(session, "Session not found for %s:%s".formatted(channel, streamKey));
+        // noinspection ConstantConditions
+        return session;
     }
 
-    public void unsubscribeLivestream(String username) {
-        var session = getOrThrow(username);
-        session.setLivestream(false);
+    @Override
+    public void start() {
+        log.info("Starting registry {}: {}", beanName, this);
+        open = true;
+    }
+
+    @Override
+    public void stop() {
+        log.info("Stopping registry {}: {}", beanName, this);
+        open = false;
+        cache.getAllSession().forEach(SseSession::complete);
+        cache.invalidateAll();
+    }
+
+    @Override
+    public boolean isRunning() {
+        return open;
+    }
+
+    @Override
+    public void setBeanName(@NonNull String name) {
+        Ensure.notNull(name, "Bean name cannot be null");
+        this.beanName = name;
     }
 }

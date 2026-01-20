@@ -16,7 +16,7 @@ BEGIN
     -- Only send the id and the length(precision) of the numeric value in the notification
     notify_payload := json_build_object(
             'id', NEW.id,
-            'precision', length(NEW.precision::TEXT)
+            'precision', NEW.precision
                       )::json;
     PERFORM pg_notify(channel, notify_payload);
     RETURN NEW;
