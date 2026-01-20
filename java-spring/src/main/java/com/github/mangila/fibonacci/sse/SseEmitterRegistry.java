@@ -104,13 +104,13 @@ public class SseEmitterRegistry implements SmartLifecycle, BeanNameAware {
 
     @Override
     public void start() {
-        log.info("Starting bean {}: {}", beanName, this);
+        log.info("Starting registry {}: {}", beanName, this);
         running = true;
     }
 
     @Override
     public void stop() {
-        log.info("Stopping bean {}: {}", beanName, this);
+        log.info("Stopping registry {}: {}", beanName, this);
         running = false;
         clear();
     }
