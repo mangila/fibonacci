@@ -64,6 +64,7 @@ public class SseEmitterRegistry implements SmartLifecycle, BeanNameAware {
         log.info("Stopping registry {}: {}", beanName, this);
         open = false;
         cache.getAllSession().forEach(SseSession::complete);
+        cache.invalidateAll();
     }
 
     @Override

@@ -13,8 +13,8 @@ import java.time.Duration;
 public class FibonacciProperties {
 
     private FibonacciAlgorithm algorithm = FibonacciAlgorithm.ITERATIVE;
-    @Min(0)
-    private int offset = 0;
+    @Min(1)
+    private int offset = 1;
     @Min(1)
     private int limit = 1000;
     private Duration delay = Duration.ofSeconds(1);
@@ -43,7 +43,7 @@ public class FibonacciProperties {
      * @param offset the offset value, must be a non-negative integer
      */
     public void setOffset(int offset) {
-        Ensure.min(0, offset);
+        Ensure.min(1, offset);
         this.offset = offset;
     }
 

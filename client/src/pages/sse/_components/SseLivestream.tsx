@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useDynamicList } from "ahooks";
 import type { FibonacciData, SseStatus } from "../../_types/types";
+import { ErrorBoundary } from "react-error-boundary";
 
 interface Props {
   url: URL;
@@ -40,17 +41,19 @@ export const SseLivestream = ({ url }: Props) => {
   }, [url]);
 
   return (
-    <>
-      {status}
-      {list.map((value) => {
-        return (
-          <div key={value.id}>
-            <p>
-              {value.id} - {value.precision}
-            </p>
-          </div>
-        );
-      })}
-    </>
+    <ErrorBoundary fallback={"the err is human..."}>
+      <Suspense fallback={"loading..."}>
+        {status}
+        <div className="grid grid-cols-12">
+          {list.map((value) => {
+            return (
+              <div key={value.id}>
+                ID : {value.id} Precision: {value.precision}
+              </div>
+            );
+          })}
+        </div>
+      </Suspense>
+    </ErrorBoundary>
   );
 };
