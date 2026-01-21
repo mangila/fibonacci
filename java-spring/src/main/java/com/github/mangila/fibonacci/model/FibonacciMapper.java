@@ -1,5 +1,9 @@
 package com.github.mangila.fibonacci.model;
 
+import com.github.mangila.fibonacci.model.dto.FibonacciDto;
+import com.github.mangila.fibonacci.model.dto.FibonacciProjectionDto;
+import com.github.mangila.fibonacci.model.entity.FibonacciEntity;
+import com.github.mangila.fibonacci.model.entity.FibonacciProjection;
 import org.springframework.stereotype.Component;
 
 @Component

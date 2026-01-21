@@ -1,7 +1,7 @@
 package com.github.mangila.fibonacci.sse;
 
 import com.github.mangila.fibonacci.PostgresTestContainerConfiguration;
-import com.github.mangila.fibonacci.model.FibonacciOption;
+import com.github.mangila.fibonacci.model.dto.FibonacciOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;

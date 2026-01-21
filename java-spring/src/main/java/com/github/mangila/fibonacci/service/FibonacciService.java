@@ -2,6 +2,9 @@ package com.github.mangila.fibonacci.service;
 
 import com.github.mangila.fibonacci.db.FibonacciRepository;
 import com.github.mangila.fibonacci.model.*;
+import com.github.mangila.fibonacci.model.dto.FibonacciDto;
+import com.github.mangila.fibonacci.model.dto.FibonacciOption;
+import com.github.mangila.fibonacci.model.dto.FibonacciProjectionDto;
 import io.github.mangila.ensure4j.Ensure;
 import org.springframework.stereotype.Service;
 

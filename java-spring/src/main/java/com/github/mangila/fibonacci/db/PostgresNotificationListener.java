@@ -2,7 +2,7 @@ package com.github.mangila.fibonacci.db;
 
 import com.github.mangila.fibonacci.event.FibonacciProjectionList;
 import com.github.mangila.fibonacci.event.SpringApplicationPublisher;
-import com.github.mangila.fibonacci.model.FibonacciProjectionDto;
+import com.github.mangila.fibonacci.model.dto.FibonacciProjectionDto;
 import org.postgresql.PGNotification;
 import org.postgresql.jdbc.PgConnection;
 import org.slf4j.Logger;

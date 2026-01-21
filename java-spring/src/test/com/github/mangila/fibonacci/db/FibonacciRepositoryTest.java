@@ -1,8 +1,8 @@
 package com.github.mangila.fibonacci.db;
 
 import com.github.mangila.fibonacci.PostgresTestContainerConfiguration;
-import com.github.mangila.fibonacci.model.FibonacciEntity;
-import com.github.mangila.fibonacci.model.FibonacciOption;
+import com.github.mangila.fibonacci.model.entity.FibonacciEntity;
+import com.github.mangila.fibonacci.model.dto.FibonacciOption;
 import com.github.mangila.fibonacci.model.FibonacciResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

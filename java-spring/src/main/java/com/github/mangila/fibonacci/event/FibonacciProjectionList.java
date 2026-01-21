@@ -1,6 +1,6 @@
 package com.github.mangila.fibonacci.event;
 
-import com.github.mangila.fibonacci.model.FibonacciProjectionDto;
+import com.github.mangila.fibonacci.model.dto.FibonacciProjectionDto;
 
 import java.util.List;
 

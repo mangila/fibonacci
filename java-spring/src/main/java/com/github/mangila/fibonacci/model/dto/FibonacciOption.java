@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.model;
+package com.github.mangila.fibonacci.model.dto;
 
 import io.github.mangila.ensure4j.Ensure;
 import jakarta.validation.constraints.Max;

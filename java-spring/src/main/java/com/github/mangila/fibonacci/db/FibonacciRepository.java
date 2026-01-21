@@ -1,8 +1,8 @@
 package com.github.mangila.fibonacci.db;
 
-import com.github.mangila.fibonacci.model.FibonacciEntity;
-import com.github.mangila.fibonacci.model.FibonacciOption;
-import com.github.mangila.fibonacci.model.FibonacciProjection;
+import com.github.mangila.fibonacci.model.entity.FibonacciEntity;
+import com.github.mangila.fibonacci.model.dto.FibonacciOption;
+import com.github.mangila.fibonacci.model.entity.FibonacciProjection;
 import com.github.mangila.fibonacci.model.FibonacciResult;
 import org.jspecify.annotations.NonNull;
 import org.springframework.jdbc.core.JdbcTemplate;

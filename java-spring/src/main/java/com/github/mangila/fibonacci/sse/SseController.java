@@ -1,9 +1,9 @@
 package com.github.mangila.fibonacci.sse;
 
 import com.github.mangila.fibonacci.event.FibonacciProjectionList;
-import com.github.mangila.fibonacci.model.FibonacciDto;
-import com.github.mangila.fibonacci.model.FibonacciOption;
-import com.github.mangila.fibonacci.model.FibonacciProjectionDto;
+import com.github.mangila.fibonacci.model.dto.FibonacciDto;
+import com.github.mangila.fibonacci.model.dto.FibonacciOption;
+import com.github.mangila.fibonacci.model.dto.FibonacciProjectionDto;
 import com.github.mangila.fibonacci.service.FibonacciService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
