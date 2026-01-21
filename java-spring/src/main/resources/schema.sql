@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS fibonacci_results
 (
     id        SERIAL PRIMARY KEY,
     sequence  INT     NOT NULL,
-    -- NUMERIC or BYTEA is the question for large numbers
     result    NUMERIC NOT NULL,
     precision INT     NOT NULL
 );
@@ -14,7 +13,7 @@ DECLARE
     channel        TEXT := 'livestream';
     notify_payload TEXT;
 BEGIN
-    -- Only send the id and the length(precision) of the numeric value in the notification
+    -- Only send the id, sequence and the length(precision) of the numeric value in the notification
     notify_payload := json_build_object(
             'id', NEW.id,
             'sequence', NEW.sequence,
