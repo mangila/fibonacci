@@ -4,14 +4,18 @@ import com.github.benmanes.caffeine.cache.Cache;
 import io.github.mangila.ensure4j.Ensure;
 import io.github.mangila.ensure4j.EnsureException;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.Duration;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Stream;
 
 public class SseSessionCache {
 
+    private static final Logger log = LoggerFactory.getLogger(SseSessionCache.class);
     private final Cache<String, CopyOnWriteArraySet<SseSession>> cache;
 
     public SseSessionCache(Cache<String, CopyOnWriteArraySet<SseSession>> cache) {
@@ -33,12 +37,14 @@ public class SseSessionCache {
     public void tryAdd(String channel, String streamKey) throws EnsureException {
         cache.asMap()
                 .compute(channel, (_, existingSet) -> {
+                    log.info("Adding SSE session for {}:{}", channel, streamKey);
                     var set = existingSet == null ? new CopyOnWriteArraySet<SseSession>() : existingSet;
                     // with an HTTP2 connection, we can bump this number
                     Ensure.max(6, set.size(), "Too many SSE sessions for %s".formatted(channel));
                     var emitter = new SseEmitter(Duration.ofMinutes(60).toMillis());
                     var session = new SseSession(channel, streamKey, emitter);
                     set.add(session);
+                    log.info("Added SSE session for {}:{}", channel, streamKey);
                     return set;
                 });
     }
@@ -55,6 +61,10 @@ public class SseSessionCache {
                 .values()
                 .stream()
                 .flatMap(CopyOnWriteArraySet::stream);
+    }
+
+    public Set<String> getKeys() {
+        return cache.asMap().keySet();
     }
 
     public boolean hasSessions(String channel) {

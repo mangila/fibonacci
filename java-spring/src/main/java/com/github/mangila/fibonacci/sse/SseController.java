@@ -1,13 +1,13 @@
 package com.github.mangila.fibonacci.sse;
 
 import com.github.mangila.fibonacci.db.FibonacciRepository;
+import com.github.mangila.fibonacci.model.FibonacciDto;
 import com.github.mangila.fibonacci.model.FibonacciOption;
 import com.github.mangila.fibonacci.model.FibonacciResultEntity;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ public class SseController {
     private final SseEmitterRegistry emitterRegistry;
 
     public SseController(FibonacciRepository repository,
-                         @Qualifier("queryEmitterRegistry") SseEmitterRegistry emitterRegistry) {
+                         SseEmitterRegistry emitterRegistry) {
         this.repository = repository;
         this.emitterRegistry = emitterRegistry;
     }
@@ -56,7 +56,10 @@ public class SseController {
         SseSession session = emitterRegistry.getSession(channel, streamKey);
         FibonacciResultEntity result = repository.queryById(id);
         try {
-            session.send("id", result);
+            session.send("id", new FibonacciDto(
+                    id,
+                    result.precision(),
+                    result.result().toPlainString()));
         } catch (IOException e) {
             session.completeWithError(e);
         }
@@ -70,9 +73,16 @@ public class SseController {
             @RequestBody @Valid @NotNull FibonacciOption option) {
         log.info("Received request for fibonacci sequence {}:{}", streamKey, channel);
         SseSession session = emitterRegistry.getSession(channel, streamKey);
-        List<FibonacciResultEntity> result = repository.queryForList(option);
+        List<FibonacciDto> dtos = repository.queryForList(option)
+                .stream()
+                .map(entity -> {
+                    return new FibonacciDto(entity.id(),
+                            entity.precision(),
+                            entity.result().toPlainString());
+                })
+                .toList();
         try {
-            session.send("list", result);
+            session.send("list", dtos);
         } catch (IOException e) {
             session.completeWithError(e);
         }

@@ -3,7 +3,6 @@ package com.github.mangila.fibonacci.sse;
 import com.github.mangila.fibonacci.event.PgNotificationCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,7 @@ public class SseLivestreamController {
 
     private final SseEmitterRegistry emitterRegistry;
 
-    public SseLivestreamController(@Qualifier("livestreamEmitterRegistry") SseEmitterRegistry emitterRegistry) {
+    public SseLivestreamController(SseEmitterRegistry emitterRegistry) {
         this.emitterRegistry = emitterRegistry;
     }
 
@@ -27,6 +26,7 @@ public class SseLivestreamController {
         emitterRegistry.getAllSession()
                 .forEach(sseSession -> {
                     try {
+                        log.info("Sending livestream event to session for channel: {} - {}", sseSession.channel(), sseSession.streamKey());
                         sseSession.send("livestream", payload.value());
                     } catch (Exception e) {
                         sseSession.completeWithError(e);
@@ -38,6 +38,7 @@ public class SseLivestreamController {
     public ResponseEntity<SseEmitter> subscribeLivestream(
             @PathVariable String channel,
             @RequestParam String streamKey) {
+        log.info("Subscribing to livestream for {}:{}", channel, streamKey);
         SseSession session = emitterRegistry.subscribe(channel, streamKey);
         return ResponseEntity.ok()
                 .header("Cache-Control", "no-cache, no-store, must-revalidate")

@@ -13,5 +13,5 @@ const livestreamUrl = new URL(path, new URL(URL_BASE));
   <div class="prose mx-auto text-center mt-4">
     <DatasourceMenu title="SSE Livestream" />
   </div>
-  <SseLivestream client:load url={livestreamUrl} />
+  <SseLivestream client:only="react" channel={channel} url={livestreamUrl} />
 </Layout>

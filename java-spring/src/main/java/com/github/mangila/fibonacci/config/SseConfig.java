@@ -32,19 +32,14 @@ public class SseConfig {
     }
 
     @Bean
-    SseEmitterRegistry queryEmitterRegistry() {
+    SseEmitterRegistry sseEmitterRegistry() {
         return new SseEmitterRegistry(new SseSessionCache(sseSessionCache()));
     }
 
     @Bean
-    SseEmitterRegistry livestreamEmitterRegistry() {
-        return new SseEmitterRegistry(new SseSessionCache(sseSessionCache()));
-    }
-
-    @Bean("heartbeatScheduler")
-    SimpleAsyncTaskScheduler heartbeatScheduler() {
+    SimpleAsyncTaskScheduler sseTaskScheduler() {
         var scheduler = new SimpleAsyncTaskScheduler();
-        scheduler.setThreadNamePrefix("sse-heartbeat-");
+        scheduler.setThreadNamePrefix("sse-scheduler-");
         scheduler.setVirtualThreads(true);
         return scheduler;
     }

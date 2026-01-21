@@ -6,6 +6,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Set;
 
 public record SseSession(
@@ -28,6 +29,7 @@ public record SseSession(
                 .id(streamKey)
                 .name(eventName)
                 .data(payload, MediaType.APPLICATION_JSON)
+                .reconnectTime(Duration.ofSeconds(5).toMillis())
                 .comment(channel)
                 .build();
         emitter.send(event);

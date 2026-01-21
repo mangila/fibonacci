@@ -8,6 +8,7 @@ import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class SseEmitterRegistry implements SmartLifecycle, BeanNameAware {
@@ -29,20 +30,28 @@ public class SseEmitterRegistry implements SmartLifecycle, BeanNameAware {
         Ensure.notNull(session, "Session not found for %s:%s".formatted(channel, streamKey));
         // noinspection ConstantConditions
         SseEmitter emitter = session.emitter();
+        emitter.onTimeout(() -> {
+            log.warn("SSE Timeout for user {}: {}", channel, streamKey);
+            emitter.completeWithError(new RuntimeException("Timeout"));
+        });
         emitter.onError((ex) -> log.warn("SSE Error for user {}: {}", channel, streamKey, ex));
-        emitter.onTimeout(() -> log.warn("SSE Timeout for user {}: {}", channel, streamKey));
         emitter.onCompletion(() -> {
             log.info("SSE Completed for user {}: {}", channel, streamKey);
             cache.removeSession(channel, streamKey);
-            if (!cache.hasSessions(channel)) {
-                cache.invalidate(channel);
-            }
         });
         return session;
     }
 
     public Stream<SseSession> getAllSession() {
         return cache.getAllSession();
+    }
+
+    public Set<String> getKeys() {
+        return cache.getKeys();
+    }
+
+    public boolean hasSessions(String channel) {
+        return cache.hasSessions(channel);
     }
 
     @NonNull
@@ -57,6 +66,11 @@ public class SseEmitterRegistry implements SmartLifecycle, BeanNameAware {
     public void start() {
         log.info("Starting registry {}: {}", beanName, this);
         open = true;
+    }
+
+    @Override
+    public int getPhase() {
+        return Integer.MAX_VALUE;
     }
 
     @Override

@@ -1,3 +1,14 @@
-<div class="navbar bg-base-100 shadow-sm">
-  <a href="/" class="btn btn-ghost text-xl">Fibonacci</a>
+---
+import ThemeSwap from "../pages/_components/ThemeSwap.astro";
+---
+
+<div class="navbar bg-base-300 shadow-sm">
+  <a href="/" class="flex-1">
+    <div class="flex items-center gap-2">
+      <p class="prose prose-xl font-bold">Fibonacci</p>
+    </div>
+  </a>
+  <div class="flex-none pr-4">
+    <ThemeSwap />
+  </div>
 </div>

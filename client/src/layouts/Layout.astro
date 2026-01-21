@@ -1,11 +1,25 @@
 ---
 import "normalize.css";
 import Navbar from "./Navbar.astro";
+import Footer from "./Footer.astro";
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+      import { themeChange } from "theme-change";
+      themeChange();
+    </script>
+    <script is:inline>
+      if (localStorage.getItem("theme") === null) {
+        document.documentElement.setAttribute("data-theme", "light");
+      } else
+        document.documentElement.setAttribute(
+          "data-theme",
+          localStorage.getItem("theme"),
+        );
+    </script>
     <meta charset="UTF-8" />
     <meta
       name="viewport"
@@ -15,13 +29,18 @@ import Navbar from "./Navbar.astro";
     <meta name="generator" content={Astro.generator} />
     <title>Fibonacci</title>
   </head>
-  <body>
-    <nav>
-      <Navbar />
-    </nav>
-    <main>
-      <slot />
-    </main>
+  <body class="bg-base-200">
+    <div class="flex flex-col min-h-dvh">
+      <nav class="flex-none pt-safe">
+        <Navbar />
+      </nav>
+      <main class="flex-grow">
+        <slot />
+      </main>
+      <div class="flex-none pb-safe">
+        <Footer />
+      </div>
+    </div>
   </body>
 </html>
 

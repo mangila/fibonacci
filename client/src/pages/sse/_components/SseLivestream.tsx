@@ -1,18 +1,23 @@
 import { Suspense, useEffect, useState } from "react";
-import { useDynamicList } from "ahooks";
+import { useDynamicList, useEventEmitter } from "ahooks";
 import type { FibonacciData, SseStatus } from "../../_types/types";
 import { ErrorBoundary } from "react-error-boundary";
+import { FibonacciCard } from "./FibonacciCard";
+import { CountCard } from "./CountCard";
+import { StatusCard } from "./StatusCard";
 
 interface Props {
+  channel: string;
   url: URL;
 }
 
-export const SseLivestream = ({ url }: Props) => {
+export const SseLivestream = ({ channel, url }: Props) => {
   const { list, push } = useDynamicList<FibonacciData>([]);
   const [status, setStatus] = useState<SseStatus>("offline");
+  const [streamKey] = useState(crypto.randomUUID());
+  const event$ = useEventEmitter<FibonacciData>();
 
   useEffect(() => {
-    const streamKey = crypto.randomUUID();
     url.searchParams.append("streamKey", streamKey);
     const sse = new EventSource(url);
 
@@ -27,7 +32,7 @@ export const SseLivestream = ({ url }: Props) => {
 
     sse.addEventListener("id", (e) => {
       const data: FibonacciData = JSON.parse(e.data);
-      push(data);
+      event$.emit(data);
     });
 
     sse.onerror = () => {
@@ -38,17 +43,25 @@ export const SseLivestream = ({ url }: Props) => {
     return () => {
       sse.close();
     };
-  }, [url]);
+  }, [channel, url]);
 
   return (
     <ErrorBoundary fallback={"the err is human..."}>
       <Suspense fallback={"loading..."}>
-        {status}
-        <div className="grid grid-cols-12">
+        <div className="flex justify-center m-4">
+          <StatusCard status={status} />
+          <CountCard count={list.length} />
+        </div>
+        <div className="grid grid-cols-3 md:grid-cols-12">
           {list.map((value) => {
             return (
               <div key={value.id}>
-                ID : {value.id} Precision: {value.precision}
+                <FibonacciCard
+                  channel={channel}
+                  streamKey={streamKey}
+                  value={value}
+                  event$={event$}
+                />
               </div>
             );
           })}
