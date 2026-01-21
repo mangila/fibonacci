@@ -44,8 +44,8 @@ public class WebSocketController {
         template.convertAndSend("/topic/livestream", payload.value());
     }
 
-    @MessageMapping("fibonacci")
-    @SendToUser("/queue/fibonacci")
+    @MessageMapping("fibonacci/list")
+    @SendToUser("/queue/fibonacci/list")
     public List<FibonacciDto> queueFibonacciSequences(@Valid @NotNull FibonacciOption option, Principal principal) {
         log.info("Received request for fibonacci sequence {} from {}", option, principal.getName());
         List<FibonacciResultProjection> projections = repository.queryForList(option);

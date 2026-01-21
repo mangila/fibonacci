@@ -4,7 +4,7 @@ import DatasourceMenu from "../_components/DatasourceMenu.astro";
 import { SSE_BASE_PATH, URL_BASE } from "../_utils/utils";
 import { SseQuery } from "./_components/SseQuery";
 
-const channel = "mangila-livestream";
+const channel = "mangila-sse-query-channel";
 const path = SSE_BASE_PATH + `/${channel}`;
 const sseUrl = new URL(path, new URL(URL_BASE));
 ---

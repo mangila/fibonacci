@@ -1,7 +1,7 @@
-import type { SseStatus } from "../../_types/types";
+import type { ConnectionStatus } from "../_types/types";
 
 interface Props {
-  status: SseStatus;
+  status: ConnectionStatus;
 }
 
 export const StatusCard = ({ status }: Props) => {
@@ -9,7 +9,7 @@ export const StatusCard = ({ status }: Props) => {
     <>
       <>
         <div className="stat">
-          <div className="stat-title">Status    </div>
+          <div className="stat-title">Status </div>
           <div className="stat-value">{status}</div>
         </div>
       </>

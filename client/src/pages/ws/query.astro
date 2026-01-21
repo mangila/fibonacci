@@ -1,10 +1,12 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import DatasourceMenu from "../_components/DatasourceMenu.astro";
+import { WsQuery } from "./_components/WsQuery";
 ---
 
 <Layout>
   <div class="prose mx-auto text-center mt-4">
     <DatasourceMenu title="WS Query" />
   </div>
+  <WsQuery client:load />
 </Layout>

@@ -86,7 +86,7 @@ class WebSocketControllerTest {
                 .join();
         FibonacciOption option = new FibonacciOption(1, 100);
         CountDownLatch latch = new CountDownLatch(1);
-        session.subscribe("/user/queue/fibonacci", new StompFrameHandler() {
+        session.subscribe("/user/queue/fibonacci/list", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return List.class;
@@ -101,7 +101,7 @@ class WebSocketControllerTest {
                 latch.countDown();
             }
         });
-        session.send("/app/fibonacci", option);
+        session.send("/app/fibonacci/list", option);
         await()
                 .atMost(Duration.ofSeconds(5))
                 .until(() -> latch.getCount() == 0);
@@ -129,7 +129,7 @@ class WebSocketControllerTest {
                 latch.countDown();
             }
         });
-        session.send("/app/fibonacci", option);
+        session.send("/app/fibonacci/list", option);
         await()
                 .atMost(Duration.ofSeconds(5))
                 .until(() -> latch.getCount() == 0);

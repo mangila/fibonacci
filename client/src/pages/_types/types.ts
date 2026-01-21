@@ -1,4 +1,4 @@
-export type SseStatus = "offline" | "connecting" | "open" | "error";
+export type ConnectionStatus = "offline" | "open" | "error";
 
 export interface FibonacciData {
   id: number;

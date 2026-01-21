@@ -1,10 +1,11 @@
-import { Suspense, useEffect, useState } from "react";
-import { useDynamicList, useEventEmitter } from "ahooks";
-import type { FibonacciData, SseStatus } from "../../_types/types";
+import { useEffect, useState } from "react";
+import { useDynamicList } from "ahooks";
+import type { ConnectionStatus, FibonacciData } from "../../_types/types";
 import { ErrorBoundary } from "react-error-boundary";
-import { FibonacciCard } from "./FibonacciCard";
-import { CountCard } from "./CountCard";
-import { StatusCard } from "./StatusCard";
+import { FibonacciCard } from "../../_components/FibonacciCard";
+import { StatusCard } from "../../_components/StatusCard";
+import { queryById } from "../../_utils/api";
+import { CountCard } from "../../_components/CountCard";
 
 interface Props {
   channel: string;
@@ -12,10 +13,14 @@ interface Props {
 }
 
 export const SseLivestream = ({ channel, url }: Props) => {
+  const [status, setStatus] = useState<ConnectionStatus>("offline");
   const { list, push } = useDynamicList<FibonacciData>([]);
-  const [status, setStatus] = useState<SseStatus>("offline");
+  const [modalData, setModalData] = useState<FibonacciData>({
+    id: 0,
+    precision: 0,
+    result: "",
+  });
   const [streamKey] = useState(crypto.randomUUID());
-  const event$ = useEventEmitter<FibonacciData>();
 
   useEffect(() => {
     url.searchParams.append("streamKey", streamKey);
@@ -27,12 +32,12 @@ export const SseLivestream = ({ channel, url }: Props) => {
 
     sse.addEventListener("livestream", (e) => {
       const data: FibonacciData[] = JSON.parse(e.data);
-      data.flatMap((value) => push(value));
+      data.map((value) => push(value));
     });
 
     sse.addEventListener("id", (e) => {
       const data: FibonacciData = JSON.parse(e.data);
-      event$.emit(data);
+      setModalData(data);
     });
 
     sse.onerror = () => {
@@ -47,26 +52,24 @@ export const SseLivestream = ({ channel, url }: Props) => {
 
   return (
     <ErrorBoundary fallback={"the err is human..."}>
-      <Suspense fallback={"loading..."}>
-        <div className="flex justify-center m-4">
-          <StatusCard status={status} />
-          <CountCard count={list.length} />
-        </div>
-        <div className="grid grid-cols-3 md:grid-cols-12">
-          {list.map((value) => {
-            return (
-              <div key={value.id}>
-                <FibonacciCard
-                  channel={channel}
-                  streamKey={streamKey}
-                  value={value}
-                  event$={event$}
-                />
-              </div>
-            );
-          })}
-        </div>
-      </Suspense>
+      <div className="flex justify-center m-4">
+        <StatusCard status={status} />
+        <CountCard count={list.length} />
+      </div>
+      <div className="grid grid-cols-3 md:grid-cols-12">
+        {list.map((value) => {
+          return (
+            <div
+              key={value.id}
+              onMouseEnter={() => {
+                queryById(channel, streamKey, value.id);
+              }}
+            >
+              <FibonacciCard id={value.id} data={modalData} />
+            </div>
+          );
+        })}
+      </div>
     </ErrorBoundary>
   );
 };

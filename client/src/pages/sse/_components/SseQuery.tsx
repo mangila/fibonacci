@@ -1,123 +1,103 @@
-import { useDynamicList, useEventEmitter } from "ahooks";
-import { Suspense, useActionState, useEffect, useState } from "react";
-import type { FibonacciData, SseStatus } from "../../_types/types";
-import { ErrorBoundary } from "react-error-boundary";
-import { CountCard } from "./CountCard";
-import { FibonacciCard } from "./FibonacciCard";
-import { StatusCard } from "./StatusCard";
-import { queryByList } from "../../_utils/api";
+import {useDynamicList, useUpdateEffect} from "ahooks";
+import {useActionState, useEffect, useState} from "react";
+import type {ConnectionStatus, FibonacciData} from "../../_types/types";
+import {ErrorBoundary} from "react-error-boundary";
+import {CountCard} from "../../_components/CountCard";
+import {FibonacciCard} from "../../_components/FibonacciCard";
+import {StatusCard} from "../../_components/StatusCard";
+import {queryById, queryByList} from "../../_utils/api";
+import {QueryForm} from "../../_components/QueryForm";
 
 interface Props {
-  channel: string;
-  url: URL;
+    channel: string;
+    url: URL;
 }
 
-async function handleSubmit(prevState, formData: FormData) {
-  const offsetData = formData.get("offset");
-  if (offsetData === null) {
-    throw new Error("err");
-  }
-  const limitData = formData.get("limit");
-  if (limitData === null) {
-    throw new Error("err");
-  }
-  const channelData = formData.get("channel");
-  if (channelData === null) {
-    throw new Error("err");
-  }
-  const streamKeyData = formData.get("streamKey");
-  if (streamKeyData === null) {
-    throw new Error("err");
-  }
+function handleSubmit(_, formData: FormData) {
+    const offsetData = formData.get("offset");
+    if (offsetData === null) {
+        throw new Error("err");
+    }
+    const limitData = formData.get("limit");
+    if (limitData === null) {
+        throw new Error("err");
+    }
 
-  const channel = channelData.toString();
-  const streamKey = streamKeyData.toString();
-  const offset = offsetData.toString();
-  const limit = limitData.toString();
+    const offset = offsetData.toString();
+    const limit = limitData.toString();
 
-  await queryByList(channel, streamKey, offset, limit);
-  return { offset, limit };
+    return {offset, limit};
 }
 
-export const SseQuery = ({ channel, url }: Props) => {
-  const [, formAction, isPending] = useActionState(handleSubmit, null);
-  const { list, push, resetList } = useDynamicList<FibonacciData>([]);
-  const [status, setStatus] = useState<SseStatus>("offline");
-  const [streamKey] = useState(crypto.randomUUID());
-  const event$ = useEventEmitter<FibonacciData>();
-
-  useEffect(() => {
-    url.searchParams.append("streamKey", streamKey);
-    const sse = new EventSource(url);
-
-    sse.onopen = () => {
-      setStatus("open");
-    };
-
-    sse.addEventListener("list", (e) => {
-      resetList([]);
-      const data: FibonacciData[] = JSON.parse(e.data);
-      data.flatMap((value) => push(value));
+export const SseQuery = ({channel, url}: Props) => {
+    const [status, setStatus] = useState<ConnectionStatus>("offline");
+    const [state, formAction, isPending] = useActionState(handleSubmit, null);
+    const {list, push, resetList} = useDynamicList<FibonacciData>([]);
+    const [modalData, setModalData] = useState<FibonacciData>({
+        id: 0,
+        precision: 0,
+        result: "",
     });
+    const [streamKey] = useState(crypto.randomUUID());
 
-    sse.addEventListener("id", (e) => {
-      const data: FibonacciData = JSON.parse(e.data);
-      event$.emit(data);
-    });
+    useEffect(() => {
+        url.searchParams.append("streamKey", streamKey);
+        const sse = new EventSource(url);
 
-    sse.onerror = () => {
-      sse.close();
-      setStatus("error");
-    };
+        sse.addEventListener("list", (e) => {
+            resetList([]);
+            const data: FibonacciData[] = JSON.parse(e.data);
+            data.flatMap((value) => push(value));
+        });
 
-    return () => {
-      sse.close();
-    };
-  }, [channel, url]);
+        sse.addEventListener("id", (e) => {
+            const data: FibonacciData = JSON.parse(e.data);
+            setModalData(data);
+        });
 
-  return (
-    <ErrorBoundary fallback={"the err is human..."}>
-      <form action={formAction} className="flex justify-center m-4">
-        <input
-          type="number"
-          name="offset"
-          placeholder="Offset"
-          className="input validator"
-          min="0"
-          required
-        />
-        <input
-          type="number"
-          name="limit"
-          placeholder="Limit"
-          className="input validator"
-          min="1"
-          max="1000"
-          required
-        />
-        <input type="hidden" name="channel" value={channel} required />
-        <input type="hidden" name="streamKey" value={streamKey} required />
-        <input type="submit" disabled={isPending} />
-      </form>
-      <div className="divider"></div>
-      <div className="flex justify-center m-4">
-        <StatusCard status={status} />
-        <CountCard count={list.length} />
-      </div>
-      <div className="grid grid-cols-3 md:grid-cols-12">
-        {list.map((value) => {
-          return (
-            <div key={value.id}>
-              <FibonacciCard
-                channel={channel}
-                streamKey={streamKey}
-                value={value}
-                event$={event$}
-              />
+        sse.onopen = () => {
+            setStatus("open");
+        };
+
+        sse.onerror = () => {
+            setStatus("error");
+            sse.close();
+        };
+
+        return () => {
+            sse.close();
+        };
+    }, [channel, url]);
+
+    useUpdateEffect(() => {
+        if (state) {
+            const offset = state.offset;
+            const limit = state.limit;
+            queryByList(channel, streamKey, offset, limit);
+        }
+    }, [state]);
+
+    return (
+        <ErrorBoundary fallback={"the err is human..."}>
+            <QueryForm isPending={isPending} payload={formAction}/>
+            <div className="flex justify-center m-4">
+                <StatusCard status={status}/>
+                <CountCard count={list.length}/>
             </div>
-          );
-        })}
-      </div>
-    </ErrorBoundary>
-  );
+            <div className="grid grid-cols-3 md:grid-cols-12">
+                {list.map((value) => {
+                    return (
+                        <div
+                            key={value.id}
+                            onMouseEnter={() => {
+                                queryById(channel, streamKey, value.id);
+                            }}
+                        >
+                            <FibonacciCard id={value.id} data={modalData}/>
+                        </div>
+                    );
+                })}
+            </div>
+        </ErrorBoundary>
+    );
 };
