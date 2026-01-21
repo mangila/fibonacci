@@ -34,8 +34,8 @@ class FibonacciRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        var first = FibonacciResult.of(1, BigDecimal.ZERO);
-        var second = FibonacciResult.of(2, BigDecimal.ONE);
+        var first = FibonacciResult.of(BigDecimal.ZERO);
+        var second = FibonacciResult.of(BigDecimal.ONE);
         repository.insert(first);
         repository.insert(second);
         int rows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "fibonacci_results");

@@ -3,6 +3,7 @@ package com.github.mangila.fibonacci.db;
 import com.github.mangila.fibonacci.model.FibonacciOption;
 import com.github.mangila.fibonacci.model.FibonacciResult;
 import com.github.mangila.fibonacci.model.FibonacciResultEntity;
+import com.github.mangila.fibonacci.model.FibonacciResultProjection;
 import io.github.mangila.ensure4j.Ensure;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -32,7 +33,7 @@ public class FibonacciRepository {
         Ensure.min(1, id);
         // language=PostgreSQL
         final String sql = """
-                SELECT id,result,precision FROM fibonacci_results
+                SELECT id, result, precision FROM fibonacci_results
                 WHERE id = ?
                 """;
         return jdbcTemplate.queryForObject(sql,
@@ -44,7 +45,7 @@ public class FibonacciRepository {
                 id);
     }
 
-    public List<FibonacciResultEntity> queryForList(FibonacciOption option) {
+    public List<FibonacciResultProjection> queryForList(FibonacciOption option) {
         Ensure.notNull(option);
         // language=PostgreSQL
         final String sql = """
@@ -54,9 +55,8 @@ public class FibonacciRepository {
                 LIMIT ?;
                 """;
         return jdbcTemplate.query(sql,
-                (rs, _) -> new FibonacciResultEntity(
+                (rs, _) -> new FibonacciResultProjection(
                         rs.getInt("id"),
-                        null,
                         rs.getInt("precision")
                 ),
                 option.offset(), option.limit()

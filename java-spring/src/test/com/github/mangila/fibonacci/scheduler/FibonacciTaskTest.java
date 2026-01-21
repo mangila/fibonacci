@@ -30,7 +30,7 @@ class FibonacciTaskTest {
     @Test
     void run() {
         fibonacciTask.run();
-        verify(repository, Mockito.times(1)).hasSequence(any());
+        verify(repository, Mockito.times(1)).hasSequence(any(Integer.class));
         verify(repository, Mockito.times(1)).insert(any());
     }
 }

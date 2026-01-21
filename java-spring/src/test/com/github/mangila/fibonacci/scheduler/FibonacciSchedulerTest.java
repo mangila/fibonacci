@@ -21,7 +21,7 @@ import static org.awaitility.Awaitility.await;
                 "app.fibonacci.algorithm=iterative",
                 "app.fibonacci.offset=1",
                 "app.fibonacci.limit=5",
-                "app.fibonacci.delay=1s"
+                "app.fibonacci.delay=500ms"
         })
 @Import(PostgresTestContainerConfiguration.class)
 class FibonacciSchedulerTest {
@@ -40,7 +40,7 @@ class FibonacciSchedulerTest {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start("FibonacciScheduler");
         await()
-                .atMost(10, TimeUnit.SECONDS)
+                .atMost(5, TimeUnit.SECONDS)
                 .until(() -> fibonacciTask.isLimitReached() && !simpleAsyncTaskScheduler.isRunning());
         stopWatch.stop();
         System.out.println(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));

@@ -2,8 +2,7 @@ package com.github.mangila.fibonacci.ws;
 
 import com.github.mangila.fibonacci.db.FibonacciRepository;
 import com.github.mangila.fibonacci.event.PgNotificationCollection;
-import com.github.mangila.fibonacci.model.FibonacciOption;
-import com.github.mangila.fibonacci.model.FibonacciResultEntity;
+import com.github.mangila.fibonacci.model.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -29,11 +28,14 @@ public class WebSocketController {
     private static final Logger log = LoggerFactory.getLogger(WebSocketController.class);
 
     private final FibonacciRepository repository;
+    private final FibonacciMapper mapper;
     private final SimpMessagingTemplate template;
 
     public WebSocketController(FibonacciRepository repository,
+                               FibonacciMapper mapper,
                                @Qualifier("brokerMessagingTemplate") SimpMessagingTemplate template) {
         this.repository = repository;
+        this.mapper = mapper;
         this.template = template;
     }
 
@@ -44,16 +46,20 @@ public class WebSocketController {
 
     @MessageMapping("fibonacci")
     @SendToUser("/queue/fibonacci")
-    public List<FibonacciResultEntity> queueFibonacciSequences(@Valid @NotNull FibonacciOption option, Principal principal) {
+    public List<FibonacciDto> queueFibonacciSequences(@Valid @NotNull FibonacciOption option, Principal principal) {
         log.info("Received request for fibonacci sequence {} from {}", option, principal.getName());
-        return repository.queryForList(option);
+        List<FibonacciResultProjection> projections = repository.queryForList(option);
+        return projections.stream()
+                .map(mapper::map)
+                .toList();
     }
 
     @MessageMapping("fibonacci/id")
     @SendToUser("/queue/fibonacci/id")
-    public FibonacciResultEntity queryById(int id, Principal principal) {
+    public FibonacciDto queryById(int id, Principal principal) {
         log.info("Received request for fibonacci sequence {} from {}", id, principal.getName());
-        return repository.queryById(id);
+        FibonacciResultEntity entity = repository.queryById(id);
+        return mapper.map(entity);
     }
 
     @MessageExceptionHandler(Exception.class)
