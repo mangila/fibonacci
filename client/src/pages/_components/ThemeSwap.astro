@@ -1,0 +1,45 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<label class="swap swap-rotate">
+  <input
+    type="checkbox"
+    value="dark"
+    class="toggle hidden"
+    data-toggle-theme="dark,light"
+    data-act-class="ACTIVECLASS"
+  />
+
+  <Icon
+    id="sunny"
+    name="ion:sunny-outline"
+    class="swap-off h-10 w-10 fill-current"
+  />
+  <Icon
+    id="moon"
+    name="ion:moon-outline"
+    class="swap-on h-10 w-10 fill-current"
+  />
+  <span class="sr-only">Toogle light and dark theme</span>
+</label>
+
+<script>
+  const sunny = document.getElementById("sunny");
+  const moon = document.getElementById("moon");
+  const theme = localStorage.getItem("theme");
+
+  if (theme === "dark") {
+    moon?.classList.remove("swap-on");
+    moon?.classList.add("swap-off");
+
+    sunny?.classList.add("swap-on");
+    sunny?.classList.remove("swap-off");
+  } else {
+    sunny?.classList.remove("swap-on");
+    sunny?.classList.add("swap-off");
+
+    moon?.classList.add("swap-on");
+    moon?.classList.remove("swap-off");
+  }
+</script>
