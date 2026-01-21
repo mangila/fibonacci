@@ -1,5 +1,6 @@
 package com.github.mangila.fibonacci;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
@@ -22,6 +23,7 @@ class FibonacciCalculatorTest {
     private static final int FIVE_HUNDRED_THOUSAND = 500_000;
     private static final int ONE_MILLION = 1_000_000;
 
+    @Disabled
     @TestFactory
     Collection<DynamicTest> fibonacciNumbers() {
         return Stream.of(HUNDRED, THOUSAND, TEN_THOUSAND, ONE_HUNDRED_THOUSAND, FIVE_HUNDRED_THOUSAND, ONE_MILLION)

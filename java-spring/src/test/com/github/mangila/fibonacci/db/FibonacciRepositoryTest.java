@@ -1,16 +1,15 @@
 package com.github.mangila.fibonacci.db;
 
 import com.github.mangila.fibonacci.PostgresTestContainerConfiguration;
+import com.github.mangila.fibonacci.model.FibonacciEntity;
 import com.github.mangila.fibonacci.model.FibonacciOption;
 import com.github.mangila.fibonacci.model.FibonacciResult;
-import com.github.mangila.fibonacci.model.FibonacciResultEntity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
@@ -19,7 +18,6 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @JdbcTest
 @Sql(scripts = {"classpath:schema.sql"}, config = @SqlConfig(separator = "^^"))
@@ -34,8 +32,8 @@ class FibonacciRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        var first = FibonacciResult.of(BigDecimal.ZERO);
-        var second = FibonacciResult.of(BigDecimal.ONE);
+        var first = FibonacciResult.of(1, BigDecimal.ZERO);
+        var second = FibonacciResult.of(2, BigDecimal.ONE);
         repository.insert(first);
         repository.insert(second);
         int rows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "fibonacci_results");
@@ -49,7 +47,7 @@ class FibonacciRepositoryTest {
 
     @Test
     void queryById() {
-        FibonacciResultEntity entity = repository.queryById(1);
+        FibonacciEntity entity = repository.queryById(1).orElseThrow();
         assertThat(entity).isNotNull();
         assertThat(entity.id()).isEqualTo(1);
         assertThat(entity.result()).isEqualTo(BigDecimal.ZERO);
@@ -58,8 +56,7 @@ class FibonacciRepositoryTest {
 
     @Test
     void queryByIdFail() {
-        assertThatThrownBy(() -> repository.queryById(100))
-                .isInstanceOf(DataAccessException.class);
+        assertThat(repository.queryById(100)).isEmpty();
     }
 
     @Test

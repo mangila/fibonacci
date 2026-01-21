@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS fibonacci_results;
 CREATE TABLE IF NOT EXISTS fibonacci_results
 (
     id        SERIAL PRIMARY KEY,
+    sequence  INT     NOT NULL,
     -- NUMERIC or BYTEA is the question for large numbers
     result    NUMERIC NOT NULL,
     precision INT     NOT NULL
@@ -16,6 +17,7 @@ BEGIN
     -- Only send the id and the length(precision) of the numeric value in the notification
     notify_payload := json_build_object(
             'id', NEW.id,
+            'sequence', NEW.sequence,
             'precision', NEW.precision
                       )::json;
     PERFORM pg_notify(channel, notify_payload);

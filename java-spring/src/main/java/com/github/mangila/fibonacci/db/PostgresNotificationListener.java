@@ -1,8 +1,8 @@
 package com.github.mangila.fibonacci.db;
 
-import com.github.mangila.fibonacci.event.PgNotification;
-import com.github.mangila.fibonacci.event.PgNotificationCollection;
+import com.github.mangila.fibonacci.event.FibonacciProjectionList;
 import com.github.mangila.fibonacci.event.SpringApplicationPublisher;
+import com.github.mangila.fibonacci.model.FibonacciProjectionDto;
 import org.postgresql.PGNotification;
 import org.postgresql.jdbc.PgConnection;
 import org.slf4j.Logger;
@@ -54,11 +54,11 @@ public class PostgresNotificationListener implements Runnable {
                 while (running && !Thread.currentThread().isInterrupted()) {
                     try {
                         PGNotification[] pgNotifications = pgConnection.getNotifications(0);
-                        List<PgNotification> notifications = Arrays.stream(pgNotifications)
+                        List<FibonacciProjectionDto> notifications = Arrays.stream(pgNotifications)
                                 .map(PGNotification::getParameter)
-                                .map(json -> objectMapper.readValue(json, PgNotification.class))
+                                .map(json -> objectMapper.readValue(json, FibonacciProjectionDto.class))
                                 .toList();
-                        publisher.publishNotification(new PgNotificationCollection(notifications));
+                        publisher.publishNotification(new FibonacciProjectionList(notifications));
                     } catch (SQLException e) {
                         log.error("Error while listening for notifications", e);
                         break;

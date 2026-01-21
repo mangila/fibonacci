@@ -23,6 +23,7 @@ class FibonacciComputeTaskTest {
         System.out.println(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
         System.out.println(result);
         assertThat(result).isNotNull();
+        assertThat(result.sequence()).isEqualTo(index);
         assertThat(result.result()).isEqualTo(new BigDecimal("55"));
         assertThat(result.precision()).isEqualTo(2);
     }

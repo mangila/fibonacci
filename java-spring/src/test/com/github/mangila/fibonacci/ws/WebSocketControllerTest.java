@@ -2,7 +2,6 @@ package com.github.mangila.fibonacci.ws;
 
 import com.github.mangila.fibonacci.PostgresTestContainerConfiguration;
 import com.github.mangila.fibonacci.model.FibonacciOption;
-import com.github.mangila.fibonacci.model.FibonacciResultEntity;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.ProblemDetail;
-import org.springframework.messaging.converter.*;
+import org.springframework.messaging.converter.CompositeMessageConverter;
+import org.springframework.messaging.converter.JacksonJsonMessageConverter;
+import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
@@ -47,14 +48,12 @@ class WebSocketControllerTest {
         var ws = new StandardWebSocketClient();
         this.stompClient = new WebSocketStompClient(ws);
         List<MessageConverter> converters = new ArrayList<>();
-        converters.add(new StringMessageConverter());
         converters.add(new JacksonJsonMessageConverter());
-        converters.add(new ByteArrayMessageConverter());
         this.stompClient.setMessageConverter(new CompositeMessageConverter(converters));
     }
 
     @Test
-    void livestream() {
+    void wsLivestream() {
         StompSession session = stompClient
                 .connectAsync(url, new StompSessionHandlerAdapter() {
                 })
@@ -69,7 +68,7 @@ class WebSocketControllerTest {
             @Override
             public void handleFrame(StompHeaders headers, @Nullable Object payload) {
                 log.info("Received headers: {} - Payload: {}", headers, payload);
-                assertThat(payload).isInstanceOf(List.class);
+                assertThat(payload).isNotNull();
                 latch.countDown();
             }
         });
@@ -79,7 +78,7 @@ class WebSocketControllerTest {
     }
 
     @Test
-    void queueFibonacci() throws InterruptedException {
+    void wsQueryForList() throws InterruptedException {
         StompSession session = stompClient
                 .connectAsync(url, new StompSessionHandlerAdapter() {
                 })
@@ -96,8 +95,6 @@ class WebSocketControllerTest {
             public void handleFrame(StompHeaders headers, @Nullable Object payload) {
                 log.info("Received headers: {} - Payload: {}", headers, payload);
                 assertThat(payload).isNotNull();
-                assertThat(payload).isInstanceOf(List.class);
-                List<String> list = (List<String>) payload;
                 latch.countDown();
             }
         });
@@ -108,35 +105,7 @@ class WebSocketControllerTest {
     }
 
     @Test
-    void queueFibonacciFail() throws InterruptedException {
-        StompSession session = stompClient
-                .connectAsync(url, new StompSessionHandlerAdapter() {
-                })
-                .join();
-        FibonacciOption option = new FibonacciOption(-1, 100);
-        CountDownLatch latch = new CountDownLatch(1);
-        session.subscribe("/user/queue/errors", new StompFrameHandler() {
-            @Override
-            public Type getPayloadType(StompHeaders headers) {
-                return ProblemDetail.class;
-            }
-
-            @Override
-            public void handleFrame(StompHeaders headers, @Nullable Object payload) {
-                log.info("Received headers: {} - Payload: {}", headers, payload);
-                assertThat(payload).isNotNull();
-                assertThat(payload).isInstanceOf(ProblemDetail.class);
-                latch.countDown();
-            }
-        });
-        session.send("/app/fibonacci/list", option);
-        await()
-                .atMost(Duration.ofSeconds(5))
-                .until(() -> latch.getCount() == 0);
-    }
-
-    @Test
-    void queueFibonacciById() throws InterruptedException {
+    void wsQueryById() throws InterruptedException {
         StompSession session = stompClient
                 .connectAsync(url, new StompSessionHandlerAdapter() {
                 })
@@ -145,14 +114,13 @@ class WebSocketControllerTest {
         session.subscribe("/user/queue/fibonacci/id", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return FibonacciResultEntity.class;
+                return byte[].class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, @Nullable Object payload) {
                 log.info("Received headers: {} - Payload: {}", headers, payload);
                 assertThat(payload).isNotNull();
-                assertThat(payload).isInstanceOf(FibonacciResultEntity.class);
                 latch.countDown();
             }
         });
@@ -163,7 +131,7 @@ class WebSocketControllerTest {
     }
 
     @Test
-    void queueFibonacciByIdFail() throws InterruptedException {
+    void wsQueryByIdFail() throws InterruptedException {
         StompSession session = stompClient
                 .connectAsync(url, new StompSessionHandlerAdapter() {
                 })

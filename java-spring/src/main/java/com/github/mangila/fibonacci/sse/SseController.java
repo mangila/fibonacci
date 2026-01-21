@@ -1,8 +1,10 @@
 package com.github.mangila.fibonacci.sse;
 
-import com.github.mangila.fibonacci.db.FibonacciRepository;
-import com.github.mangila.fibonacci.event.PgNotificationCollection;
-import com.github.mangila.fibonacci.model.*;
+import com.github.mangila.fibonacci.event.FibonacciProjectionList;
+import com.github.mangila.fibonacci.model.FibonacciDto;
+import com.github.mangila.fibonacci.model.FibonacciOption;
+import com.github.mangila.fibonacci.model.FibonacciProjectionDto;
+import com.github.mangila.fibonacci.service.FibonacciService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -23,20 +25,16 @@ public class SseController {
 
     private static final Logger log = LoggerFactory.getLogger(SseController.class);
 
-    private final FibonacciRepository repository;
-    private final FibonacciMapper mapper;
+    private final FibonacciService service;
     private final SseEmitterRegistry emitterRegistry;
 
-    public SseController(FibonacciRepository repository,
-                         FibonacciMapper mapper,
-                         SseEmitterRegistry emitterRegistry) {
-        this.repository = repository;
-        this.mapper = mapper;
+    public SseController(FibonacciService service, SseEmitterRegistry emitterRegistry) {
+        this.service = service;
         this.emitterRegistry = emitterRegistry;
     }
 
     @EventListener
-    public void sseLivestream(PgNotificationCollection payload) {
+    public void sseLivestream(FibonacciProjectionList payload) {
         emitterRegistry.getAllSession()
                 .forEach(sseSession -> {
                     try {
@@ -67,8 +65,7 @@ public class SseController {
             @RequestParam String streamKey,
             @RequestParam int id) {
         SseSession session = emitterRegistry.getSession(channel, streamKey);
-        FibonacciResultEntity result = repository.queryById(id);
-        FibonacciDto dto = mapper.map(result);
+        FibonacciDto dto = service.queryById(id);
         try {
             session.send("id", dto);
         } catch (IOException e) {
@@ -83,10 +80,7 @@ public class SseController {
             @RequestParam String streamKey,
             @RequestBody @Valid @NotNull FibonacciOption option) {
         SseSession session = emitterRegistry.getSession(channel, streamKey);
-        List<FibonacciResultProjection> projections = repository.queryForList(option);
-        List<FibonacciDto> dtos = projections.stream()
-                .map(mapper::map)
-                .toList();
+        List<FibonacciProjectionDto> dtos = service.queryForList(option);
         try {
             session.send("list", dtos);
         } catch (IOException e) {

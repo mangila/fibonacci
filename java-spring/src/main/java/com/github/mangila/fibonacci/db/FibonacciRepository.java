@@ -1,15 +1,16 @@
 package com.github.mangila.fibonacci.db;
 
+import com.github.mangila.fibonacci.model.FibonacciEntity;
 import com.github.mangila.fibonacci.model.FibonacciOption;
+import com.github.mangila.fibonacci.model.FibonacciProjection;
 import com.github.mangila.fibonacci.model.FibonacciResult;
-import com.github.mangila.fibonacci.model.FibonacciResultEntity;
-import com.github.mangila.fibonacci.model.FibonacciResultProjection;
-import io.github.mangila.ensure4j.Ensure;
+import org.jspecify.annotations.NonNull;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class FibonacciRepository {
@@ -21,42 +22,43 @@ public class FibonacciRepository {
     }
 
     public void insert(FibonacciResult fibonacciResult) {
-        Ensure.notNull(fibonacciResult);
         // language=PostgreSQL
-        final String sql = "INSERT INTO fibonacci_results (result, precision) VALUES (?,?)";
+        final String sql = "INSERT INTO fibonacci_results (sequence, result, precision) VALUES (?,?,?)";
+        final int sequence = fibonacciResult.sequence();
         final BigDecimal result = fibonacciResult.result();
         final int precision = result.precision();
-        jdbcTemplate.update(sql, result, precision);
+        jdbcTemplate.update(sql, sequence, result, precision);
     }
 
-    public FibonacciResultEntity queryById(int id) {
-        Ensure.min(1, id);
+    public Optional<FibonacciEntity> queryById(int id) {
         // language=PostgreSQL
         final String sql = """
-                SELECT id, result, precision FROM fibonacci_results
+                SELECT id, sequence, result, precision FROM fibonacci_results
                 WHERE id = ?
                 """;
-        return jdbcTemplate.queryForObject(sql,
-                (rs, _) -> new FibonacciResultEntity(
+        List<FibonacciEntity> entity = jdbcTemplate.query(sql,
+                (rs, _) -> new FibonacciEntity(
                         rs.getInt("id"),
+                        rs.getInt("sequence"),
                         rs.getBigDecimal("result"),
                         rs.getInt("precision")
                 ),
                 id);
+        return entity.stream().findFirst();
     }
 
-    public List<FibonacciResultProjection> queryForList(FibonacciOption option) {
-        Ensure.notNull(option);
+    public List<FibonacciProjection> queryForList(@NonNull FibonacciOption option) {
         // language=PostgreSQL
         final String sql = """
-                SELECT id, precision FROM fibonacci_results
-                ORDER BY id
+                SELECT id, sequence, precision FROM fibonacci_results
+                ORDER BY sequence
                 OFFSET ?
                 LIMIT ?;
                 """;
         return jdbcTemplate.query(sql,
-                (rs, _) -> new FibonacciResultProjection(
+                (rs, _) -> new FibonacciProjection(
                         rs.getInt("id"),
+                        rs.getInt("sequence"),
                         rs.getInt("precision")
                 ),
                 option.offset(), option.limit()
@@ -64,7 +66,6 @@ public class FibonacciRepository {
     }
 
     public boolean hasSequence(int id) {
-        Ensure.min(1, id);
         // language=PostgreSQL
         final String sql = "SELECT 1 FROM fibonacci_results WHERE id = ? LIMIT 1";
 

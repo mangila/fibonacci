@@ -2,7 +2,7 @@ package com.github.mangila.fibonacci.scheduler;
 
 import com.github.mangila.fibonacci.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.config.FibonacciProperties;
-import com.github.mangila.fibonacci.db.FibonacciRepository;
+import com.github.mangila.fibonacci.service.FibonacciService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,7 +21,7 @@ public class FibonacciTask implements Runnable {
 
     private final ThreadPoolTaskExecutor computeAsyncTaskExecutor;
     private final SimpleAsyncTaskExecutor ioAsyncTaskExecutor;
-    private final FibonacciRepository repository;
+    private final FibonacciService service;
     private final FibonacciProperties fibonacciProperties;
     private final AtomicInteger fibonacciSequence;
     private final AtomicInteger fibonacciLimit;
@@ -30,11 +30,11 @@ public class FibonacciTask implements Runnable {
 
     public FibonacciTask(@Qualifier("computeAsyncTaskExecutor") ThreadPoolTaskExecutor computeAsyncTaskExecutor,
                          @Qualifier("ioAsyncTaskExecutor") SimpleAsyncTaskExecutor ioAsyncTaskExecutor,
-                         FibonacciRepository repository,
+                         FibonacciService service,
                          FibonacciProperties fibonacciProperties) {
         this.computeAsyncTaskExecutor = computeAsyncTaskExecutor;
         this.ioAsyncTaskExecutor = ioAsyncTaskExecutor;
-        this.repository = repository;
+        this.service = service;
         this.fibonacciProperties = fibonacciProperties;
         this.fibonacciSequence = new AtomicInteger(fibonacciProperties.getOffset());
         this.fibonacciLimit = new AtomicInteger(fibonacciProperties.getLimit());
@@ -42,9 +42,9 @@ public class FibonacciTask implements Runnable {
 
     @Override
     public void run() {
-        final int offset = fibonacciSequence.getAndIncrement();
-        if (repository.hasSequence(offset)) {
-            log.info("Fibonacci sequence {} already computed", offset);
+        final int sequence = fibonacciSequence.getAndIncrement();
+        if (service.hasSequence(sequence)) {
+            log.info("Fibonacci sequence {} already computed", sequence);
             return;
         }
         final FibonacciAlgorithm algorithm = fibonacciProperties.getAlgorithm();
@@ -52,16 +52,16 @@ public class FibonacciTask implements Runnable {
             limitReached = true;
             return;
         }
-        log.info("Fibonacci computation for sequence {} with algorithm {}", offset, algorithm);
-        var task = new FibonacciComputeTask(algorithm, offset);
+        log.info("Fibonacci computation for sequence {} with algorithm {}", sequence, algorithm);
+        var task = new FibonacciComputeTask(algorithm, sequence);
         // Spawn a platform thread for CPU stuffs
         var fibCompute = CompletableFuture.supplyAsync(task::call, computeAsyncTaskExecutor)
                 // Then spawn a virtual thread for IO stuffs
-                .thenAcceptAsync(repository::insert, ioAsyncTaskExecutor)
+                .thenAcceptAsync(service::insert, ioAsyncTaskExecutor)
                 .orTimeout(3, TimeUnit.MINUTES)
                 .exceptionally(e -> {
                     var message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-                    log.error("Fibonacci computation failed for sequence {}: {}", offset, message);
+                    log.error("Fibonacci computation failed for sequence {}: {}", sequence, message);
                     return null;
                 });
         fibCompute.join();

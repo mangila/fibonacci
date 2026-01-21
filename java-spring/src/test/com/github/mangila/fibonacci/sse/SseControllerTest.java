@@ -20,6 +20,7 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -39,7 +40,7 @@ class SseControllerTest {
     }
 
     @Test
-    void subscribeAndQueryForList() {
+    void sseQueryForList() {
         String channel = "mangila-query-stream";
         String streamKey = "listStreamKey";
 
@@ -78,17 +79,27 @@ class SseControllerTest {
                 })
                 .assertNext(event -> {
                     log.info("Received event: {}", event);
-                    assertThat(event.event()).isEqualTo("list");
-                    assertThat(event.id()).isEqualTo(streamKey);
-                    assertThat(event.data()).isNotNull();
-                    assertThat(event.data()).contains("id", "result", "precision");
+                    assertThatJson(event.data())
+                            .as("Fibonacci SSE event query list assertion")
+                            .isArray()
+                            .isNotEmpty()
+                            .hasSizeLessThan(11)
+                            .element(0)
+                            .isObject()
+                            .containsOnlyKeys("id", "sequence", "precision");
+                    assertThat(event.event())
+                            .as("Fibonacci SSE event name query list assertion")
+                            .isEqualTo("list");
+                    assertThat(event.id())
+                            .as("Fibonacci SSE event streamKey query list assertion")
+                            .isEqualTo(streamKey);
                 })
                 .thenCancel()
                 .verify(Duration.ofSeconds(10));
     }
 
     @Test
-    void queryById() {
+    void sseQueryById() {
         String channel = "mangila-query-stream";
         String streamKey = "idStreamKey";
 
@@ -127,17 +138,23 @@ class SseControllerTest {
                 })
                 .assertNext(event -> {
                     log.info("Received event: {}", event);
-                    assertThat(event.event()).isEqualTo("id");
-                    assertThat(event.id()).isEqualTo(streamKey);
-                    assertThat(event.data()).isNotNull();
-                    assertThat(event.data()).contains("id", "result", "precision");
+                    assertThatJson(event.data())
+                            .as("Fibonacci SSE event data id query assertion")
+                            .isObject()
+                            .containsOnlyKeys("id", "sequence", "result", "precision");
+                    assertThat(event.event())
+                            .as("Fibonacci SSE event name id query assertion")
+                            .isEqualTo("id");
+                    assertThat(event.id())
+                            .as("Fibonacci SSE event streamKey id query assertion")
+                            .isEqualTo(streamKey);
                 })
                 .thenCancel()
                 .verify(Duration.ofSeconds(10));
     }
 
     @Test
-    void subscribeLivestream() {
+    void sseLiveStream() {
         String channel = "mangila-livestream";
         String streamKey = "livestreamKey";
 
@@ -163,10 +180,20 @@ class SseControllerTest {
                 })
                 .assertNext(event -> {
                     log.info("Received event: {}", event);
-                    assertThat(event.event()).isEqualTo("livestream");
-                    assertThat(event.id()).isEqualTo(streamKey);
-                    assertThat(event.data()).isNotNull();
-                    assertThat(event.data()).contains("id", "precision");
+                    assertThatJson(event.data())
+                            .as("Fibonacci SSE event data livestream assertion")
+                            .isArray()
+                            .isNotEmpty()
+                            .hasSizeLessThan(11)
+                            .element(0)
+                            .isObject()
+                            .containsOnlyKeys("id", "sequence", "precision");
+                    assertThat(event.event())
+                            .as("Fibonacci SSE event name query livestream assertion")
+                            .isEqualTo("livestream");
+                    assertThat(event.id())
+                            .as("Fibonacci SSE event streamKey query livestream assertion")
+                            .isEqualTo(streamKey);
                 })
                 .thenCancel()
                 .verify(Duration.ofSeconds(5));

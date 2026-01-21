@@ -1,10 +1,18 @@
 package com.github.mangila.fibonacci.model;
 
+import io.github.mangila.ensure4j.Ensure;
+
 import java.math.BigDecimal;
 
-public record FibonacciResult(BigDecimal result, int precision) {
+public record FibonacciResult(int sequence, BigDecimal result, int precision) {
 
-    public static FibonacciResult of(BigDecimal bigDecimal) {
-        return new FibonacciResult(bigDecimal, bigDecimal.precision());
+    public FibonacciResult {
+        Ensure.positive(sequence);
+        Ensure.notNull(result);
+        Ensure.positive(precision);
+    }
+
+    public static FibonacciResult of(int sequence, BigDecimal bigDecimal) {
+        return new FibonacciResult(sequence, bigDecimal, bigDecimal.precision());
     }
 }

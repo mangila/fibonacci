@@ -1,6 +1,10 @@
 import { useDynamicList, useUpdateEffect } from "ahooks";
 import { useActionState, useEffect, useState } from "react";
-import type { ConnectionStatus, FibonacciData } from "../../_types/types";
+import type {
+  ConnectionStatus,
+  FibonacciDto,
+  FibonacciProjectionDto,
+} from "../../_types/types";
 import { ErrorBoundary } from "react-error-boundary";
 import { FibonacciCard } from "../../_components/FibonacciCard";
 import { StatusCard } from "../../_components/StatusCard";
@@ -32,9 +36,10 @@ function handleSubmit(_, formData: FormData) {
 export const SseQuery = ({ channel, url }: Props) => {
   const [status, setStatus] = useState<ConnectionStatus>("offline");
   const [state, formAction, isPending] = useActionState(handleSubmit, null);
-  const { list, push, resetList } = useDynamicList<FibonacciData>([]);
-  const [modalData, setModalData] = useState<FibonacciData>({
+  const { list, push, resetList } = useDynamicList<FibonacciProjectionDto>([]);
+  const [modalData, setModalData] = useState<FibonacciDto>({
     id: 0,
+    sequence: 0,
     precision: 0,
     result: "",
   });
@@ -46,12 +51,12 @@ export const SseQuery = ({ channel, url }: Props) => {
 
     sse.addEventListener("list", (e) => {
       resetList([]);
-      const data: FibonacciData[] = JSON.parse(e.data);
-      data.flatMap((value) => push(value));
+      const data: FibonacciProjectionDto[] = JSON.parse(e.data);
+      data.map((value) => push(value));
     });
 
     sse.addEventListener("id", (e) => {
-      const data: FibonacciData = JSON.parse(e.data);
+      const data: FibonacciDto = JSON.parse(e.data);
       setModalData(data);
     });
 
@@ -93,7 +98,11 @@ export const SseQuery = ({ channel, url }: Props) => {
                 queryById(channel, streamKey, value.id);
               }}
             >
-              <FibonacciCard id={value.id} data={modalData} />
+              <FibonacciCard
+                id={value.id}
+                sequence={value.sequence}
+                data={modalData}
+              />
             </div>
           );
         })}

@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDynamicList } from "ahooks";
-import type { ConnectionStatus, FibonacciData } from "../../_types/types";
+import type {
+  ConnectionStatus,
+  FibonacciDto,
+  FibonacciProjectionDto,
+} from "../../_types/types";
 import { ErrorBoundary } from "react-error-boundary";
 import { FibonacciCard } from "../../_components/FibonacciCard";
 import { StatusCard } from "../../_components/StatusCard";
@@ -14,9 +18,10 @@ interface Props {
 
 export const SseLivestream = ({ channel, url }: Props) => {
   const [status, setStatus] = useState<ConnectionStatus>("offline");
-  const { list, push } = useDynamicList<FibonacciData>([]);
-  const [modalData, setModalData] = useState<FibonacciData>({
+  const { list, push } = useDynamicList<FibonacciProjectionDto>([]);
+  const [modalData, setModalData] = useState<FibonacciDto>({
     id: 0,
+    sequence: 0,
     precision: 0,
     result: "",
   });
@@ -31,12 +36,12 @@ export const SseLivestream = ({ channel, url }: Props) => {
     };
 
     sse.addEventListener("livestream", (e) => {
-      const data: FibonacciData[] = JSON.parse(e.data);
+      const data: FibonacciProjectionDto[] = JSON.parse(e.data);
       data.map((value) => push(value));
     });
 
     sse.addEventListener("id", (e) => {
-      const data: FibonacciData = JSON.parse(e.data);
+      const data: FibonacciDto = JSON.parse(e.data);
       setModalData(data);
     });
 
@@ -65,7 +70,11 @@ export const SseLivestream = ({ channel, url }: Props) => {
                 queryById(channel, streamKey, value.id);
               }}
             >
-              <FibonacciCard id={value.id} data={modalData} />
+              <FibonacciCard
+                id={value.id}
+                sequence={value.sequence}
+                data={modalData}
+              />
             </div>
           );
         })}

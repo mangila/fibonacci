@@ -1,12 +1,14 @@
 package com.github.mangila.fibonacci.scheduler;
 
 import com.github.mangila.fibonacci.PostgresTestContainerConfiguration;
+import com.github.mangila.fibonacci.db.FibonacciRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.concurrent.SimpleAsyncTaskScheduler;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.util.StopWatch;
 
@@ -14,6 +16,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.NONE,
@@ -35,6 +40,9 @@ class FibonacciSchedulerTest {
     @Autowired
     private SimpleAsyncTaskScheduler simpleAsyncTaskScheduler;
 
+    @MockitoSpyBean
+    private FibonacciRepository repository;
+
     @Test
     void insertComputeTask() {
         StopWatch stopWatch = new StopWatch();
@@ -47,5 +55,7 @@ class FibonacciSchedulerTest {
 
         var rows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "fibonacci_results");
         assertThat(rows).isEqualTo(5);
+        verify(repository, times(6)).hasSequence(any(Integer.class));
+        verify(repository, times(5)).insert(any());
     }
 }

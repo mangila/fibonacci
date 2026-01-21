@@ -10,7 +10,7 @@ public final class FibonacciCalculator {
     /**
      * Naive recursive approach to calculate Fibonacci sequence.
      *
-     * @param n The index of the Fibonacci number to calculate.
+     * @param n The sequence of the Fibonacci number to calculate.
      * @return The n-th Fibonacci number.
      */
     public static BigInteger naiveRecursive(int n) {
@@ -22,7 +22,7 @@ public final class FibonacciCalculator {
     /**
      * Normal iterative approach to calculate Fibonacci sequence.
      *
-     * @param n The index of the Fibonacci number to calculate.
+     * @param n The sequence of the Fibonacci number to calculate.
      * @return The n-th Fibonacci number.
      */
     public static BigInteger iterative(int n) {
@@ -43,7 +43,7 @@ public final class FibonacciCalculator {
      * F(2n) = Fn * (2*F(n+1) - Fn)
      * F(2n+1) = F(n+1)^2 + Fn^2
      *
-     * @param n The index of the Fibonacci number to calculate.
+     * @param n The sequence of the Fibonacci number to calculate.
      * @return The n-th Fibonacci number.
      */
     public static BigInteger fastDoubling(int n) {

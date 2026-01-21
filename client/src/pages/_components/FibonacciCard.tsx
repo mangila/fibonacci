@@ -1,12 +1,13 @@
 import { Icon } from "@iconify/react";
-import type { FibonacciData } from "../_types/types";
+import type { FibonacciDto } from "../_types/types";
 
 interface Props {
   id: number;
-  data: FibonacciData;
+  sequence: number;
+  data: FibonacciDto;
 }
 
-export const FibonacciCard = ({ id, data }: Props) => {
+export const FibonacciCard = ({ id, sequence, data }: Props) => {
   const openModal = () => {
     const element = document.getElementById(id.toString()) as HTMLDialogElement;
     if (element === null) {
@@ -34,12 +35,14 @@ export const FibonacciCard = ({ id, data }: Props) => {
             className="text-blue-500"
             style={{ fontSize: "36px" }}
           />
-          <h3 className="font-bold">{id}</h3>
+          <h3 className="font-bold">{sequence}</h3>
         </span>
       </div>
       <dialog id={id.toString()} className="modal" onClick={closeModal}>
         <div className="modal-box break-all prose">
-          <h3 className="text-lg font-bold">Fibonacci Sequence: {data.id}</h3>
+          <h3 className="text-lg font-bold">
+            Fibonacci Sequence: {data.sequence}
+          </h3>
           <h4>Precison: {data.precision}</h4>
           <p>{data.result}</p>
           <p className="py-4">Press ESC key or click outside to close</p>

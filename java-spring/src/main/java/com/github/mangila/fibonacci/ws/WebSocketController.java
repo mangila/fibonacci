@@ -1,15 +1,16 @@
 package com.github.mangila.fibonacci.ws;
 
-import com.github.mangila.fibonacci.db.FibonacciRepository;
-import com.github.mangila.fibonacci.event.PgNotificationCollection;
-import com.github.mangila.fibonacci.model.*;
+import com.github.mangila.fibonacci.event.FibonacciProjectionList;
+import com.github.mangila.fibonacci.model.FibonacciDto;
+import com.github.mangila.fibonacci.model.FibonacciOption;
+import com.github.mangila.fibonacci.model.FibonacciProjectionDto;
+import com.github.mangila.fibonacci.service.FibonacciService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
@@ -21,45 +22,42 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 public class WebSocketController {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketController.class);
 
-    private final FibonacciRepository repository;
-    private final FibonacciMapper mapper;
+    private final FibonacciService service;
     private final SimpMessagingTemplate template;
 
-    public WebSocketController(FibonacciRepository repository,
-                               FibonacciMapper mapper,
+    public WebSocketController(FibonacciService service,
                                @Qualifier("brokerMessagingTemplate") SimpMessagingTemplate template) {
-        this.repository = repository;
-        this.mapper = mapper;
+        this.service = service;
         this.template = template;
     }
 
+
     @EventListener
-    public void wsLivestream(PgNotificationCollection payload) {
+    public void wsLivestream(FibonacciProjectionList payload) {
         template.convertAndSend("/topic/livestream", payload.value());
     }
 
     @MessageMapping("fibonacci/list")
     @SendToUser("/queue/fibonacci/list")
-    public List<FibonacciDto> queueFibonacciSequences(@Valid @NotNull FibonacciOption option, Principal principal) {
+    public List<FibonacciProjectionDto> queueFibonacciSequences(@Valid @NotNull FibonacciOption option, Principal principal) {
         log.info("Received request for fibonacci sequence {} from {}", option, principal.getName());
-        List<FibonacciResultProjection> projections = repository.queryForList(option);
-        return projections.stream()
-                .map(mapper::map)
-                .toList();
+        List<FibonacciProjectionDto> projections = service.queryForList(option);
+        return projections;
     }
 
     @MessageMapping("fibonacci/id")
     @SendToUser("/queue/fibonacci/id")
     public FibonacciDto queryById(int id, Principal principal) {
         log.info("Received request for fibonacci sequence {} from {}", id, principal.getName());
-        FibonacciResultEntity entity = repository.queryById(id);
-        return mapper.map(entity);
+        FibonacciDto dto = service.queryById(id);
+        return dto;
     }
 
     @MessageExceptionHandler(Exception.class)
@@ -68,7 +66,7 @@ public class WebSocketController {
         log.error("Error handling WebSocket message from {}", principal.getName(), ex);
         return switch (ex) {
             case MethodArgumentNotValidException m -> handleMethodArgumentNotValidException(m);
-            case DataAccessException d -> ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, d.getMessage());
+            case NoSuchElementException d -> ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, d.getMessage());
             default -> ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "something went wrong");
         };
     }

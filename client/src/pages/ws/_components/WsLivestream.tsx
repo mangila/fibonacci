@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useCreation, useDynamicList, useMount, useUnmount } from "ahooks";
 import type { IFrame } from "@stomp/stompjs";
 import { ErrorBoundary } from "react-error-boundary";
-import type { ConnectionStatus, FibonacciData } from "../../_types/types";
+import type {
+  ConnectionStatus,
+  FibonacciDto,
+  FibonacciProjectionDto,
+} from "../../_types/types";
 import { FibonacciCard } from "../../_components/FibonacciCard";
 import { StatusCard } from "../../_components/StatusCard";
 import { CountCard } from "../../_components/CountCard";
@@ -19,12 +23,12 @@ export const WsLivestream = () => {
       setStatus("open");
       client.subscribe("/topic/livestream", (frame: IFrame) => {
         const decoded: string = TEXT_DECODER.decode(frame.binaryBody);
-        const data: FibonacciData[] = JSON.parse(decoded);
+        const data: FibonacciProjectionDto[] = JSON.parse(decoded);
         data.map((value) => push(value));
       });
       client.subscribe("/user/queue/fibonacci/id", (frame: IFrame) => {
         const decoded: string = TEXT_DECODER.decode(frame.binaryBody);
-        const data: FibonacciData = JSON.parse(decoded);
+        const data: FibonacciDto = JSON.parse(decoded);
         setModalData(data);
       });
       client.subscribe("/user/queue/errors", (frame: IFrame) => {
@@ -38,9 +42,10 @@ export const WsLivestream = () => {
     return client;
   }, []);
   const [status, setStatus] = useState<ConnectionStatus>("offline");
-  const { list, push } = useDynamicList<FibonacciData>([]);
-  const [modalData, setModalData] = useState<FibonacciData>({
+  const { list, push } = useDynamicList<FibonacciProjectionDto>([]);
+  const [modalData, setModalData] = useState<FibonacciDto>({
     id: 0,
+    sequence: 0,
     precision: 0,
     result: "",
   });
@@ -71,7 +76,11 @@ export const WsLivestream = () => {
                 });
               }}
             >
-              <FibonacciCard id={value.id} data={modalData} />
+              <FibonacciCard
+                id={value.id}
+                sequence={value.sequence}
+                data={modalData}
+              />
             </div>
           );
         })}
