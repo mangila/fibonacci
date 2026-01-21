@@ -1,12 +1,17 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import DatasourceMenu from "../_components/DatasourceMenu.astro";
+import { SSE_BASE_PATH, URL_BASE } from "../_utils/utils";
 import { SseQuery } from "./_components/SseQuery";
+
+const channel = "mangila-livestream";
+const path = SSE_BASE_PATH + `/${channel}`;
+const sseUrl = new URL(path, new URL(URL_BASE));
 ---
 
 <Layout>
   <div class="prose mx-auto text-center mt-4">
     <DatasourceMenu title="SSE Query" />
   </div>
-  <SseQuery client:load />
+  <SseQuery client:load channel={channel} url={sseUrl} />
 </Layout>
