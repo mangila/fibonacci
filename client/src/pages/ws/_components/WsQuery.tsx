@@ -1,5 +1,4 @@
 import { useActionState, useState } from "react";
-import { createStompClient } from "../shared/utils";
 import {
   useCreation,
   useDynamicList,
@@ -13,7 +12,11 @@ import type { ConnectionStatus, FibonacciData } from "../../_types/types";
 import { FibonacciCard } from "../../_components/FibonacciCard";
 import { StatusCard } from "../../_components/StatusCard";
 import { CountCard } from "../../_components/CountCard";
-import { STOMP_URL, TEXT_DECODER } from "../../_utils/utils";
+import {
+  createStompClient,
+  STOMP_URL,
+  TEXT_DECODER,
+} from "../../_shared/shared";
 import { QueryForm } from "../../_components/QueryForm";
 
 function handleSubmit(_, formData: FormData) {

@@ -4,8 +4,8 @@ import type { ConnectionStatus, FibonacciData } from "../../_types/types";
 import { ErrorBoundary } from "react-error-boundary";
 import { FibonacciCard } from "../../_components/FibonacciCard";
 import { StatusCard } from "../../_components/StatusCard";
-import { queryById } from "../../_utils/api";
 import { CountCard } from "../../_components/CountCard";
+import { queryById } from "../../_shared/shared";
 
 interface Props {
   channel: string;
