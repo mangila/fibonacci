@@ -100,20 +100,20 @@ The application also exposes health metrics at `http://localhost:8080/actuator/h
 
 Configuration is managed via `src/main/resources/application.yaml`.
 
-| Property | Default | Description |
-|:---------|:--------|:------------|
+| Property | Default | Description                                                 |
+|:---------|:--------|:------------------------------------------------------------|
 | `app.fibonacci.algorithm` | `fast_doubling` | Algorithm to use: `iterative`, `recursive`, `fast_doubling` |
-| `app.fibonacci.offset` | `1` | Start Fibonacci index to compute |
-| `app.fibonacci.limit` | `1000` | Maximum Fibonacci index to compute |
-| `app.fibonacci.delay` | `1s` | Delay between computation tasks |
-| `app.livestream.enabled` | `true` | Enable real-time computation livestream |
-| `app.livestream.pg-channel` | `livestream` | PostgreSQL NOTIFY channel name |
-| `app.sse.heartbeat.enabled` | `true` | Enable SSE heartbeat to keep connections alive |
-| `app.sse.heartbeat.interval` | `10s` | Interval between SSE heartbeats |
-| `app.sse.cleanup-period` | `10m` | Period for cleaning up stale SSE sessions |
-| `spring.docker.compose.enabled` | `true` | Enable Spring Boot Docker Compose support |
-| `server.port` | `8080` | Port the application runs on |
-| `server.http2.enabled` | `true` | Enable HTTP/2 support |
+| `app.fibonacci.offset` | `1` | Start Fibonacci index to compute                            |
+| `app.fibonacci.limit` | `1000` | Maximum Fibonacci index to compute                          |
+| `app.fibonacci.delay` | `1s` | Delay between computation tasks                             |
+| `app.livestream.enabled` | `true` | Enable real-time computation livestream                     |
+| `app.livestream.pg-channel` | `livestream` | PostgreSQL NOTIFY channel name                              |
+| `app.sse.heartbeat.enabled` | `true` | Enable SSE heartbeat to keep connections alive              |
+| `app.sse.heartbeat.interval` | `10s` | Interval between SSE heartbeats                             |
+| `app.sse.cleanup-period` | `10m` | Period for cleaning up stale SSE session channels           |
+| `spring.docker.compose.enabled` | `true` | Enable Spring Boot Docker Compose support                   |
+| `server.port` | `8080` | Port the application runs on                                |
+| `server.http2.enabled` | `true` | Enable HTTP/2 support                                       |
 
 ---
 
