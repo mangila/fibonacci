@@ -67,19 +67,18 @@ The application will be accessible at `http://localhost:8080`.
 | Endpoint | Method | Description |
 |:---------|:------:|:------------|
 | `/api/v1/sse/{channel}?streamKey={key}` | `GET` | Subscribe to a specific channel (e.g., `fibonacci`). |
-| `/api/v1/sse/livestream/{channel}?streamKey={key}` | `GET` | Subscribe to the live computation stream. |
 | `/api/v1/sse/{channel}/id?streamKey={key}&id={id}` | `GET` | Query a specific result by ID to the subscribed SSE stream. |
-| `/api/v1/sse/{channel}/list?streamKey={key}` | `POST` | Query a list of results to the subscribed SSE stream. (Body: `FibonacciOption`) |
+| `/api/v1/sse/{channel}/list?streamKey={key}` | `POST` | Query a list of results to the subscribed SSE stream. (Body: `FibonacciQuery`) |
 
 ### WebSockets (STOMP)
 
 - **Endpoint**: `/ws`
 - **Topic (Livestream)**: `/topic/livestream`
-- **User Queue (Results)**: `/user/queue/fibonacci`
-- **User Queue (Single Result)**: `/user/queue/fibonacci/id`
+- **User Queue (List)**: `/user/queue/fibonacci/list`
+- **User Queue (ID)**: `/user/queue/fibonacci/id`
 - **User Queue (Errors)**: `/user/queue/errors`
 - **Message Mappings**:
-    - `fibonacci`: Send `FibonacciOption` to receive a list of results.
+    - `fibonacci/list`: Send `FibonacciQuery` to receive a list of results.
     - `fibonacci/id`: Send an `int` ID to receive a specific result.
 
 ---
