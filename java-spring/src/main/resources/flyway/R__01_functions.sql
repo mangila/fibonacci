@@ -1,12 +1,3 @@
-DROP TABLE IF EXISTS fibonacci_results;
-CREATE TABLE IF NOT EXISTS fibonacci_results
-(
-    id        SERIAL PRIMARY KEY,
-    sequence  INT     NOT NULL,
-    result    NUMERIC NOT NULL,
-    precision INT     NOT NULL
-);
-^^
 CREATE OR REPLACE FUNCTION notify_new_fibonacci_result_fn() RETURNS trigger AS
 $$
 DECLARE
@@ -23,13 +14,3 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-^^
-
-DROP TRIGGER IF EXISTS fibonacci_result_notify_trgr ON fibonacci_results;
-
-CREATE TRIGGER fibonacci_result_notify_trgr
-    AFTER INSERT
-    ON fibonacci_results
-    FOR EACH ROW
-EXECUTE FUNCTION notify_new_fibonacci_result_fn();
-^^

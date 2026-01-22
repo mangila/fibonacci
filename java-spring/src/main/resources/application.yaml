@@ -28,11 +28,23 @@ spring:
     hikari:
       pool-name: fibonacci-java-spring-hikari
       maximum-pool-size: 10
+      connection-test-query: "SELECT 1"
   sql:
     init:
-      mode: always
-      encoding: UTF-8
-      separator: ^^
+      mode: never
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 1
+    validate-migration-naming: true
+    validate-on-migrate: true
+    clean-disabled: true
+    output-query-results: true
+    user: postgres
+    password: postgres
+    locations: classpath:flyway
+    postgresql:
+      transactional-lock: true
   docker:
     compose:
       skip:

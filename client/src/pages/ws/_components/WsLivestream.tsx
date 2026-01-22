@@ -69,7 +69,7 @@ export const WsLivestream = () => {
           return (
             <div
               key={value.id}
-              onMouseEnter={() => {
+              onClick={() => {
                 stompClient.publish({
                   destination: "/app/fibonacci/id",
                   body: value.id.toString(),

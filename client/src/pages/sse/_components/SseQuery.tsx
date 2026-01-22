@@ -94,7 +94,7 @@ export const SseQuery = ({ channel, url }: Props) => {
           return (
             <div
               key={value.id}
-              onMouseEnter={() => {
+              onClick={() => {
                 queryById(channel, streamKey, value.id);
               }}
             >

@@ -65,11 +65,11 @@ public class FibonacciRepository {
         );
     }
 
-    public boolean hasSequence(int id) {
+    public boolean hasSequence(int sequence) {
         // language=PostgreSQL
-        final String sql = "SELECT 1 FROM fibonacci_results WHERE id = ? LIMIT 1";
+        final String sql = "SELECT 1 FROM fibonacci_results WHERE sequence = ? LIMIT 1";
 
-        List<Integer> results = jdbcTemplate.queryForList(sql, Integer.class, id);
+        List<Integer> results = jdbcTemplate.queryForList(sql, Integer.class, sequence);
 
         return !results.isEmpty();
     }

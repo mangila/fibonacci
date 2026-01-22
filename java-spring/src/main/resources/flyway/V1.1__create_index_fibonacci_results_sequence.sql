@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS idx_fibonacci_results_sequence ON fibonacci_results (sequence);
