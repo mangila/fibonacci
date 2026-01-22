@@ -1,8 +1,9 @@
 package com.github.mangila.fibonacci.db;
 
-import com.github.mangila.fibonacci.event.FibonacciProjectionList;
-import com.github.mangila.fibonacci.event.SpringApplicationPublisher;
-import com.github.mangila.fibonacci.model.dto.FibonacciProjectionDto;
+import com.github.mangila.fibonacci.db.model.PgNotificationPayload;
+import com.github.mangila.fibonacci.db.model.PgNotificationPayloadCollection;
+import com.github.mangila.fibonacci.shared.SpringApplicationPublisher;
+import io.github.mangila.ensure4j.Ensure;
 import org.postgresql.PGNotification;
 import org.postgresql.jdbc.PgConnection;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ public class PostgresNotificationListener implements Runnable {
 
     @Override
     public void run() {
+        Ensure.notBlank(channel, "Channel cannot be blank");
         running = true;
         while (running && !Thread.currentThread().isInterrupted()) {
             // Listens for notifications; reconnects after connection errors
@@ -50,15 +52,15 @@ public class PostgresNotificationListener implements Runnable {
                     // Ensure channel is a valid identifier.
                     stmt.execute("LISTEN %s".formatted(channel));
                 }
-                log.info("Listening for notifications on channel {}", channel);
+                log.info("Listening for notifications on channel: '{}'", channel);
                 while (running && !Thread.currentThread().isInterrupted()) {
                     try {
                         PGNotification[] pgNotifications = pgConnection.getNotifications(0);
-                        List<FibonacciProjectionDto> notifications = Arrays.stream(pgNotifications)
+                        List<PgNotificationPayload> notifications = Arrays.stream(pgNotifications)
                                 .map(PGNotification::getParameter)
-                                .map(json -> objectMapper.readValue(json, FibonacciProjectionDto.class))
+                                .map(json -> objectMapper.readValue(json, PgNotificationPayload.class))
                                 .toList();
-                        publisher.publishNotification(new FibonacciProjectionList(notifications));
+                        publisher.publishNotification(new PgNotificationPayloadCollection(notifications));
                     } catch (SQLException e) {
                         log.error("Error while listening for notifications", e);
                         break;

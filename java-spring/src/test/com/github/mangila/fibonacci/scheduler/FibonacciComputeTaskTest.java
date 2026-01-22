@@ -1,6 +1,6 @@
 package com.github.mangila.fibonacci.scheduler;
 
-import com.github.mangila.fibonacci.model.FibonacciResult;
+import com.github.mangila.fibonacci.shared.FibonacciResult;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.StopWatch;
 

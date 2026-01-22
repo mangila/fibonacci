@@ -3,6 +3,8 @@ package com.github.mangila.fibonacci.scheduler;
 import com.github.mangila.fibonacci.PostgresTestContainerConfiguration;
 import com.github.mangila.fibonacci.db.FibonacciRepository;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -26,11 +28,13 @@ import static org.mockito.Mockito.verify;
                 "app.fibonacci.algorithm=iterative",
                 "app.fibonacci.offset=1",
                 "app.fibonacci.limit=5",
-                "app.fibonacci.delay=500ms"
+                "app.fibonacci.delay=100ms",
+                "app.livestream.enabled=false"
         })
 @Import(PostgresTestContainerConfiguration.class)
 class FibonacciSchedulerTest {
 
+    private static final Logger log = LoggerFactory.getLogger(FibonacciSchedulerTest.class);
     @Autowired
     private FibonacciTask fibonacciTask;
 
@@ -38,7 +42,7 @@ class FibonacciSchedulerTest {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private SimpleAsyncTaskScheduler simpleAsyncTaskScheduler;
+    private SimpleAsyncTaskScheduler fibonacciTaskScheduler;
 
     @MockitoSpyBean
     private FibonacciRepository repository;
@@ -49,7 +53,9 @@ class FibonacciSchedulerTest {
         stopWatch.start("FibonacciScheduler");
         await()
                 .atMost(5, TimeUnit.SECONDS)
-                .until(() -> fibonacciTask.isLimitReached() && !simpleAsyncTaskScheduler.isRunning());
+                .until(() -> {
+                    return fibonacciTask.isLimitReached() && !fibonacciTaskScheduler.isRunning();
+                });
         stopWatch.stop();
         System.out.println(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
 

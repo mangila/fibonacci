@@ -1,11 +1,10 @@
 package com.github.mangila.fibonacci.scheduler;
 
 import com.github.mangila.fibonacci.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.config.FibonacciProperties;
 import com.github.mangila.fibonacci.service.FibonacciService;
+import com.github.mangila.fibonacci.shared.properties.FibonacciProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -28,8 +27,8 @@ public class FibonacciTask implements Runnable {
 
     private volatile boolean limitReached = false;
 
-    public FibonacciTask(@Qualifier("computeAsyncTaskExecutor") ThreadPoolTaskExecutor computeAsyncTaskExecutor,
-                         @Qualifier("ioAsyncTaskExecutor") SimpleAsyncTaskExecutor ioAsyncTaskExecutor,
+    public FibonacciTask(ThreadPoolTaskExecutor computeAsyncTaskExecutor,
+                         SimpleAsyncTaskExecutor ioAsyncTaskExecutor,
                          FibonacciService service,
                          FibonacciProperties fibonacciProperties) {
         this.computeAsyncTaskExecutor = computeAsyncTaskExecutor;

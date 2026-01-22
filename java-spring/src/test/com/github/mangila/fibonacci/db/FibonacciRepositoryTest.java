@@ -1,9 +1,9 @@
 package com.github.mangila.fibonacci.db;
 
 import com.github.mangila.fibonacci.PostgresTestContainerConfiguration;
-import com.github.mangila.fibonacci.model.entity.FibonacciEntity;
-import com.github.mangila.fibonacci.model.dto.FibonacciOption;
-import com.github.mangila.fibonacci.model.FibonacciResult;
+import com.github.mangila.fibonacci.db.model.FibonacciEntity;
+import com.github.mangila.fibonacci.web.dto.FibonacciQuery;
+import com.github.mangila.fibonacci.shared.FibonacciResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,7 +61,7 @@ class FibonacciRepositoryTest {
 
     @Test
     void queryForList() {
-        var l = repository.queryForList(new FibonacciOption(0, 10));
+        var l = repository.queryForList(new FibonacciQuery(0, 10));
         assertThat(l).isNotNull();
         assertThat(l).hasSize(2);
     }

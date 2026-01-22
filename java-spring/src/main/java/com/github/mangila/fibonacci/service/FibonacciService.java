@@ -1,10 +1,11 @@
 package com.github.mangila.fibonacci.service;
 
 import com.github.mangila.fibonacci.db.FibonacciRepository;
-import com.github.mangila.fibonacci.model.*;
-import com.github.mangila.fibonacci.model.dto.FibonacciDto;
-import com.github.mangila.fibonacci.model.dto.FibonacciOption;
-import com.github.mangila.fibonacci.model.dto.FibonacciProjectionDto;
+import com.github.mangila.fibonacci.shared.FibonacciMapper;
+import com.github.mangila.fibonacci.shared.FibonacciResult;
+import com.github.mangila.fibonacci.web.dto.FibonacciDto;
+import com.github.mangila.fibonacci.web.dto.FibonacciQuery;
+import com.github.mangila.fibonacci.web.dto.FibonacciProjectionDto;
 import io.github.mangila.ensure4j.Ensure;
 import org.springframework.stereotype.Service;
 
@@ -29,9 +30,9 @@ public class FibonacciService {
                 .orElseThrow();
     }
 
-    public List<FibonacciProjectionDto> queryForList(FibonacciOption option) {
-        Ensure.notNull(option);
-        return repository.queryForList(option)
+    public List<FibonacciProjectionDto> queryForList(FibonacciQuery query) {
+        Ensure.notNull(query);
+        return repository.queryForList(query)
                 .stream()
                 .map(mapper::map)
                 .toList();

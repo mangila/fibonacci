@@ -5,6 +5,14 @@ app:
     offset: 1
     limit: 1000
     delay: 1s
+  livestream:
+    enabled: true
+    pg-channel: "livestream"
+  sse:
+    heartbeat:
+      enabled: true
+      interval: 10s
+    cleanup-period: 10m
 # Spring
 spring:
   application:

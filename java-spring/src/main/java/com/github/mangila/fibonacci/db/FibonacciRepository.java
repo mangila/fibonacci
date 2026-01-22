@@ -1,9 +1,9 @@
 package com.github.mangila.fibonacci.db;
 
-import com.github.mangila.fibonacci.model.entity.FibonacciEntity;
-import com.github.mangila.fibonacci.model.dto.FibonacciOption;
-import com.github.mangila.fibonacci.model.entity.FibonacciProjection;
-import com.github.mangila.fibonacci.model.FibonacciResult;
+import com.github.mangila.fibonacci.db.model.FibonacciEntity;
+import com.github.mangila.fibonacci.db.model.FibonacciProjection;
+import com.github.mangila.fibonacci.shared.FibonacciResult;
+import com.github.mangila.fibonacci.web.dto.FibonacciQuery;
 import org.jspecify.annotations.NonNull;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -47,7 +47,7 @@ public class FibonacciRepository {
         return entity.stream().findFirst();
     }
 
-    public List<FibonacciProjection> queryForList(@NonNull FibonacciOption option) {
+    public List<FibonacciProjection> queryForList(@NonNull FibonacciQuery query) {
         // language=PostgreSQL
         final String sql = """
                 SELECT id, sequence, precision FROM fibonacci_results
@@ -61,7 +61,7 @@ public class FibonacciRepository {
                         rs.getInt("sequence"),
                         rs.getInt("precision")
                 ),
-                option.offset(), option.limit()
+                query.offset(), query.limit()
         );
     }
 
