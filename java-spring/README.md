@@ -90,7 +90,7 @@ Configuration is managed via `src/main/resources/application.yaml`.
 
 | Property | Default | Description |
 |:---------|:--------|:------------|
-| `app.fibonacci.algorithm` | `fast_doubling` | Algorithm to use: `iterative`, `recursive`, `fast_doubling` |
+| `app.fibonacci.algorithm` | `iterative` | Algorithm to use: `iterative`, `recursive`, `fast_doubling` |
 | `app.fibonacci.offset` | `1` | Start Fibonacci index to compute |
 | `app.fibonacci.limit` | `1000` | Maximum Fibonacci index to compute |
 | `app.fibonacci.delay` | `1s` | Delay between computation tasks |
