@@ -17,6 +17,8 @@ Built with **Java 25**, it leverages **Virtual Threads** (Project Loom) and mode
     - **Server-Sent Events (SSE)**: Efficient one-way streaming of new results and on-demand queries.
 - **Advanced Concurrency**: Uses **Project Loom** (Virtual Threads) for I/O-bound tasks and **Platform Threads** for CPU-intensive computations.
 - **PostgreSQL Notifications**: Utilizes `LISTEN/NOTIFY` via `pg_notify` to trigger application events whenever a new Fibonacci number is inserted, ensuring near-instant updates.
+- **Monitoring**: Exposes health metrics via **Spring Boot Actuator**.
+- **Containerization**: Includes **Docker Compose** support for seamless local development.
 - **Flexible Algorithms**: Choose between several computation methods via configuration.
 
 ---
@@ -26,9 +28,10 @@ Built with **Java 25**, it leverages **Virtual Threads** (Project Loom) and mode
 - **Java 25** (with Virtual Threads enabled)
 - **Spring Boot 4.0.1**
 - **Spring Web** & **Spring WebSocket**
-- **Spring JDBC**
+- **Spring JDBC** & **Flyway**
 - **PostgreSQL**
 - **Maven**
+- **Caffeine Cache**
 - **Testcontainers** (for integration testing)
 - **Docker Compose** (for local development environments)
 
@@ -57,6 +60,7 @@ Built with **Java 25**, it leverages **Virtual Threads** (Project Loom) and mode
    ```
 
 The application will be accessible at `http://localhost:8080`.
+The application also exposes health metrics at `http://localhost:8080/actuator/health`.
 
 ---
 
@@ -66,7 +70,7 @@ The application will be accessible at `http://localhost:8080`.
 
 | Endpoint | Method | Description |
 |:---------|:------:|:------------|
-| `/api/v1/sse/{channel}?streamKey={key}` | `GET` | Subscribe to a specific channel (e.g., `fibonacci`). |
+| `/api/v1/sse/{channel}?streamKey={key}` | `GET` | Subscribe to a specific channel (e.g., `livestream`). |
 | `/api/v1/sse/{channel}/id?streamKey={key}&id={id}` | `GET` | Query a specific result by ID to the subscribed SSE stream. |
 | `/api/v1/sse/{channel}/list?streamKey={key}` | `POST` | Query a list of results to the subscribed SSE stream. (Body: `FibonacciQuery`) |
 
@@ -81,6 +85,15 @@ The application will be accessible at `http://localhost:8080`.
     - `fibonacci/list`: Send `FibonacciQuery` to receive a list of results.
     - `fibonacci/id`: Send an `int` ID to receive a specific result.
 
+### FibonacciQuery Object
+
+```json
+{
+  "offset": 1,
+  "limit": 10
+}
+```
+
 ---
 
 ## ⚙️ Configuration
@@ -89,7 +102,7 @@ Configuration is managed via `src/main/resources/application.yaml`.
 
 | Property | Default | Description |
 |:---------|:--------|:------------|
-| `app.fibonacci.algorithm` | `iterative` | Algorithm to use: `iterative`, `recursive`, `fast_doubling` |
+| `app.fibonacci.algorithm` | `fast_doubling` | Algorithm to use: `iterative`, `recursive`, `fast_doubling` |
 | `app.fibonacci.offset` | `1` | Start Fibonacci index to compute |
 | `app.fibonacci.limit` | `1000` | Maximum Fibonacci index to compute |
 | `app.fibonacci.delay` | `1s` | Delay between computation tasks |
@@ -98,6 +111,7 @@ Configuration is managed via `src/main/resources/application.yaml`.
 | `app.sse.heartbeat.enabled` | `true` | Enable SSE heartbeat to keep connections alive |
 | `app.sse.heartbeat.interval` | `10s` | Interval between SSE heartbeats |
 | `app.sse.cleanup-period` | `10m` | Period for cleaning up stale SSE sessions |
+| `spring.docker.compose.enabled` | `true` | Enable Spring Boot Docker Compose support |
 | `server.port` | `8080` | Port the application runs on |
 | `server.http2.enabled` | `true` | Enable HTTP/2 support |
 
