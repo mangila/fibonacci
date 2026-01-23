@@ -36,8 +36,7 @@ graph TD
     User([User Browser]) <--> Client[Astro/React Frontend]
     Client <--> Web[Spring Boot Web Module]
     Web <--> DB[(PostgreSQL)]
-    Web <--> Scheduler[JobRunr Scheduler]
-    Scheduler <--> Core[Fibonacci Core Logic]
+    DB[(PostgreSQL)] <--> Scheduler[JobRunr Scheduler]
     DB -.->|LISTEN/NOTIFY| Web
 ```
 
