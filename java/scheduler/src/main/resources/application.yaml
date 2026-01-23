@@ -1,0 +1,40 @@
+# Application
+app:
+  fibonacci:
+    algorithm: fast_doubling
+    offset: 1
+    limit: 1000
+    delay: 1s
+# Spring
+spring:
+  application:
+    name: fibonacci-java-scheduler
+  main:
+    web-application-type: none
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fibonacci
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: fibonacci-java-spring-hikari
+      maximum-pool-size: 10
+      connection-test-query: "SELECT 1"
+  docker:
+    compose:
+      skip:
+        in-tests: true
+      lifecycle-management: start_only
+
+jobrunr:
+  job-scheduler:
+    enabled: true
+  background-job-server:
+    thread-type: virtualthreads
+    enabled: true
+    poll-interval-in-seconds: 15
+    name: fibonacci-java-scheduler
+    worker-count: 1
+  database:
+    skip-create: false
+    database-name: fibonacci
