@@ -34,10 +34,10 @@ The Fibonacci Universe is designed to handle massive Fibonacci computations effi
 ```mermaid
 graph TD
     User([User Browser]) <--> Client[Astro/React Frontend]
-    Client <--> Web[Spring Boot Web Module]
+    Web <-.->|HTTP| Client
+    Web -.->|SSE| Client
+    Web <-.->|WS| Client
     Web <--> DB[(PostgreSQL)]
-    Core --> Web
-    Core --> Scheduler[JobRunr Scheduler]
     DB[(PostgreSQL)] <--> Scheduler[JobRunr Scheduler]
     DB -.->|LISTEN/NOTIFY| Web
 ```
