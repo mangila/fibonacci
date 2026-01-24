@@ -39,6 +39,7 @@ graph TD
     Web <-.->|WS| Client
     Web <--> DB[(PostgreSQL)]
     DB[(PostgreSQL)] <--> Scheduler[JobRunr Scheduler]
+    DB[(PostgreSQL)] <--> Dashboard[JobRunr Dashboard]
     DB -.->|LISTEN/NOTIFY| Web
 ```
 
