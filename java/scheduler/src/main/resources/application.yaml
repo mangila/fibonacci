@@ -3,7 +3,7 @@ app:
   fibonacci:
     algorithm: fast_doubling
     offset: 1
-    limit: 100
+    limit: 1000
     delay: 1s
 # Spring
 spring:
