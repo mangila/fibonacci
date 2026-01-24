@@ -32,7 +32,7 @@ public class JobService {
     }
 
     @Job(name = "Enqueue Fibonacci jobs", retries = 3)
-    public void enqueue(FibonacciCommand command) {
+    public void enqueueFibonacciTasks(FibonacciCommand command) {
         final var algorithm = command.algorithm();
         final var delay = Duration.ofMillis(command.delayInMillis());
         final var offset = command.offset();

@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.web.sse;
 
 import com.github.mangila.fibonacci.web.PostgresTestContainer;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
@@ -10,5 +11,9 @@ class SseControllerTest {
 
     @LocalServerPort
     private int port;
+
+    @Test
+    void contextLoads() {
+    }
 
 }

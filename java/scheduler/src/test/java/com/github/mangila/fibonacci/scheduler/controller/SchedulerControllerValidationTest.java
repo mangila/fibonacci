@@ -52,18 +52,18 @@ public class SchedulerControllerValidationTest {
     private static Stream<Arguments> invalidCommands() {
         return Stream.of(
                 Arguments.of(new FibonacciCommand(null, 1, 1, 1)), // null algorithm
-                Arguments.of(new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 0, 1, 1)), // offset < 1
-                Arguments.of(new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 1_000_001, 1, 1)), // offset > 1,000,000
-                Arguments.of(new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 1, 0, 1)), // limit < 1
-                Arguments.of(new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 1, 1001, 1)), // limit > 1000
-                Arguments.of(new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 1, 1, 0)), // delay < 1
+                Arguments.of(new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 0, 1, 100)), // offset < 1
+                Arguments.of(new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 1_000_001, 1, 100)), // offset > 1,000,000
+                Arguments.of(new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 1, 0, 50)), // limit < 1
+                Arguments.of(new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 1, 1001, 50)), // limit > 1000
+                Arguments.of(new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 1, 1, 49)), // delay < 50
                 Arguments.of(new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 1, 1, 10001)) // delay > 10000
         );
     }
 
     @Test
     void shouldReturnAcceptedWhenCommandIsValid() {
-        var command = new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 1, 1, 1);
+        var command = new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 1, 1, 100);
         restTestClient.post()
                 .uri("/api/v1/scheduler")
                 .contentType(MediaType.APPLICATION_JSON)

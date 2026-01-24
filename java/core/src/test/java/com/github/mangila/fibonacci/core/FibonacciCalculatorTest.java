@@ -25,7 +25,7 @@ class FibonacciCalculatorTest {
     @DisplayName("Fibonacci calculation with different algos should be the same")
     @Test
     void test() {
-        int n = 10;
+        int n = 35;
         var recursiveResult = FibonacciCalculator.naiveRecursive(n);
         var iterativeResult = FibonacciCalculator.iterative(n);
         var fastDoublingResult = FibonacciCalculator.fastDoubling(n);

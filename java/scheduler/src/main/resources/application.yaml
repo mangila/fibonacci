@@ -29,15 +29,20 @@ spring:
     output-query-results: true
     user: postgres
     password: postgres
-    locations: filesystem:java/flyway/{vendor}
+    locations:
+      - filesystem:java/flyway/{vendor}
+      # Test location
+      - filesystem:../../java/flyway/{vendor}
     postgresql:
       transactional-lock: true
   docker:
     compose:
       skip:
         in-tests: true
-      lifecycle-management: start_only
-
+      enabled: false
+      lifecycle-management: start-and-stop
+      file: ${user.dir}/java/docker-compose-dev.yaml
+# JobRunr
 jobrunr:
   dashboard:
     enabled: true
@@ -52,3 +57,22 @@ jobrunr:
   database:
     skip-create: false
     table-prefix: fibonacci_
+# Server
+server:
+  http2:
+    enabled: true
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+# Logging
+logging:
+  level:
+    root: INFO
+    com.github.mangila.fibonacci.scheduler.config: INFO
+    com.github.mangila.fibonacci.scheduler.controller: INFO
+    com.github.mangila.fibonacci.scheduler.repository: INFO
+    com.github.mangila.fibonacci.scheduler.scheduler: INFO
+    com.github.mangila.fibonacci.scheduler.task: INFO

@@ -1,0 +1,7 @@
+#!/bin/bash
+cowsay "Checks minikube stats, builds the java artifacts, loads the images into minikube and then apply the k8s yaml"
+minikube status
+./mvnw clean package
+minikube image load fibonacci-java-web:latest
+minikube image load fibonacci-java-scheduler:latest
+minikube kubectl -- apply -f minikube-k8s.yaml

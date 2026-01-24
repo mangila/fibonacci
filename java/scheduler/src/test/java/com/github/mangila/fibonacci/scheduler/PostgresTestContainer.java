@@ -9,7 +9,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @TestPropertySource(properties = {
-        "spring.flyway.locations=filesystem:../../java/flyway/{vendor}",
         "jobrunr.dashboard.enabled=false"
 })
 @Import(PostgresTestContainerConfiguration.class)

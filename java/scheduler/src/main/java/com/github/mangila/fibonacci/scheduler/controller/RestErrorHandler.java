@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
@@ -13,6 +15,12 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 public class RestErrorHandler {
 
     private static final Logger log = LoggerFactory.getLogger(RestErrorHandler.class);
+
+    @GetMapping("favicon.ico")
+    @ResponseBody
+    void doNothing() {
+        // do nothing
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
