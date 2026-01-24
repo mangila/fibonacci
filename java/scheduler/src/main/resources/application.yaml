@@ -3,14 +3,14 @@ app:
   fibonacci:
     algorithm: fast_doubling
     offset: 1
-    limit: 1000
+    limit: 100
     delay: 1s
 # Spring
 spring:
   application:
     name: fibonacci-java-scheduler
   main:
-    web-application-type: none
+    web-application-type: servlet
   datasource:
     url: jdbc:postgresql://localhost:5432/fibonacci
     username: postgres
@@ -20,6 +20,19 @@ spring:
       pool-name: fibonacci-java-spring-hikari
       maximum-pool-size: 10
       connection-test-query: "SELECT 1"
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    validate-migration-naming: true
+    validate-on-migrate: true
+    clean-disabled: true
+    output-query-results: true
+    user: postgres
+    password: postgres
+    locations: filesystem:java/flyway/{vendor}
+    postgresql:
+      transactional-lock: true
   docker:
     compose:
       skip:
@@ -27,6 +40,8 @@ spring:
       lifecycle-management: start_only
 
 jobrunr:
+  dashboard:
+    enabled: true
   job-scheduler:
     enabled: true
   background-job-server:
@@ -37,4 +52,4 @@ jobrunr:
     worker-count: 1
   database:
     skip-create: false
-    database-name: fibonacci
+    table-prefix: fibonacci_

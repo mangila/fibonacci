@@ -39,7 +39,7 @@ spring:
     output-query-results: true
     user: postgres
     password: postgres
-    locations: classpath:flyway
+    locations: filesystem:java/flyway/{vendor}
     postgresql:
       transactional-lock: true
   docker:

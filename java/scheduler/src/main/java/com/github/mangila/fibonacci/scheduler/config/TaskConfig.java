@@ -2,6 +2,7 @@ package com.github.mangila.fibonacci.scheduler.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
@@ -15,6 +16,13 @@ public class TaskConfig {
         executor.setQueueCapacity(100);
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.initialize();
+        return executor;
+    }
+
+    @Bean
+    SimpleAsyncTaskExecutor simpleAsyncTaskExecutor() {
+        var executor = new SimpleAsyncTaskExecutor("simple-task-");
+        executor.setVirtualThreads(true);
         return executor;
     }
 }

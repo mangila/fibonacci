@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.scheduler.properties;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
@@ -15,7 +16,8 @@ public class FibonacciProperties {
     @Min(1)
     private int offset = 1;
     @Min(1)
-    private int limit = 1000;
+    @Max(1000)
+    private int limit = 100;
     private Duration delay = Duration.ofSeconds(1);
 
     public FibonacciAlgorithm getAlgorithm() {
