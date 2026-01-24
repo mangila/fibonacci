@@ -1,16 +1,15 @@
-# Application
-app:
-  fibonacci:
-    algorithm: fast_doubling
-    offset: 1
-    limit: 1000
-    delay: 1s
 # Spring
 spring:
   application:
     name: fibonacci-java-scheduler
   main:
     web-application-type: servlet
+  web:
+    resources:
+      add-mappings: false
+  threads:
+    virtual:
+      enabled: true
   datasource:
     url: jdbc:postgresql://localhost:5432/fibonacci
     username: postgres

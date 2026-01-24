@@ -3,7 +3,7 @@ package com.github.mangila.fibonacci.web.ws;
 import com.github.mangila.fibonacci.core.model.PgNotificationPayloadCollection;
 import com.github.mangila.fibonacci.web.model.FibonacciDto;
 import com.github.mangila.fibonacci.web.model.FibonacciProjectionDto;
-import com.github.mangila.fibonacci.web.model.FibonacciQuery;
+import com.github.mangila.fibonacci.core.model.FibonacciQuery;
 import com.github.mangila.fibonacci.web.service.FibonacciService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;

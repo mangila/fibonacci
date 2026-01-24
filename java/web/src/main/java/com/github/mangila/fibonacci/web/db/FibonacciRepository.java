@@ -2,7 +2,7 @@ package com.github.mangila.fibonacci.web.db;
 
 import com.github.mangila.fibonacci.core.model.FibonacciEntity;
 import com.github.mangila.fibonacci.core.model.FibonacciProjection;
-import com.github.mangila.fibonacci.web.model.FibonacciQuery;
+import com.github.mangila.fibonacci.core.model.FibonacciQuery;
 import org.jspecify.annotations.NonNull;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

@@ -4,7 +4,7 @@ import com.github.mangila.fibonacci.web.db.FibonacciRepository;
 import com.github.mangila.fibonacci.web.model.FibonacciDto;
 import com.github.mangila.fibonacci.web.model.FibonacciMapper;
 import com.github.mangila.fibonacci.web.model.FibonacciProjectionDto;
-import com.github.mangila.fibonacci.web.model.FibonacciQuery;
+import com.github.mangila.fibonacci.core.model.FibonacciQuery;
 import io.github.mangila.ensure4j.Ensure;
 import org.springframework.stereotype.Service;
 

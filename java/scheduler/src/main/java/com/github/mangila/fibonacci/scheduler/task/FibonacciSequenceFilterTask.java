@@ -1,10 +1,8 @@
 package com.github.mangila.fibonacci.scheduler.task;
 
-import com.github.mangila.fibonacci.scheduler.properties.FibonacciProperties;
 import com.github.mangila.fibonacci.scheduler.repository.FibonacciRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.List;
@@ -12,26 +10,25 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.IntStream;
 
-@Component
-public class FibonacciEnqueueTask implements Callable<List<Integer>> {
+public class FibonacciSequenceFilterTask implements Callable<List<Integer>> {
 
-    private static final Logger log = LoggerFactory.getLogger(FibonacciEnqueueTask.class);
+    private static final Logger log = LoggerFactory.getLogger(FibonacciSequenceFilterTask.class);
 
     private final FibonacciRepository repository;
-    private final FibonacciProperties properties;
+    private final int offset;
+    private final int limit;
 
-    public FibonacciEnqueueTask(FibonacciRepository repository,
-                                FibonacciProperties properties) {
+    public FibonacciSequenceFilterTask(FibonacciRepository repository,
+                                       int offset,
+                                       int limit) {
         this.repository = repository;
-        this.properties = properties;
+        this.offset = offset;
+        this.limit = limit;
     }
 
     @Override
     public List<Integer> call() {
-        final int offset = properties.getOffset();
-        final int limit = properties.getLimit();
-        log.info("Scheduling Fibonacci computations for sequences {}..{}",
-                offset, limit);
+        log.info("Scheduling Fibonacci computations for sequences {}..{}", offset, limit);
         final List<Integer> requestedSequences = IntStream.range(offset, limit + 1)
                 .boxed()
                 .toList();

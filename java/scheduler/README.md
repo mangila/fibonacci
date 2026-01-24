@@ -16,33 +16,40 @@ The `scheduler` module provides background processing capabilities using **JobRu
 ## 🏗 Key Components
   
 ### `Scheduler`
-The main entry point for background scheduling. It uses an `ApplicationReadyEvent` listener to trigger the `FibonacciEnqueueTask` and subsequently enqueues computation jobs via JobRunr.
+The main entry point for background scheduling. It provides the `scheduleFibonacciCalculation` method which enqueues an initial job to process the request.
   
 ### `JobService`
-A service annotated with JobRunr's `@Job`. It wraps the computation logic and handles the database persistence of results. It also implements a configurable delay and uses a `ReentrantLock` to ensure orderly saves.
+A service annotated with JobRunr's `@Job`. It manages the high-level job flow:
+- `enqueue(FibonacciCommand)`: Filters which sequences need to be calculated and enqueues individual computation jobs.
+- `computeFibonacci(algorithm, sequence, delay)`: Executes the actual calculation and saves the result after a specified delay.
+  
+### `TaskService`
+A coordination service that abstracts the execution of specific tasks using different executors:
+- `submitComputeTask`: Executes `FibonacciComputeTask` on a dedicated `ThreadPoolTaskExecutor`.
+- `submitSequenceFilter`: Executes `FibonacciSequenceFilterTask` on a `SimpleAsyncTaskExecutor`.
   
 ### `FibonacciComputeTask`
-A `Callable` implementation that wraps the `core` module's calculation logic. It is executed within a `ThreadPoolTaskExecutor` to perform the actual math.
+A `Callable` that performs the actual mathematical calculation by calling the `core` module.
   
-### `FibonacciEnqueueTask`
-Responsible for identifying which Fibonacci sequences are missing from the database. It compares a requested range (limit/offset) against existing records and returns a list of sequences that need to be computed.
+### `FibonacciSequenceFilterTask`
+A `Callable` that queries the database to determine which numbers in a requested range are not yet persisted.
   
 ### `FibonacciRepository`
-The data access object responsible for saving and retrieving Fibonacci results. It uses `NamedParameterJdbcTemplate` for efficient PostgreSQL interactions, including `ON CONFLICT DO NOTHING` clauses to prevent duplicates.
+The data access object responsible for saving and retrieving Fibonacci results. It uses `NamedParameterJdbcTemplate` for efficient PostgreSQL interactions.
   
 ## ⚙️ How it Works
   
-1. **Startup**: On `ApplicationReadyEvent`, the `Scheduler` triggers `FibonacciEnqueueTask`.
-2. **Identification**: `FibonacciEnqueueTask` checks the database for missing sequences within the configured range.
-3. **Enqueuing**: For each missing sequence, a job is enqueued in **JobRunr**.
-4. **Execution**: **JobRunr** workers pick up the jobs and call `JobService.computeFibonacci()`.
-5. **Computation**: The `FibonacciComputeTask` (using the `core` module) calculates the result.
-6. **Persistence**: The result is saved back to PostgreSQL via `FibonacciRepository`.
-7. **Downstream**: The saved results can then be picked up by the `web` module (via PostgreSQL `NOTIFY`) to be streamed to clients.
+1. **Request**: A request comes in via the `web` module.
+2. **Scheduling**: The `Scheduler` enqueues an `enqueue` job in JobRunr.
+3. **Filtering**: The `enqueue` job uses `TaskService` (and `FibonacciSequenceFilterTask`) to find which numbers in the requested range are not yet in the database.
+4. **Job Spawning**: For each missing number, a `computeFibonacci` job is enqueued.
+5. **Computation**: The `computeFibonacci` job uses `TaskService` (and `FibonacciComputeTask`) to calculate the number using the `core` module.
+6. **Persistence**: The result is saved to PostgreSQL.
+7. **Notification**: PostgreSQL sends a `NOTIFY` signal, which is picked up by the `web` module to stream the result to clients.
 
 ## 📊 Monitoring
 
 The module includes the **JobRunr Dashboard**, which allows you to monitor job progress, view failed jobs, and manually trigger retries.
 
-- **URL**: `http://localhost:8000` (default)
+- **URL**: [http://localhost:8000](http://localhost:8000)
 - **Features**: Real-time job statistics, worker health monitoring, and job history.

@@ -8,14 +8,13 @@ This directory contains essential tools for testing the Fibonacci backend API di
 ## 📄 Core Files
 
 ### 1. `query.http`
-A comprehensive collection of REST API requests. This file is compatible with:
-- **IntelliJ IDEA** HTTP Client
-- **VS Code** (with the [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension)
-- **JetBrains Fleet**
+A comprehensive collection of REST API requests.
 
 **Available Operations:**
-- `POST /list`: Request a Fibonacci sequence by providing a range.
-- `GET /id`: Fetch a specific sequence result by its unique identifier.
+- `POST /api/v1/scheduler`: Request a new Fibonacci calculation.
+- `GET /api/v1/sse/{channel}`: Subscribe to SSE stream.
+- `POST /api/v1/sse/{channel}/list`: Query list via SSE.
+- `GET /api/v1/sse/{channel}/id`: Query by ID via SSE.
 
 ---
 
@@ -41,7 +40,7 @@ A utility script to demonstrate and test **H2C (HTTP/2 Cleartext)** streaming. T
 To observe the real-time stream via `curl`, use the `--no-buffer` (`-N`) flag. This prevents `curl` from buffering the output, allowing you to see events as they arrive:
 
 ```bash
-curl -N http://localhost:8080/api/fibonacci/stream?streamKey=test-session
+curl -N "http://localhost:8080/api/v1/sse/livestream?streamKey=test-session"
 ```
 
 ### The `streamKey` Parameter
