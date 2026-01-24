@@ -33,18 +33,18 @@ The Java backend is designed to handle massive Fibonacci computations efficientl
 
 ```mermaid
 graph TD
-    subgraph "Java Backend (Spring Boot 4 / Java 25)"
+    subgraph "Java Backend"
         Web[Web Module]
         Scheduler[Scheduler Module]
-        Core[Core Module]
         DB[(PostgreSQL)]
+        JobRunr
     end
 
     User([User Browser]) <--> Client[Astro/React Frontend]
     Client <-->|REST / SSE / WS| Web
+    Client <-->|REST| Scheduler
     Web <--> DB
     Scheduler <--> DB
-    Scheduler -.->|Uses| Core
     DB -.->|LISTEN/NOTIFY| Web
     Scheduler -.->|Enqueue Jobs| JobRunr((JobRunr))
     JobRunr -.->|Execute| Scheduler
