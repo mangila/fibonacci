@@ -1,0 +1,65 @@
+---
+import { FibonacciAlgorithm } from "../_types/types";
+---
+
+<h2>But first... Produce some Fibonacci data!</h2>
+<form id="produce-form" class="flex flex-col justify-center gap-4">
+  <select class="select" name="algorithm">
+    <option disabled selected>Pick a Algorithm</option>
+    <option>{FibonacciAlgorithm.Recursive}</option>
+    <option>{FibonacciAlgorithm.Iterative}</option>
+    <option>{FibonacciAlgorithm.FastDoubling}</option>
+  </select>
+  <input
+    type="number"
+    name="offset"
+    placeholder="Offset"
+    class="input validator"
+    min="1"
+    max="1000000"
+    required
+  />
+  <input
+    type="number"
+    name="limit"
+    placeholder="Limit"
+    class="input validator"
+    min="1"
+    max="1000"
+    required
+  />
+  <input
+    type="number"
+    name="delayInMillis"
+    placeholder="delayInMillis"
+    class="input validator"
+    min="50"
+    max="10000"
+    required
+  />
+  <button type="submit" class="btn btn-neutral">Produce!</button>
+</form>
+
+<script>
+  import axios from "axios";
+  import { enqueueFibonacciSequences } from "../_shared/shared";
+  import type { FibonacciCommand } from "../_types/types";
+
+  const form = document.querySelector("#produce-form") as HTMLFormElement;
+
+  form?.addEventListener("submit", async (e) => {
+    try {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData) as unknown as FibonacciCommand;
+      const response = await enqueueFibonacciSequences(data);
+      alert(`ok, the data is enqueued... ${JSON.stringify(response.data)}`);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        alert(JSON.stringify(error.response?.data));
+      } else {
+        alert("something went very wrong...");
+      }
+    }
+  });
+</script>
