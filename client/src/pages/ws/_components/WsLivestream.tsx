@@ -22,13 +22,11 @@ export const WsLivestream = () => {
     client.onConnect = () => {
       setStatus("open");
       client.subscribe("/topic/livestream", (frame: IFrame) => {
-        const decoded: string = TEXT_DECODER.decode(frame.binaryBody);
-        const data: FibonacciProjectionDto[] = JSON.parse(decoded);
+        const data: FibonacciProjectionDto[] = JSON.parse(frame.body);
         data.map((value) => push(value));
       });
       client.subscribe("/user/queue/fibonacci/id", (frame: IFrame) => {
-        const decoded: string = TEXT_DECODER.decode(frame.binaryBody);
-        const data: FibonacciDto = JSON.parse(decoded);
+        const data: FibonacciDto = JSON.parse(frame.body);
         setModalData(data);
       });
       client.subscribe("/user/queue/errors", (frame: IFrame) => {

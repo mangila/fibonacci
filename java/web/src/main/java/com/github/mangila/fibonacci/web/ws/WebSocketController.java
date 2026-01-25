@@ -42,7 +42,7 @@ public class WebSocketController {
 
     @EventListener
     public void wsLivestream(PgNotificationPayloadCollection payload) {
-        template.convertAndSend("/topic/livestream", payload);
+        template.convertAndSend("/topic/livestream", payload.value());
     }
 
     @MessageMapping("fibonacci/list")

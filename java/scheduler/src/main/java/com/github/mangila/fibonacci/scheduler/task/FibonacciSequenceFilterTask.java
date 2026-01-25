@@ -28,8 +28,8 @@ public class FibonacciSequenceFilterTask implements Callable<List<Integer>> {
 
     @Override
     public List<Integer> call() {
-        log.info("Scheduling Fibonacci computations for sequences {}..{}", offset, limit);
-        final List<Integer> requestedSequences = IntStream.range(offset, limit + 1)
+        log.info("Scheduling Fibonacci computations for sequences {}..{}", offset, offset + limit);
+        final List<Integer> requestedSequences = IntStream.range(offset, offset + limit)
                 .boxed()
                 .toList();
         final Set<Integer> existingSequences = new HashSet<>(repository.hasSequences(requestedSequences));

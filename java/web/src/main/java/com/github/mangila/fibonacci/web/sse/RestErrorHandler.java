@@ -41,24 +41,4 @@ public class RestErrorHandler {
         );
         return problemDetail;
     }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ProblemDetail handleRuntimeException(RuntimeException e) {
-        log.error("ERR", e);
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                "something went wrong"
-        );
-        return problemDetail;
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ProblemDetail handleException(Exception e) {
-        log.error("ERR", e);
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "something went wrong"
-        );
-        return problemDetail;
-    }
 }

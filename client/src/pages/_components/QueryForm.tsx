@@ -13,6 +13,7 @@ export const QueryForm = ({ isPending, payload }: Props) => {
           placeholder="Offset"
           className="input validator"
           min="0"
+          max="1000000"
           required
         />
         <input

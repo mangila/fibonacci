@@ -110,8 +110,8 @@ The easiest way to run the entire stack (PostgreSQL, Web, and Scheduler) is usin
    ```
 
 The services will be available at:
-- **Web API**: `http://localhost:8081`
-- **Scheduler API**: `http://localhost:8080`
+- **Web API**: `http://localhost:8080`
+- **Scheduler API**: `http://localhost:8081`
 - **JobRunr Dashboard**: `http://localhost:8000`
 
 ### ☸️ Minikube (Kubernetes)

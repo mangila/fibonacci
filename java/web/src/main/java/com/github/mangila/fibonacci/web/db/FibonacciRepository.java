@@ -22,7 +22,7 @@ public class FibonacciRepository {
     public Optional<FibonacciEntity> queryById(int id) {
         // language=PostgreSQL
         final String sql = """
-                SELECT id, sequence, result, precision FROM fibonacci_results
+                SELECT id, 'sequence', result, 'precision' FROM fibonacci_results
                 WHERE id = ?
                 """;
         List<FibonacciEntity> entity = jdbcTemplate.query(sql,
@@ -39,8 +39,8 @@ public class FibonacciRepository {
     public List<FibonacciProjection> queryForList(@NonNull FibonacciQuery query) {
         // language=PostgreSQL
         final String sql = """
-                SELECT id, sequence, precision FROM fibonacci_results
-                ORDER BY sequence
+                SELECT id, 'sequence', 'precision' FROM fibonacci_results
+                ORDER BY 'sequence'
                 OFFSET ?
                 LIMIT ?;
                 """;

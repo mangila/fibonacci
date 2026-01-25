@@ -32,6 +32,9 @@ public class FibonacciRepository {
     }
 
     public List<Integer> hasSequences(List<Integer> sequences) {
+        if (sequences.isEmpty()) {
+            return List.of();
+        }
         // language=PostgreSQL
         final String sql = """
                 SELECT sequence FROM fibonacci_results

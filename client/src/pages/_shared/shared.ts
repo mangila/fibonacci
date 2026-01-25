@@ -1,9 +1,12 @@
 import axios from "axios";
 import { Client } from "@stomp/stompjs";
+import type { FibonacciCommand } from "../_types/types";
 
 export const URL_BASE = new URL(import.meta.env.PUBLIC_FIBONACCI_API_URL);
 export const SSE_BASE_PATH = "/api/v1/sse";
 export const STOMP_URL = import.meta.env.PUBLIC_STOMP_URL;
+export const SCHEDULER_URL_BASE = import.meta.env
+  .PUBLIC_FIBONACCI_SCHEDULER_URL;
 export const TEXT_DECODER = new TextDecoder("utf-8");
 
 const BASE = new URL(URL_BASE);
@@ -32,6 +35,17 @@ export async function queryById(
   url.searchParams.append("streamKey", streamKey);
   url.searchParams.append("id", id.toString());
   await axios.get(url.href);
+}
+
+export async function enqueueFibonacciSequences(data: FibonacciCommand) {
+  const url = new URL("api/v1/scheduler", SCHEDULER_URL_BASE);
+  const response = await axios.post(url.href, {
+    algorithm: data.algorithm,
+    offset: data.offset,
+    limit: data.limit,
+    delayInMillis: data.delayInMillis,
+  });
+  return response;
 }
 
 export function createStompClient(url: string) {

@@ -50,7 +50,7 @@ public class JobService {
                 });
     }
 
-    @Job(name = "Fibonacci job for number %0", retries = 3)
+    @Job(name = "Fibonacci job for number %1", retries = 3)
     public void computeFibonacci(FibonacciAlgorithm algorithm, int sequence, Duration delay) {
         var future = taskService.submitComputeTask(algorithm, sequence)
                 .orTimeout(3, TimeUnit.MINUTES);

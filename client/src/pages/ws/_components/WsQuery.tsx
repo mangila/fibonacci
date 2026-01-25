@@ -45,13 +45,12 @@ export const WsQuery = () => {
     client.onConnect = () => {
       setStatus("open");
       client.subscribe("/user/queue/fibonacci/list", (frame: IFrame) => {
-        const decoded: string = TEXT_DECODER.decode(frame.binaryBody);
-        const data: FibonacciProjectionDto[] = JSON.parse(decoded);
+        resetList([]);
+        const data: FibonacciProjectionDto[] = JSON.parse(frame.body);
         data.map((value) => push(value));
       });
       client.subscribe("/user/queue/fibonacci/id", (frame: IFrame) => {
-        const decoded: string = TEXT_DECODER.decode(frame.binaryBody);
-        const data: FibonacciDto = JSON.parse(decoded);
+        const data: FibonacciDto = JSON.parse(frame.body);
         setModalData(data);
       });
       client.subscribe("/user/queue/errors", (frame: IFrame) => {
@@ -66,7 +65,7 @@ export const WsQuery = () => {
   }, []);
   const [state, formAction, isPending] = useActionState(handleSubmit, null);
   const [status, setStatus] = useState<ConnectionStatus>("offline");
-  const { list, push } = useDynamicList<FibonacciProjectionDto>([]);
+  const { list, push, resetList } = useDynamicList<FibonacciProjectionDto>([]);
   const [modalData, setModalData] = useState<FibonacciDto>({
     id: 0,
     sequence: 0,
