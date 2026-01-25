@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -33,21 +34,21 @@ public class JobService {
 
     @Job(name = "Enqueue Fibonacci jobs", retries = 3)
     public void enqueueFibonacciTasks(FibonacciCommand command) {
+        log.info("Enqueue Fibonacci computations for command {}", command);
+        final int offset = command.offset();
+        final int limit = command.limit();
         final var algorithm = command.algorithm();
         final var delay = Duration.ofMillis(command.delayInMillis());
-        final var offset = command.offset();
-        final var limit = command.limit();
-        taskService.submitSequenceFilter(offset, limit)
-                .thenAccept(sequences -> {
-                    log.info("Found {} sequences to schedule", sequences.size());
-                    sequences.forEach(sequence -> {
-                        jobScheduler.enqueue(() -> computeFibonacci(algorithm, sequence, delay));
-                    });
-                })
+        var future = taskService.submitSequenceFilter(offset, limit)
+                .orTimeout(30, TimeUnit.SECONDS)
                 .exceptionally((throwable) -> {
                     log.error("Error while scheduling Fibonacci computations", throwable);
-                    return null;
+                    return List.of();
                 });
+        List<Integer> sequences = future.join();
+        for (int sequence : sequences) {
+            jobScheduler.enqueue(() -> computeFibonacci(algorithm, sequence, delay));
+        }
     }
 
     @Job(name = "Fibonacci job for number %1", retries = 3)
@@ -66,5 +67,4 @@ public class JobService {
             delayLock.unlock();
         }
     }
-
 }

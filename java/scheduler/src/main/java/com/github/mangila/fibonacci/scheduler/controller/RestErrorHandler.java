@@ -1,5 +1,6 @@
 package com.github.mangila.fibonacci.scheduler.controller;
 
+import io.github.mangila.ensure4j.EnsureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,16 @@ public class RestErrorHandler {
 
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ProblemDetail handleHandlerMethodValidationException(HandlerMethodValidationException e) {
+        log.error("ERR", e);
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                e.getMessage()
+        );
+        return problemDetail;
+    }
+
+    @ExceptionHandler(EnsureException.class)
+    public ProblemDetail handleRuntimeException(EnsureException e) {
         log.error("ERR", e);
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
