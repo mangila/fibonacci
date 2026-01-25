@@ -34,11 +34,6 @@
                 <artifactId>core</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.github.mangila.fibonacci</groupId>
-                <artifactId>db</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <!-- Source: https://mvnrepository.com/artifact/io.github.mangila/ensure4j -->
             <dependency>
                 <groupId>io.github.mangila</groupId>

@@ -7,6 +7,9 @@ spring:
   web:
     resources:
       add-mappings: false
+  mvc:
+    problemdetails:
+      enabled: true
   threads:
     virtual:
       enabled: true

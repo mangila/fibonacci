@@ -20,6 +20,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fibonacci
       SPRING_FLYWAY_LOCATIONS: filesystem:/flyway/{vendor}
+      SPRING_FLYWAY_FAIL_ON_MISSING_LOCATIONS: true
     depends_on:
       - postgres
     ports:
@@ -37,6 +38,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fibonacci
       SPRING_FLYWAY_LOCATIONS: filesystem:/flyway/{vendor}
+      SPRING_FLYWAY_FAIL_ON_MISSING_LOCATIONS: true
     depends_on:
       - postgres
       - web

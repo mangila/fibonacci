@@ -1,10 +1,10 @@
 package com.github.mangila.fibonacci.web.sse;
 
+import com.github.mangila.fibonacci.core.model.FibonacciQuery;
 import com.github.mangila.fibonacci.core.model.PgNotificationPayloadCollection;
 import com.github.mangila.fibonacci.web.annotation.AlphaNumeric;
 import com.github.mangila.fibonacci.web.model.FibonacciDto;
 import com.github.mangila.fibonacci.web.model.FibonacciProjectionDto;
-import com.github.mangila.fibonacci.core.model.FibonacciQuery;
 import com.github.mangila.fibonacci.web.model.SseSession;
 import com.github.mangila.fibonacci.web.service.FibonacciService;
 import jakarta.validation.Valid;
@@ -45,7 +45,7 @@ public class SseController {
                 .forEach(sseSession -> {
                     try {
                         sseSession.send("livestream", payload.value());
-                    } catch (Exception e) {
+                    } catch (IOException e) {
                         sseSession.completeWithError(e);
                     }
                 });

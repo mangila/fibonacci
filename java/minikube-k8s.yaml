@@ -74,6 +74,8 @@ spec:
               value: jdbc:postgresql://postgres:5432/fibonacci
             - name: SPRING_FLYWAY_LOCATIONS
               value: filesystem:/flyway/{vendor}
+            - name: SPRING_FLYWAY_FAIL_ON_MISSING_LOCATIONS
+              value: "true"
           ports:
             - containerPort: 8080
           livenessProbe:
@@ -128,6 +130,8 @@ spec:
               value: jdbc:postgresql://postgres:5432/fibonacci
             - name: SPRING_FLYWAY_LOCATIONS
               value: filesystem:/flyway/{vendor}
+            - name: SPRING_FLYWAY_FAIL_ON_MISSING_LOCATIONS
+              value: "true"
           ports:
             - containerPort: 8080
             - containerPort: 8000
