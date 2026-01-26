@@ -1,38 +1,23 @@
-# 🌀 Java Server
-
-> [!NOTE]
-> This README was updated on 2026-01-24.
+# ☕ Java Server Ecosystem
 
 [![Java 25](https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/25/)
 [![Spring Boot 4](https://img.shields.io/badge/Spring_Boot-4.0.2-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
-[![Astro 5](https://img.shields.io/badge/astro-%232C2052.svg?style=for-the-badge&logo=astro&logoColor=white)](https://astro.build/)
-[![React 19](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)](https://react.dev/)
-[![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Project Loom](https://img.shields.io/badge/Project-Loom-blue?style=for-the-badge)](https://openjdk.org/projects/loom/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4479A1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 
-A high-performance, full-stack application for calculating, persisting, and streaming Fibonacci sequences in real-time. This project serves as a showcase for modern technologies including **Java 25 (Project Loom)**, **Spring Boot 4**, **Astro 5**, and real-time streaming via **SSE** and **WebSockets**.
+The Java backend serves as the high-performance backbone of the Fibonacci project. It is engineered to handle intensive mathematical computations through a distributed, reactive architecture. This implementation leverages **Java 25's Virtual Threads (Project Loom)** for efficient concurrency and **Spring Boot 4** for a robust service framework.
 
-## 📖 Table of Contents
+---
 
-- [Overview](#-overview)
-- [Architecture](#-architecture)
-- [Project Structure](#-project-structure)
-- [Quick Start](#-quick-start)
-- [Deployment](#-deployment)
-    - [Docker Compose](#-docker-compose)
-    - [Minikube (Kubernetes)](#-minikube-kubernetes)
-- [Mathematics & Algorithms](#-mathematics--algorithms)
-- [Tech Stack](#-tech-stack)
+## 🏗 Modular Architecture
 
-## 📖 Overview
+The project is structured as a Maven multi-module system to ensure separation of concerns and scalability:
 
-The Java backend is designed to handle massive Fibonacci computations efficiently. It leverages a multi-module architecture for high-throughput calculations and real-time streaming. Key features include:
+*   **[Core Module](./core)**: A zero-dependency, pure Java library containing optimized Fibonacci algorithms.
+*   **[Scheduler Module](./scheduler)**: Manages distributed task execution and asynchronous persistence using **JobRunr**.
+*   **[Web Module](./web)**: The communication gateway, providing RESTful APIs and real-time streaming via **SSE** and **WebSockets**.
 
-- **Distributed Computation**: Background tasks managed by JobRunr.
-- **Real-time Streaming**: Choice between Server-Sent Events (SSE) and WebSockets (STOMP).
-- **Reactive UI**: Built with Astro and React for optimal performance and developer experience.
-- **Modern Java**: Utilizing Virtual Threads (Loom) for efficient concurrency.
-
-## 🏗 Architecture
+### 🔄 System Data Flow
 
 ```mermaid
 graph TD
@@ -40,134 +25,84 @@ graph TD
         Web[Web Module]
         Scheduler[Scheduler Module]
         DB[(PostgreSQL)]
-        JobRunr
+        JobRunr((JobRunr Engine))
     end
 
-    User([User Browser]) <--> Client[Astro/React Frontend]
-    Client <-->|REST / SSE / WS| Web
-    Client <-->|REST| Scheduler
-    Web <--> DB
-    Scheduler <--> DB
+    User([Web Client]) <-->|REST / SSE / WS| Web
+    Web -.->|Schedule Request| Scheduler
+    Scheduler -.->|Enqueue Tasks| JobRunr
+    JobRunr -.->|Compute & Persist| DB
     DB -.->|LISTEN/NOTIFY| Web
-    Scheduler -.->|Enqueue Jobs| JobRunr((JobRunr))
-    JobRunr -.->|Execute| Scheduler
+    Web -.->|Push Update| User
 ```
 
-The Java architecture is modularized to separate concerns:
-- **`web`**: Handles the communication layer (REST, SSE, WebSockets) and interfaces with the database for real-time notifications.
-- **`scheduler`**: Manages background job enqueuing and execution via JobRunr, offloading heavy calculations.
-- **`core`**: A pure Java library containing the mathematical algorithms for Fibonacci calculation.
+---
 
-## 🏗 Project Structure
+## 🚀 Getting Started
 
-- **[`java/`](./)**: The heart of the application.
-    - [`core`](./core): Pure Java implementation of Fibonacci algorithms.
-    - [`scheduler`](./scheduler): Background task management and database persistence.
-    - [`web`](./web): REST API, SSE/WebSocket streaming, and application entry point.
-- **[`client/`](../client/)**: Modern web dashboard built with Astro, React, and Tailwind CSS.
-- **[`http/`](../http/)**: Collection of `.http` files and scripts for API testing.
-- **[`docker-compose.yaml`](../docker-compose.yaml)**: One-click infrastructure setup (Postgres).
+### Prerequisites
+- **JDK 25** or higher.
+- **Maven 3.9+**.
+- **Docker** (for infrastructure services).
 
-## 🚀 Quick Start
-
-### 1. Infrastructure
-Ensure you have Docker installed, then start the database:
+### Infrastructure Setup
+Launch the PostgreSQL database and required infrastructure:
 ```bash
 docker-compose up -d
 ```
 
-### 2. Run the Java Server
-Requires Java 25 and Maven.
+### Build and Execution
+Build the entire project from the root:
 ```bash
-cd java
-./mvnw clean install
-./mvnw -pl web spring-boot:run
+mvn clean install
 ```
 
-### 3. Run the Client
-Requires Node.js 22+.
+Run the application (Web module is the entry point):
 ```bash
-cd client
-npm install
-npm run dev
+mvn -pl web spring-boot:run
 ```
-Visit `http://localhost:4321` to see the magic happen.
 
-## 🚢 Deployment
+---
 
-### 🐳 Docker Compose
+## 🚢 Deployment Strategies
 
-The easiest way to run the entire stack (PostgreSQL, Web, and Scheduler) is using Docker Compose.
+### Docker Integration
+The project is container-ready. To build images and deploy the full stack:
+1. Compile the artifacts: `mvn clean package`
+2. Orchestrate services: `docker-compose up -d`
 
-1. **Build the JAR files**:
-   ```bash
-   ./mvnw clean package
-   ```
+| Service | Endpoint |
+| :--- | :--- |
+| **Web API** | `http://localhost:8080` |
+| **Scheduler API** | `http://localhost:8081` |
+| **JobRunr Dashboard** | `http://localhost:8000` |
 
-2. **Start the services**:
-   ```bash
-   docker-compose up -d
-   ```
+### Kubernetes (Minikube)
+For cloud-native environments, we provide comprehensive Kubernetes manifests:
+- **Initialization**: `./minikube-start.sh`
+- **Deployment**: `./minikube-deploy.sh`
+- **Cleanup**: `./minikube-delete.sh`
 
-The services will be available at:
-- **Web API**: `http://localhost:8080`
-- **Scheduler API**: `http://localhost:8081`
-- **JobRunr Dashboard**: `http://localhost:8000`
+---
 
-### ☸️ Minikube (Kubernetes)
+## 🧬 Mathematics & Computation
 
-For a Kubernetes-based deployment, we provide a complete manifest and helper scripts for Minikube.
+The backend supports multiple algorithmic strategies to balance precision and performance:
 
-1. **Start Minikube**:
-   ```bash
-   ./minikube-start.sh
-   ```
-   *This starts Minikube with 4 CPUs and 8GB RAM and opens the dashboard.*
-
-2. **Deploy to Kubernetes**:
-   ```bash
-   ./minikube-deploy.sh
-   ```
-   *This builds the JARs, loads images into Minikube, and applies `minikube-k8s.yaml`.*
-
-3. **Access the Services**:
-   Since the services are using `NodePort`, you can get the URLs via:
-   ```bash
-   minikube service list
-   ```
-   - **Web**: `http://<minikube-ip>:30081`
-   - **Scheduler**: `http://<minikube-ip>:30080`
-   - **JobRunr Dashboard**: `http://<minikube-ip>:30000`
-
-4. **Cleanup**:
-   ```bash
-   ./minikube-delete.sh
-   ```
-
-## 🧬 Mathematics & Algorithms
-
-The project supports multiple calculation strategies to handle various input sizes:
-
-| Algorithm | Complexity | Best For |
+| Algorithm | Complexity | Capacity |
 | :--- | :--- | :--- |
-| **Fast Doubling** | $O(\log n)$ | Large indices ($n > 10,000$) |
-| **Iterative** | $O(n)$ | Medium indices |
-| **Recursive** | $O(2^n)$ | Educational purposes (slow!) |
+| **Fast Doubling** | $O(\log n)$ | Optimized for large-scale indices ($n > 10^5$). |
+| **Iterative** | $O(n)$ | Efficient for standard ranges. |
+| **Recursive** | $O(2^n)$ | Educational reference; not recommended for $n > 40$. |
 
-The sequence is defined as $F_n = F_{n-1} + F_{n-2}$ with $F_0 = 0, F_1 = 1$.
+---
 
-## 🛠 Tech Stack
+## 🛠 Technology Stack
 
-### Backend
-- **Java 25**: Virtual Threads, Pattern Matching, Sealed Classes.
-- **Spring Boot 4**: Native support for Java 25.
-- **PostgreSQL**: Used as both a relational store and a message broker via `LISTEN/NOTIFY`.
-- **JobRunr**: For reliable background job execution.
-
-### Frontend
-- **Astro 5**: Islands architecture for fast-loading UI.
-- **React 19**: Modern hooks and concurrent rendering.
-- **Tailwind CSS 4**: Utility-first styling with the latest features.
-- **DaisyUI**: Component library for a polished look.
+- **Runtime**: Java 25 (Virtual Threads).
+- **Framework**: Spring Boot 4.0.2.
+- **Persistence**: PostgreSQL (RDBMS + Message Broker).
+- **Background Jobs**: JobRunr.
+- **Real-time**: SSE, STOMP over WebSockets.
 
 

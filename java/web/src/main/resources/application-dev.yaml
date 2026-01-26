@@ -17,3 +17,12 @@ logging:
 # Server
 server:
   port: 8080
+# SpringDoc
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+  show-actuator: true
+  cache:
+    disabled: true

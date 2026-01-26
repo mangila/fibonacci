@@ -9,7 +9,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @TestPropertySource(properties = {
-        "jobrunr.dashboard.enabled=false"
+        "jobrunr.dashboard.enabled=false",
+        "springdoc.swagger-ui.enabled=false"
 })
 @Import(PostgresTestContainerConfiguration.class)
 public @interface PostgresTestContainer {

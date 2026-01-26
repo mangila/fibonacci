@@ -42,6 +42,11 @@ public class SseController {
         this.emitterRegistry = emitterRegistry;
     }
 
+    @GetMapping("favicon.ico")
+    @ResponseBody
+    void doNothing() {
+        // do nothing
+    }
 
     @PostMapping
     public ResponseEntity<SseEmitter> sseSubscribe(@Valid @RequestBody SseSubscription subscription) {

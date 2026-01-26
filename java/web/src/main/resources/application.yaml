@@ -67,3 +67,12 @@ logging:
     com.github.mangila.fibonacci.scheduler.repository: INFO
     com.github.mangila.fibonacci.scheduler.scheduler: INFO
     com.github.mangila.fibonacci.scheduler.task: INFO
+# SpringDoc
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+  show-actuator: false
+  cache:
+    disabled: false
