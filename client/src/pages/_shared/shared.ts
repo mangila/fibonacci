@@ -48,7 +48,12 @@ export async function enqueueFibonacciSequences(data: FibonacciCommand) {
   return response;
 }
 
+import {fetchEventSource} from "@microsoft/fetch-event-source"
 export function createStompClient(url: string) {
+  fetchEventSource("1",{
+
+
+  })
   const client = new Client({
     brokerURL: url,
     debug: function (str) {

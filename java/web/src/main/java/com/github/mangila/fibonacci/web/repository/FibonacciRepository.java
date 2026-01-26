@@ -21,7 +21,7 @@ public class FibonacciRepository {
     }
 
     public Optional<FibonacciEntity> queryById(int id) {
-        Ensure.min(1, id);
+        Ensure.positive(id);
         // language=PostgreSQL
         final String sql = """
                 SELECT id, sequence, result, precision
@@ -36,6 +36,9 @@ public class FibonacciRepository {
 
     @Transactional(readOnly = true)
     public void streamForList(int offset, int limit, Consumer<Stream<FibonacciProjection>> consumer) {
+        Ensure.positive(offset);
+        Ensure.positive(limit);
+        Ensure.notNull(consumer);
         // language=PostgreSQL
         final String sql = """
                 SELECT id, sequence, precision

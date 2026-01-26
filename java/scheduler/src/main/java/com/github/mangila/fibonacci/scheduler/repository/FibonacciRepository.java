@@ -27,6 +27,8 @@ public class FibonacciRepository {
                 VALUES (:sequence, :result, :precision)
                 ON CONFLICT (sequence) DO NOTHING
                 """;
+        // ON CONFLICT (sequence) DO NOTHING - would ignore duplicate sequences
+        // And will guard for some potential extra compute race conditions
         client.sql(sql)
                 .param("sequence", fibonacciResult.sequence())
                 .param("result", fibonacciResult.result())
@@ -37,6 +39,7 @@ public class FibonacciRepository {
     @Transactional(readOnly = true)
     public void streamSequences(int max, Consumer<Stream<Integer>> consumer) {
         Ensure.positive(max);
+        Ensure.notNull(consumer);
         final String sql = """
                 SELECT sequence FROM fibonacci_results
                 ORDER BY sequence

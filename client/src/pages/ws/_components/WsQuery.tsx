@@ -44,7 +44,7 @@ export const WsQuery = () => {
     const client = createStompClient(STOMP_URL);
     client.onConnect = () => {
       setStatus("open");
-      client.subscribe("/user/queue/fibonacci/list", (frame: IFrame) => {
+      client.subscribe("/user/queue/fibonacci/stream", (frame: IFrame) => {
         const data: FibonacciProjectionDto = JSON.parse(frame.body);
         push(data);
       });
