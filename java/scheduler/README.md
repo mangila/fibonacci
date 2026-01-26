@@ -24,7 +24,7 @@ Swagger ui is available at `/swagger-ui/index.html` with spring profile `dev`
 
 ## 🏗 Architectural Components
 
-### `SchedulerController`
+### `JobRunrSchedulerController`
 
 The entry point for computation requests. It validates user input and delegates task scheduling to the
 `JobRunrScheduler`.
@@ -32,22 +32,11 @@ The entry point for computation requests. It validates user input and delegates 
 ### `JobRunrScheduler`
 
 The primary entry point for task ingestion. It abstracts the complexity of background scheduling, providing a clean
-interface for the `web` module to trigger computations.
-
-### `JobService`
-
-A high-level coordinator annotated with `@Job`. It manages the distribution of work, filtering required sequences and
-enqueuing individual atomic computation tasks.
-
-### `TaskService`
-
-Handles the low-level execution logic. It utilizes specialized thread pools (`ThreadPoolTaskExecutor` and
-`SimpleAsyncTaskExecutor`) to balance system resources between computational tasks and filtering operations.
+interface for the `client` to trigger computations.
 
 ### `FibonacciRepository`
 
-The data access layer optimized for PostgreSQL. It handles the persistence of results and queries for sequence
-availability using `NamedParameterJdbcTemplate`.
+The data access layer optimized for PostgreSQL. It handles the persistence of results and queries for sequence.
 
 ---
 
