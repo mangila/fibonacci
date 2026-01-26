@@ -99,7 +99,7 @@ The backend supports multiple algorithmic strategies to balance precision and pe
 
 - **Runtime**: Java 25 (Virtual Threads).
 - **Framework**: Spring Boot 4.0.2.
-- **Persistence**: PostgreSQL (RDBMS + Message Broker).
+- **Persistence**: PostgreSQL (RDBMS).
 - **Background Jobs**: JobRunr.
 - **Real-time**: SSE, STOMP over WebSockets.
 
