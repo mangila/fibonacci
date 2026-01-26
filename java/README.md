@@ -29,6 +29,7 @@ graph TD
     end
 
     User([Web Client]) <-->|REST / SSE / WS| Web
+    Web <--> DB
     User([Web Client]) -.->|Schedule Request| Scheduler
     Scheduler -.->|Enqueue Tasks| JobRunr
     JobRunr -.->|Compute & Persist| DB
