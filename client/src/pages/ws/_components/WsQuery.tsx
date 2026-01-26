@@ -45,9 +45,8 @@ export const WsQuery = () => {
     client.onConnect = () => {
       setStatus("open");
       client.subscribe("/user/queue/fibonacci/list", (frame: IFrame) => {
-        resetList([]);
-        const data: FibonacciProjectionDto[] = JSON.parse(frame.body);
-        data.map((value) => push(value));
+        const data: FibonacciProjectionDto = JSON.parse(frame.body);
+        push(data);
       });
       client.subscribe("/user/queue/fibonacci/id", (frame: IFrame) => {
         const data: FibonacciDto = JSON.parse(frame.body);

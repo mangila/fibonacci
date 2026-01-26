@@ -47,13 +47,13 @@ public class Scheduler {
     public void scheduleFibonacciCalculations(FibonacciComputeCommand command) {
         final int start = command.start();
         final int end = command.end();
-        Ensure.isTrue(computeProperties.getMax() >= end, "End sequence must be within the configured max limit");
         final FibonacciAlgorithm algorithm = command.algorithm();
+        Ensure.isTrue(computeProperties.getMax() >= end, "End sequence must be within the configured max limit");
         Stream<Integer> sequenceStream = IntStream.range(start, end).boxed();
         jobScheduler.enqueue(sequenceStream, (sequence) -> computeFibonacci(algorithm, sequence));
     }
 
-    @Job(name = "Fibonacci job for number %1", retries = 3, labels = "compute")
+    @Job(name = "Fibonacci job for number %1", retries = 3, labels = "fibonacci")
     public void computeFibonacci(FibonacciAlgorithm algorithm, int sequence) {
         if (!sequenceCache.tryCompute(sequence)) {
             log.info("Sequence {} is already computed or in flight", sequence);

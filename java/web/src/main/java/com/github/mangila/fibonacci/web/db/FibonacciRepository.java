@@ -26,7 +26,7 @@ public class FibonacciRepository {
         Ensure.min(1, id);
         // language=PostgreSQL
         final String sql = """
-                SELECT id, 'sequence', result, 'precision'
+                SELECT id, sequence, result, precision
                 FROM fibonacci_results
                 WHERE id = :id
                 """;
@@ -40,9 +40,9 @@ public class FibonacciRepository {
     public void streamForList(@NonNull FibonacciQuery query, Consumer<Stream<FibonacciProjection>> consumer) {
         // language=PostgreSQL
         final String sql = """
-                SELECT id, 'sequence', 'precision'
+                SELECT id, sequence, precision
                 FROM fibonacci_results
-                ORDER BY 'sequence'
+                ORDER BY sequence
                 OFFSET :offset
                 LIMIT :limit;
                 """;
