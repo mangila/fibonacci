@@ -1,19 +1,15 @@
 package com.github.mangila.fibonacci.web.sse;
 
-import com.github.mangila.fibonacci.core.model.FibonacciQuery;
-import com.github.mangila.fibonacci.core.model.PgNotificationPayloadCollection;
-import com.github.mangila.fibonacci.web.annotation.AlphaNumeric;
-import com.github.mangila.fibonacci.web.model.FibonacciDto;
-import com.github.mangila.fibonacci.web.model.FibonacciProjectionDto;
-import com.github.mangila.fibonacci.web.model.SseSession;
-import com.github.mangila.fibonacci.web.service.FibonacciService;
+import com.github.mangila.fibonacci.core.entity.FibonacciEntity;
+import com.github.mangila.fibonacci.web.repository.FibonacciRepository;
+import com.github.mangila.fibonacci.web.sse.model.SseFibonacciQuery;
+import com.github.mangila.fibonacci.web.sse.model.SseFibonacciStreamQuery;
+import com.github.mangila.fibonacci.web.sse.model.SseSession;
+import com.github.mangila.fibonacci.web.sse.model.SseSubscription;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +18,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * Adapted for microsoft-sse-fetcher client
+ */
 @RestController
 @RequestMapping("api/v1/sse")
 @Validated
@@ -31,31 +30,22 @@ public class SseController {
 
     private static final Logger log = LoggerFactory.getLogger(SseController.class);
 
-    private final FibonacciService service;
+    private final SimpleAsyncTaskExecutor ioAsyncTaskExecutor;
+    private final FibonacciRepository repository;
     private final SseEmitterRegistry emitterRegistry;
 
-    public SseController(FibonacciService service, SseEmitterRegistry emitterRegistry) {
-        this.service = service;
+    public SseController(SimpleAsyncTaskExecutor ioAsyncTaskExecutor,
+                         FibonacciRepository repository,
+                         SseEmitterRegistry emitterRegistry) {
+        this.ioAsyncTaskExecutor = ioAsyncTaskExecutor;
+        this.repository = repository;
         this.emitterRegistry = emitterRegistry;
     }
 
-    @EventListener
-    public void sseLivestream(PgNotificationPayloadCollection payload) {
-        emitterRegistry.getAllSession()
-                .forEach(sseSession -> {
-                    try {
-                        sseSession.send("livestream", payload.value());
-                    } catch (IOException e) {
-                        sseSession.completeWithError(e);
-                    }
-                });
-    }
 
-    @GetMapping("{channel}")
-    public ResponseEntity<SseEmitter> sseSubscribe(
-            @AlphaNumeric @PathVariable String channel,
-            @UUID @RequestParam String streamKey) {
-        SseSession session = emitterRegistry.subscribe(channel, streamKey);
+    @PostMapping
+    public ResponseEntity<SseEmitter> sseSubscribe(@Valid @RequestBody SseSubscription subscription) {
+        SseSession session = emitterRegistry.subscribe(subscription);
         return ResponseEntity.ok()
                 .header("Cache-Control", "no-cache, no-store, must-revalidate")
                 // nginx buffer stuffs
@@ -64,33 +54,34 @@ public class SseController {
                 .body(session.emitter());
     }
 
-    @GetMapping("{channel}/id")
+    @PostMapping("/id")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void sseQueryById(
-            @AlphaNumeric @PathVariable String channel,
-            @UUID @RequestParam String streamKey,
-            @Min(1) @RequestParam int id) {
-        SseSession session = emitterRegistry.getSession(channel, streamKey);
-        FibonacciDto dto = service.queryById(id);
+    public void sseQueryById(@RequestBody @Valid SseFibonacciQuery query) {
+        SseSession session = emitterRegistry.getSession(query.subscription());
+        FibonacciEntity entity = repository.queryById(query.id()).orElseThrow();
         try {
-            session.send("id", dto);
+            session.send("id", String.valueOf(entity.sequence()), entity);
         } catch (IOException e) {
             session.completeWithError(e);
         }
     }
 
-    @PostMapping("{channel}/list")
+    @PostMapping("/stream")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void sseQueryForList(
-            @AlphaNumeric @PathVariable String channel,
-            @UUID @RequestParam String streamKey,
-            @RequestBody @Valid @NotNull FibonacciQuery query) {
-        SseSession session = emitterRegistry.getSession(channel, streamKey);
-        List<FibonacciProjectionDto> dtos = service.queryForList(query);
-        try {
-            session.send("list", dtos);
-        } catch (IOException e) {
-            session.completeWithError(e);
-        }
+    public void sseQueryForList(@Valid SseFibonacciStreamQuery query) {
+        SseSession session = emitterRegistry.getSession(query.subscription());
+        ioAsyncTaskExecutor.submitCompletable(() -> {
+            repository.streamForList(query.offset(), query.limit(), stream -> {
+                stream.forEach(projection -> {
+                    try {
+                        session.send("stream", String.valueOf(projection.sequence()), projection);
+                        TimeUnit.MILLISECONDS.sleep(query.delayInMillis());
+                    } catch (IOException | InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        session.completeWithError(e);
+                    }
+                });
+            });
+        });
     }
 }

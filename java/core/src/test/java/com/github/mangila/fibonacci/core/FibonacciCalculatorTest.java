@@ -21,6 +21,7 @@ class FibonacciCalculatorTest {
     private static final int ONE_HUNDRED_THOUSAND = 100_000;
     private static final int FIVE_HUNDRED_THOUSAND = 500_000;
     private static final int ONE_MILLION = 1_000_000;
+    private static final int TEN_MILLION = 10_000_000;
 
     @DisplayName("Fibonacci calculation with different algos should be the same")
     @Test
@@ -37,7 +38,8 @@ class FibonacciCalculatorTest {
     @Disabled
     @DisplayName("Fibonacci calculation with fast doubling algorithm")
     @ParameterizedTest
-    @ValueSource(ints = {TEN, HUNDRED, THOUSAND, TEN_THOUSAND, ONE_HUNDRED_THOUSAND, FIVE_HUNDRED_THOUSAND, ONE_MILLION})
+    @ValueSource(ints = {
+            TEN, HUNDRED, THOUSAND, TEN_THOUSAND, ONE_HUNDRED_THOUSAND, FIVE_HUNDRED_THOUSAND, ONE_MILLION, TEN_MILLION})
     void fastDoubling(int n) {
         var stopWatch = new StopWatch();
         stopWatch.start();

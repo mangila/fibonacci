@@ -1,14 +1,16 @@
 package com.github.mangila.fibonacci.scheduler.controller;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.core.model.FibonacciCommand;
 import com.github.mangila.fibonacci.scheduler.PostgresTestContainer;
+import com.github.mangila.fibonacci.scheduler.model.FibonacciComputeCommand;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.client.RestTestClient;
@@ -22,7 +24,7 @@ import static org.awaitility.Awaitility.await;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
         "jobrunr.background-job-server.poll-interval-in-seconds=5",
 })
-class SchedulerControllerTest {
+class JobRunrSchedulerControllerTest {
 
     @LocalServerPort
     private int port;
@@ -40,37 +42,54 @@ class SchedulerControllerTest {
     }
 
     @Test
-    void shouldScheduleFibonacciCalculation() {
-        int limit = 10;
-        var command = new FibonacciCommand(FibonacciAlgorithm.ITERATIVE, 1, limit, 100);
+    @DisplayName("should schedule Fibonacci calculation and wait for results")
+    void test() {
+        int end = 10;
+        var command = new FibonacciComputeCommand(FibonacciAlgorithm.ITERATIVE, 1, end + 1);
 
         restTestClient.post()
                 .uri("/api/v1/scheduler")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(command)
                 .exchange()
-                .expectStatus().isAccepted()
-                .expectBody(Object.class)
-                .value(body -> {
-                    assertThat(body).isNotNull();
-                    assertThat(body.toString()).contains("job-id");
-                });
+                .expectStatus().isAccepted();
         await()
                 .atMost(Duration.ofSeconds(30))
                 .until(() -> {
-                    return JdbcTestUtils.countRowsInTable(jdbcTemplate, "fibonacci_results") == limit;
+                    return JdbcTestUtils.countRowsInTable(jdbcTemplate, "fibonacci_results") == end;
+                });
+
+        // cache run
+
+        restTestClient.post()
+                .uri("/api/v1/scheduler")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(command)
+                .exchange()
+                .expectStatus().isAccepted();
+        await()
+                .atMost(Duration.ofSeconds(30))
+                .until(() -> {
+                    return JdbcTestUtils.countRowsInTable(jdbcTemplate, "fibonacci_results") == end;
                 });
     }
 
     @Test
-    void shouldReturnBadRequestWhenCommandIsInvalid() {
-        var command = new FibonacciCommand(null, -1, 0, -1);
-
+    void validationFailTest() {
+        // language=JSON
+        String json = """
+                    {"algorithm":"ITERATIVE","start":-1,"end":10}
+                """;
         restTestClient.post()
                 .uri("/api/v1/scheduler")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(command)
+                .body(json)
                 .exchange()
-                .expectStatus().isBadRequest();
+                .expectStatus().isBadRequest()
+                .expectBody(ProblemDetail.class)
+                .value(problemDetail -> {
+                    assertThat(problemDetail.getProperties().containsKey("errors"));
+                    System.out.println(problemDetail);
+                });
     }
 }

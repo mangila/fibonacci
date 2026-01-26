@@ -14,11 +14,4 @@ public class TaskConfig {
         executor.setVirtualThreads(true);
         return executor;
     }
-
-    @Bean
-    SimpleAsyncTaskExecutor postgresListenerExecutor() {
-        var executor = new SimpleAsyncTaskExecutor("postgres-notification-listener");
-        executor.setVirtualThreads(true);
-        return executor;
-    }
 }

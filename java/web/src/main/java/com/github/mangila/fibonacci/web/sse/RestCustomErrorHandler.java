@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -24,7 +23,7 @@ public class RestCustomErrorHandler {
     private static final Logger log = LoggerFactory.getLogger(RestCustomErrorHandler.class);
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ErrorResponse handleConstraintViolationException(ConstraintViolationException e) {
+    public ProblemDetail handleConstraintViolationException(ConstraintViolationException e) {
         log.error("ERR", e);
         Map<String, Object> errors = new HashMap<>();
         e.getConstraintViolations().forEach(constraintViolation -> {
@@ -32,29 +31,24 @@ public class RestCustomErrorHandler {
         });
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_ERROR_DETAIL);
         problemDetail.setProperty("errors", errors);
-        return ErrorResponse.builder(e, problemDetail)
-                .build();
+        return problemDetail;
     }
 
     @ExceptionHandler(NoSuchElementException.class)
-    public ErrorResponse handleNoSuchElementException(NoSuchElementException e) {
+    public ProblemDetail handleNoSuchElementException(NoSuchElementException e) {
         log.error("ERR", e);
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+        return ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
                 e.getMessage()
         );
-        return ErrorResponse.builder(e, problemDetail)
-                .build();
     }
 
     @ExceptionHandler(EnsureException.class)
-    public ErrorResponse handleEnsureException(EnsureException e) {
+    public ProblemDetail handleEnsureException(EnsureException e) {
         log.error("ERR", e);
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+        return ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
                 e.getMessage()
         );
-        return ErrorResponse.builder(e, problemDetail)
-                .build();
     }
 }

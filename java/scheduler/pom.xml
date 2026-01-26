@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>scheduler</artifactId>
+    <artifactId>jobRunrScheduler</artifactId>
 
     <dependencies>
         <dependency>
