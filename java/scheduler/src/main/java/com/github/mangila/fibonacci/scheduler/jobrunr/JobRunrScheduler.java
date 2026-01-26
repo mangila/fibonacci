@@ -58,6 +58,7 @@ public class JobRunrScheduler {
         final FibonacciAlgorithm algorithm = command.algorithm();
         Ensure.isTrue(computeProperties.getMax() >= end, "End sequence must be within the configured max limit");
         Stream<Integer> sequenceStream = IntStream.range(start, end)
+                // this could cause a race condition, but it's ok
                 .filter(sequenceCache::tryCompute)
                 .peek(sequence -> log.info("Scheduling Fibonacci computation for sequence {}", sequence))
                 .boxed();

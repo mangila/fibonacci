@@ -9,9 +9,9 @@ import java.util.concurrent.locks.ReentrantLock;
 @Component
 public class SequenceCache {
 
+    private final ReentrantLock lock = new ReentrantLock();
     private final BitSet cache;
     private final BitSet inFlight;
-    private final ReentrantLock lock = new ReentrantLock();
 
     public SequenceCache(ComputeProperties computeProperties) {
         this.cache = new BitSet(computeProperties.getMax() + 1);
