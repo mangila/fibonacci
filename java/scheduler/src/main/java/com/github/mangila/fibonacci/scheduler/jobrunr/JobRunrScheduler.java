@@ -1,8 +1,8 @@
-package com.github.mangila.fibonacci.scheduler.scheduler;
+package com.github.mangila.fibonacci.scheduler.jobrunr;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.core.model.FibonacciComputeCommand;
-import com.github.mangila.fibonacci.core.model.FibonacciResult;
+import com.github.mangila.fibonacci.scheduler.model.FibonacciComputeCommand;
+import com.github.mangila.fibonacci.scheduler.model.FibonacciResult;
 import com.github.mangila.fibonacci.scheduler.properties.ComputeProperties;
 import com.github.mangila.fibonacci.scheduler.repository.FibonacciRepository;
 import com.github.mangila.fibonacci.scheduler.task.FibonacciComputeTask;
@@ -22,9 +22,9 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Service
-public class Scheduler {
+public class JobRunrScheduler {
 
-    private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(Scheduler.class));
+    private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(JobRunrScheduler.class));
 
     private final ThreadPoolTaskExecutor computeAsyncTaskExecutor;
     private final JobScheduler jobScheduler;
@@ -32,11 +32,11 @@ public class Scheduler {
     private final SequenceCache sequenceCache;
     private final ComputeProperties computeProperties;
 
-    public Scheduler(ThreadPoolTaskExecutor computeAsyncTaskExecutor,
-                     JobScheduler jobScheduler,
-                     FibonacciRepository repository,
-                     SequenceCache sequenceCache,
-                     ComputeProperties computeProperties) {
+    public JobRunrScheduler(ThreadPoolTaskExecutor computeAsyncTaskExecutor,
+                            JobScheduler jobScheduler,
+                            FibonacciRepository repository,
+                            SequenceCache sequenceCache,
+                            ComputeProperties computeProperties) {
         this.computeAsyncTaskExecutor = computeAsyncTaskExecutor;
         this.jobScheduler = jobScheduler;
         this.repository = repository;

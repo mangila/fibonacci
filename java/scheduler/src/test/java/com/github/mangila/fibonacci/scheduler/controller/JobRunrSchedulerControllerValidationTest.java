@@ -1,8 +1,8 @@
 package com.github.mangila.fibonacci.scheduler.controller;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.core.model.FibonacciComputeCommand;
-import com.github.mangila.fibonacci.scheduler.scheduler.Scheduler;
+import com.github.mangila.fibonacci.scheduler.jobrunr.JobRunrScheduler;
+import com.github.mangila.fibonacci.scheduler.model.FibonacciComputeCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,14 +18,14 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.util.stream.Stream;
 
-@WebMvcTest(SchedulerController.class)
-public class SchedulerControllerValidationTest {
+@WebMvcTest(JobRunrSchedulerController.class)
+public class JobRunrSchedulerControllerValidationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
-    private Scheduler scheduler;
+    private JobRunrScheduler jobRunrScheduler;
 
     private RestTestClient restTestClient;
 

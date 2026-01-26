@@ -1,8 +1,8 @@
 package com.github.mangila.fibonacci.web.ws;
 
-import com.github.mangila.fibonacci.core.model.FibonacciEntity;
-import com.github.mangila.fibonacci.core.model.FibonacciQuery;
-import com.github.mangila.fibonacci.web.service.FibonacciService;
+import com.github.mangila.fibonacci.core.entity.FibonacciEntity;
+import com.github.mangila.fibonacci.web.repository.FibonacciRepository;
+import com.github.mangila.fibonacci.web.ws.model.WsFibonacciStreamQuery;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -25,27 +25,31 @@ public class WebSocketController {
     private static final Logger log = LoggerFactory.getLogger(WebSocketController.class);
 
     private final SimpleAsyncTaskExecutor ioAsyncTaskExecutor;
-    private final FibonacciService service;
+    private final FibonacciRepository repository;
     private final SimpMessagingTemplate template;
 
     public WebSocketController(SimpleAsyncTaskExecutor ioAsyncTaskExecutor,
-                               FibonacciService service,
+                               FibonacciRepository repository,
                                SimpMessagingTemplate template) {
         this.ioAsyncTaskExecutor = ioAsyncTaskExecutor;
-        this.service = service;
+        this.repository = repository;
         this.template = template;
     }
 
+
     @MessageMapping("fibonacci/stream")
-    public void wsQueryForList(@Valid @NotNull FibonacciQuery query, Principal principal) {
+    public void wsQueryForList(@Valid @NotNull WsFibonacciStreamQuery query, Principal principal) {
         log.info("Received request for fibonacci sequence {} from {}", query, principal.getName());
+        final var offset = query.offset();
+        final var limit = query.limit();
+        final var delayInMillis = query.delayInMillis();
         ioAsyncTaskExecutor.submitCompletable(() -> {
-            service.streamForList(query, stream -> {
+            repository.streamForList(offset, limit, stream -> {
                 stream.forEach(projection -> {
                     log.info("Sending fibonacci sequence {} to {}", projection, principal.getName());
                     template.convertAndSendToUser(principal.getName(), "queue/fibonacci/stream", projection);
                     try {
-                        TimeUnit.SECONDS.sleep(query.delay());
+                        TimeUnit.MILLISECONDS.sleep(delayInMillis);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -58,7 +62,7 @@ public class WebSocketController {
     @SendToUser("/queue/fibonacci/id")
     public FibonacciEntity wsQueryById(@Min(1) int id, Principal principal) {
         log.info("Received request for fibonacci sequence {} from {}", id, principal.getName());
-        FibonacciEntity entity = service.queryById(id);
+        FibonacciEntity entity = repository.queryById(id).orElseThrow();
         return entity;
     }
 }

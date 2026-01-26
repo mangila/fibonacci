@@ -1,10 +1,8 @@
 package com.github.mangila.fibonacci.web.repository;
 
-import com.github.mangila.fibonacci.core.model.FibonacciEntity;
-import com.github.mangila.fibonacci.core.model.FibonacciProjection;
-import com.github.mangila.fibonacci.core.model.FibonacciQuery;
+import com.github.mangila.fibonacci.core.entity.FibonacciEntity;
+import com.github.mangila.fibonacci.core.entity.FibonacciProjection;
 import io.github.mangila.ensure4j.Ensure;
-import org.jspecify.annotations.NonNull;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +35,7 @@ public class FibonacciRepository {
     }
 
     @Transactional(readOnly = true)
-    public void streamForList(@NonNull FibonacciQuery query, Consumer<Stream<FibonacciProjection>> consumer) {
+    public void streamForList(int offset, int limit, Consumer<Stream<FibonacciProjection>> consumer) {
         // language=PostgreSQL
         final String sql = """
                 SELECT id, sequence, precision
@@ -47,8 +45,8 @@ public class FibonacciRepository {
                 LIMIT :limit;
                 """;
         var stmt = jdbcClient.sql(sql)
-                .param("offset", query.offset())
-                .param("limit", query.limit())
+                .param("offset", offset)
+                .param("limit", limit)
                 .withFetchSize(100)
                 .query(FibonacciProjection.class);
         try (var stream = stmt.stream()) {

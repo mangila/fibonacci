@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.web.sse;
 
 import com.github.benmanes.caffeine.cache.Cache;
+import com.github.mangila.fibonacci.web.sse.model.SseSession;
 import io.github.mangila.ensure4j.Ensure;
 import io.github.mangila.ensure4j.EnsureException;
 import org.jspecify.annotations.Nullable;
@@ -49,7 +50,7 @@ public class SseSessionCache {
     }
 
     public void removeSession(String channel, String streamKey) {
-        cache.asMap().computeIfPresent(channel, (key, sessions) -> {
+        cache.asMap().computeIfPresent(channel, (_, sessions) -> {
             sessions.removeIf(session -> session.streamKey().equals(streamKey));
             return sessions;
         });

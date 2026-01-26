@@ -1,6 +1,6 @@
 package com.github.mangila.fibonacci.scheduler.repository;
 
-import com.github.mangila.fibonacci.core.model.FibonacciResult;
+import com.github.mangila.fibonacci.scheduler.model.FibonacciResult;
 import io.github.mangila.ensure4j.Ensure;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;

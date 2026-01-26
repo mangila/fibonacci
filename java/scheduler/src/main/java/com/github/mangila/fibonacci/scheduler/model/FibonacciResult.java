@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.core.model;
+package com.github.mangila.fibonacci.scheduler.model;
 
 import io.github.mangila.ensure4j.Ensure;
 

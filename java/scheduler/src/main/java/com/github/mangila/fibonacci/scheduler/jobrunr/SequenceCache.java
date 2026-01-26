@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.scheduler.scheduler;
+package com.github.mangila.fibonacci.scheduler.jobrunr;
 
 import com.github.mangila.fibonacci.scheduler.properties.ComputeProperties;
 import org.springframework.stereotype.Component;

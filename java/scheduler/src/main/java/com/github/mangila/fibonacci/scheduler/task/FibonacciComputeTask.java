@@ -2,7 +2,7 @@ package com.github.mangila.fibonacci.scheduler.task;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.core.FibonacciCalculator;
-import com.github.mangila.fibonacci.core.model.FibonacciResult;
+import com.github.mangila.fibonacci.scheduler.model.FibonacciResult;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

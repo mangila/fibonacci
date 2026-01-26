@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.web.sse;
+package com.github.mangila.fibonacci.web.sse.model;
 
 import io.github.mangila.ensure4j.Ensure;
 import org.springframework.http.MediaType;
@@ -9,10 +9,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Set;
 
-public record SseSession(
-        String channel,
-        String streamKey,
-        SseEmitter emitter) {
+public record SseSession(String channel, String streamKey, SseEmitter emitter) {
 
     private static final Set<ResponseBodyEmitter.DataWithMediaType> HEART_BEAT_MESSAGE = SseEmitter.event()
             .comment("heartbeat")
@@ -24,9 +21,9 @@ public record SseSession(
         Ensure.notNull(emitter);
     }
 
-    public void send(String eventName, Object payload) throws IOException {
+    public void send(String eventName, String id, Object payload) throws IOException {
         var event = SseEmitter.event()
-                .id(streamKey)
+                .id(id)
                 .name(eventName)
                 .data(payload, MediaType.APPLICATION_JSON)
                 .reconnectTime(Duration.ofSeconds(5).toMillis())

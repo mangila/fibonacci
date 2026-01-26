@@ -1,5 +1,7 @@
 package com.github.mangila.fibonacci.web.sse;
 
+import com.github.mangila.fibonacci.web.sse.model.SseSession;
+import com.github.mangila.fibonacci.web.sse.model.SseSubscription;
 import io.github.mangila.ensure4j.Ensure;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -23,7 +25,9 @@ public class SseEmitterRegistry implements SmartLifecycle, BeanNameAware {
         this.cache = cache;
     }
 
-    public SseSession subscribe(String channel, String streamKey) {
+    public SseSession subscribe(SseSubscription subscription) {
+        final String channel = subscription.channel();
+        final String streamKey = subscription.streamKey();
         Ensure.isTrue(open, "Registry %s is not open".formatted(beanName));
         cache.tryAdd(channel, streamKey);
         SseSession session = cache.getSession(channel, streamKey);
@@ -55,7 +59,9 @@ public class SseEmitterRegistry implements SmartLifecycle, BeanNameAware {
     }
 
     @NonNull
-    public SseSession getSession(String channel, String streamKey) {
+    public SseSession getSession(SseSubscription subscription) {
+        final String channel = subscription.channel();
+        final String streamKey = subscription.streamKey();
         SseSession session = cache.getSession(channel, streamKey);
         Ensure.notNull(session, "Session not found for %s:%s".formatted(channel, streamKey));
         // noinspection ConstantConditions

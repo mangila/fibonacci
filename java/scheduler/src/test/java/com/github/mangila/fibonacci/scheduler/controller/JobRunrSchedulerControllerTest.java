@@ -1,8 +1,8 @@
 package com.github.mangila.fibonacci.scheduler.controller;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.core.model.FibonacciComputeCommand;
 import com.github.mangila.fibonacci.scheduler.PostgresTestContainer;
+import com.github.mangila.fibonacci.scheduler.model.FibonacciComputeCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import static org.awaitility.Awaitility.await;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
         "jobrunr.background-job-server.poll-interval-in-seconds=5",
 })
-class SchedulerControllerTest {
+class JobRunrSchedulerControllerTest {
 
     @LocalServerPort
     private int port;

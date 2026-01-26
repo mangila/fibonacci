@@ -42,4 +42,4 @@ BigInteger result2 = FibonacciCalculator.iterative(50);
 ## 🏗 Package Structure
 
 - `com.github.mangila.fibonacci.core`: Contains the `FibonacciCalculator` and the `FibonacciAlgorithm` strategy enum.
-- `com.github.mangila.fibonacci.core.model`: Data transfer objects (`FibonacciRequest`, `FibonacciResponse`) for consistency across modules.
+- `com.github.mangila.fibonacci.core.entity`: Data transfer objects (`FibonacciRequest`, `FibonacciResponse`) for consistency across modules.

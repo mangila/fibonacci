@@ -1,5 +1,6 @@
 package com.github.mangila.fibonacci.web.ws;
 
+import io.github.mangila.ensure4j.EnsureException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -44,6 +45,13 @@ public class WebSocketErrorHandler {
                         Collectors.mapping(ConstraintViolation::getMessage, Collectors.toList())
                 ));
         return buildValidationProblem(errors);
+    }
+
+    @MessageExceptionHandler(EnsureException.class)
+    @SendToUser("/queue/errors")
+    public ProblemDetail handleEnsureException(EnsureException ex) {
+        log.error("ERR", ex);
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @MessageExceptionHandler(NoSuchElementException.class)
