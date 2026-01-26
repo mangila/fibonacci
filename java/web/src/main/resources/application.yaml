@@ -1,8 +1,5 @@
 # Application
 app:
-  livestream:
-    enabled: true
-    pg-channel: "livestream"
   sse:
     heartbeat:
       enabled: true
@@ -17,9 +14,6 @@ spring:
   web:
     resources:
       add-mappings: false
-  mvc:
-    problemdetails:
-      enabled: true
   datasource:
     url: jdbc:postgresql://localhost:5432/fibonacci
     username: postgres

@@ -4,7 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.mangila.fibonacci.web.sse.SseEmitterRegistry;
-import com.github.mangila.fibonacci.web.model.SseSession;
+import com.github.mangila.fibonacci.web.sse.SseSession;
 import com.github.mangila.fibonacci.web.sse.SseSessionCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

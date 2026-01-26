@@ -1,9 +1,8 @@
 package com.github.mangila.fibonacci.web.sse;
 
 import com.github.mangila.fibonacci.core.annotation.AlphaNumeric;
+import com.github.mangila.fibonacci.core.model.FibonacciEntity;
 import com.github.mangila.fibonacci.core.model.FibonacciQuery;
-import com.github.mangila.fibonacci.web.model.FibonacciDto;
-import com.github.mangila.fibonacci.web.model.SseSession;
 import com.github.mangila.fibonacci.web.service.FibonacciService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -44,7 +43,9 @@ public class SseController {
     @GetMapping("{channel}")
     public ResponseEntity<SseEmitter> sseSubscribe(
             @AlphaNumeric @PathVariable String channel,
-            @UUID @RequestParam String streamKey) {
+            @UUID @RequestParam String streamKey,
+            @RequestHeader(value = "Last-Event-ID", required = false) String lastId) {
+        log.info("SSE last id {}", lastId);
         SseSession session = emitterRegistry.subscribe(channel, streamKey);
         return ResponseEntity.ok()
                 .header("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -61,9 +62,9 @@ public class SseController {
             @UUID @RequestParam String streamKey,
             @Min(1) @RequestParam int id) {
         SseSession session = emitterRegistry.getSession(channel, streamKey);
-        FibonacciDto dto = service.queryById(id);
+        FibonacciEntity entity = service.queryById(id);
         try {
-            session.send("id", dto);
+            session.send("id", entity);
         } catch (IOException e) {
             session.completeWithError(e);
         }
@@ -81,7 +82,7 @@ public class SseController {
                 stream.forEach(projection -> {
                     try {
                         session.send("stream", projection);
-                        TimeUnit.MILLISECONDS.sleep(100);
+                        TimeUnit.MILLISECONDS.sleep(query.delay());
                     } catch (IOException | InterruptedException e) {
                         Thread.currentThread().interrupt();
                         session.completeWithError(e);

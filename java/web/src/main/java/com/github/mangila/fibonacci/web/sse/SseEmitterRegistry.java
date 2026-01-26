@@ -1,6 +1,5 @@
 package com.github.mangila.fibonacci.web.sse;
 
-import com.github.mangila.fibonacci.web.model.SseSession;
 import io.github.mangila.ensure4j.Ensure;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;

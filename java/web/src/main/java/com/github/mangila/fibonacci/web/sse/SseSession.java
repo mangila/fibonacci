@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.web.model;
+package com.github.mangila.fibonacci.web.sse;
 
 import io.github.mangila.ensure4j.Ensure;
 import org.springframework.http.MediaType;
@@ -31,6 +31,7 @@ public record SseSession(
                 .data(payload, MediaType.APPLICATION_JSON)
                 .reconnectTime(Duration.ofSeconds(5).toMillis())
                 .comment(channel)
+                .comment(streamKey)
                 .build();
         emitter.send(event);
     }

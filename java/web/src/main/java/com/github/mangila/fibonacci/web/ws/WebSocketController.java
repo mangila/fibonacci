@@ -1,7 +1,7 @@
 package com.github.mangila.fibonacci.web.ws;
 
+import com.github.mangila.fibonacci.core.model.FibonacciEntity;
 import com.github.mangila.fibonacci.core.model.FibonacciQuery;
-import com.github.mangila.fibonacci.web.model.FibonacciDto;
 import com.github.mangila.fibonacci.web.service.FibonacciService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -36,16 +36,16 @@ public class WebSocketController {
         this.template = template;
     }
 
-    @MessageMapping("fibonacci/list")
+    @MessageMapping("fibonacci/stream")
     public void wsQueryForList(@Valid @NotNull FibonacciQuery query, Principal principal) {
         log.info("Received request for fibonacci sequence {} from {}", query, principal.getName());
         ioAsyncTaskExecutor.submitCompletable(() -> {
             service.streamForList(query, stream -> {
                 stream.forEach(projection -> {
                     log.info("Sending fibonacci sequence {} to {}", projection, principal.getName());
-                    template.convertAndSendToUser(principal.getName(), "queue/fibonacci/list", projection);
+                    template.convertAndSendToUser(principal.getName(), "queue/fibonacci/stream", projection);
                     try {
-                        TimeUnit.SECONDS.sleep(1);
+                        TimeUnit.SECONDS.sleep(query.delay());
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -56,9 +56,9 @@ public class WebSocketController {
 
     @MessageMapping("fibonacci/id")
     @SendToUser("/queue/fibonacci/id")
-    public FibonacciDto wsQueryById(@Min(1) int id, Principal principal) {
+    public FibonacciEntity wsQueryById(@Min(1) int id, Principal principal) {
         log.info("Received request for fibonacci sequence {} from {}", id, principal.getName());
-        FibonacciDto dto = service.queryById(id);
-        return dto;
+        FibonacciEntity entity = service.queryById(id);
+        return entity;
     }
 }

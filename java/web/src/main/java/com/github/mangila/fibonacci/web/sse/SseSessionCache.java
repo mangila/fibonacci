@@ -1,7 +1,6 @@
 package com.github.mangila.fibonacci.web.sse;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.mangila.fibonacci.web.model.SseSession;
 import io.github.mangila.ensure4j.Ensure;
 import io.github.mangila.ensure4j.EnsureException;
 import org.jspecify.annotations.Nullable;
@@ -38,7 +37,7 @@ public class SseSessionCache {
 
     public void tryAdd(String channel, String streamKey) throws EnsureException {
         cache.asMap()
-                .compute(channel, (key, existingSet) -> {
+                .compute(channel, (_, existingSet) -> {
                     var set = existingSet == null ? new CopyOnWriteArraySet<SseSession>() : existingSet;
                     // with an HTTP2 connection, we can bump this number
                     Ensure.max(6, set.size(), "Too many SSE sessions for %s".formatted(channel));

@@ -39,9 +39,11 @@ class FibonacciRepositoryTest {
         repository.insert(result);
         var rows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "fibonacci_results");
         assertThat(rows).isEqualTo(1);
-        assertThat(repository.hasSequences(List.of(1, 2, 3, 4, 5, 10))).hasSize(1);
-        assertThat(repository.hasSequences(List.of(1, 2, 3, 4, 5))).isEmpty();
-        assertThat(repository.hasSequences(List.of())).isEmpty();
+        repository.streamSequences(10, stream -> {
+            List<Integer> list = stream.toList();
+            assertThat(list).hasSize(1)
+                    .containsExactly(10);
+        });
     }
 
 }

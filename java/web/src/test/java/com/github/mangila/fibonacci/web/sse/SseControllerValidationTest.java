@@ -1,7 +1,6 @@
 package com.github.mangila.fibonacci.web.sse;
 
 import com.github.mangila.fibonacci.core.model.FibonacciQuery;
-import com.github.mangila.fibonacci.web.model.SseSession;
 import com.github.mangila.fibonacci.web.service.FibonacciService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

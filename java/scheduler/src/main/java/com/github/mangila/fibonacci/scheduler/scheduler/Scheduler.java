@@ -7,12 +7,12 @@ import com.github.mangila.fibonacci.scheduler.properties.ComputeProperties;
 import com.github.mangila.fibonacci.scheduler.repository.FibonacciRepository;
 import com.github.mangila.fibonacci.scheduler.task.FibonacciComputeTask;
 import io.github.mangila.ensure4j.Ensure;
+import jakarta.annotation.PostConstruct;
 import org.jobrunr.jobs.annotations.Job;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.scheduling.JobScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +32,7 @@ public class Scheduler {
     private final SequenceCache sequenceCache;
     private final ComputeProperties computeProperties;
 
-    public Scheduler(@Qualifier("computeAsyncTaskExecutor") ThreadPoolTaskExecutor computeAsyncTaskExecutor,
+    public Scheduler(ThreadPoolTaskExecutor computeAsyncTaskExecutor,
                      JobScheduler jobScheduler,
                      FibonacciRepository repository,
                      SequenceCache sequenceCache,
@@ -44,21 +44,30 @@ public class Scheduler {
         this.computeProperties = computeProperties;
     }
 
+    @PostConstruct
+    void warmUpCache() {
+        log.info("Warming up sequence cache");
+        repository.streamSequences(computeProperties.getMax(),
+                stream -> stream.forEach(sequenceCache::put));
+    }
+
     public void scheduleFibonacciCalculations(FibonacciComputeCommand command) {
+        Ensure.notNull(command);
         final int start = command.start();
         final int end = command.end();
         final FibonacciAlgorithm algorithm = command.algorithm();
         Ensure.isTrue(computeProperties.getMax() >= end, "End sequence must be within the configured max limit");
-        Stream<Integer> sequenceStream = IntStream.range(start, end).boxed();
+        Stream<Integer> sequenceStream = IntStream.range(start, end)
+                .filter(sequenceCache::tryCompute)
+                .peek(sequence -> log.info("Scheduling Fibonacci computation for sequence {}", sequence))
+                .boxed();
         jobScheduler.enqueue(sequenceStream, (sequence) -> computeFibonacci(algorithm, sequence));
     }
 
     @Job(name = "Fibonacci job for number %1", retries = 3, labels = "fibonacci")
     public void computeFibonacci(FibonacciAlgorithm algorithm, int sequence) {
-        if (!sequenceCache.tryCompute(sequence)) {
-            log.info("Sequence {} is already computed or in flight", sequence);
-            return;
-        }
+        Ensure.notNull(algorithm);
+        Ensure.positive(sequence);
         CompletableFuture<FibonacciResult> future = null;
         try {
             future = computeAsyncTaskExecutor.submitCompletable(new FibonacciComputeTask(algorithm, sequence))

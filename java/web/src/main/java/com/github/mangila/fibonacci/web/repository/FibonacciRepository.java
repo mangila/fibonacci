@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.web.db;
+package com.github.mangila.fibonacci.web.repository;
 
 import com.github.mangila.fibonacci.core.model.FibonacciEntity;
 import com.github.mangila.fibonacci.core.model.FibonacciProjection;
