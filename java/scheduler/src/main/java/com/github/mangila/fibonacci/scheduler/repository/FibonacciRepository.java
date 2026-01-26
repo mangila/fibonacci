@@ -27,7 +27,7 @@ public class FibonacciRepository {
                 VALUES (:sequence, :result, :precision)
                 ON CONFLICT (sequence) DO NOTHING
                 """;
-        // ON CONFLICT (sequence) DO NOTHING - would ignore duplicate sequences
+        // ON CONFLICT (sequence) DO NOTHING - will ignore duplicate sequences
         // And will guard for some potential extra compute race conditions
         client.sql(sql)
                 .param("sequence", fibonacciResult.sequence())

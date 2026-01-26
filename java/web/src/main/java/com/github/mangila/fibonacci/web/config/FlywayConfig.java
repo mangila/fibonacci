@@ -12,6 +12,7 @@ public class FlywayConfig {
     @Profile("dev")
     public FlywayMigrationStrategy flywayMigrationStrategyDev() {
         return flyway -> {
+            // VERY dangerous to even have this instruction compiled, but in this backend it's ok
             flyway.clean();
             flyway.migrate();
         };
