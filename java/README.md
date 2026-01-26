@@ -25,15 +25,13 @@ graph TD
         Web[Web Module]
         Scheduler[Scheduler Module]
         DB[(PostgreSQL)]
-        JobRunr((JobRunr Engine))
+        JobRunr((JobRunr))
     end
 
     User([Web Client]) <-->|REST / SSE / WS| Web
-    Web -.->|Schedule Request| Scheduler
+    User([Web Client]) -.->|Schedule Request| Scheduler
     Scheduler -.->|Enqueue Tasks| JobRunr
     JobRunr -.->|Compute & Persist| DB
-    DB -.->|LISTEN/NOTIFY| Web
-    Web -.->|Push Update| User
 ```
 
 ---
