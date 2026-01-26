@@ -10,7 +10,7 @@ services:
       - "5432:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 5s
+      interval: 10s
       timeout: 10s
       retries: 5
     networks:
@@ -39,6 +39,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fibonacci
       SPRING_FLYWAY_LOCATIONS: filesystem:/flyway/{vendor}
       SPRING_FLYWAY_FAIL_ON_MISSING_LOCATIONS: true
+      APP_COMPUTE_MAX: 10_000
     depends_on:
       - postgres
       - web

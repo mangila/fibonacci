@@ -10,7 +10,7 @@ public class FlywayConfig {
 
     @Bean
     @Profile("dev")
-    public FlywayMigrationStrategy cleanMigrateStrategy() {
+    public FlywayMigrationStrategy flywayMigrationStrategyDev() {
         return flyway -> {
             flyway.clean();
             flyway.migrate();

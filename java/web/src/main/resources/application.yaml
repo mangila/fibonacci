@@ -47,7 +47,6 @@ spring:
       skip:
         in-tests: true
       enabled: false
-      lifecycle-management: start_only
       file: ${user.dir}/java/docker-compose-dev.yaml
 # Server
 server:
