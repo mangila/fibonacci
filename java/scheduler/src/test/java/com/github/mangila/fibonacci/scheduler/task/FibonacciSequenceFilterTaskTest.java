@@ -30,11 +30,11 @@ class FibonacciSequenceFilterTaskTest {
 
     @BeforeEach
     void setUp() {
-        repository.save(FibonacciResult.of(1, BigDecimal.ONE));
-        repository.save(FibonacciResult.of(2, BigDecimal.ONE));
-        repository.save(FibonacciResult.of(3, BigDecimal.ONE));
-        repository.save(FibonacciResult.of(4, BigDecimal.ONE));
-        repository.save(FibonacciResult.of(5, BigDecimal.ONE));
+        repository.insert(FibonacciResult.of(1, BigDecimal.ONE));
+        repository.insert(FibonacciResult.of(2, BigDecimal.ONE));
+        repository.insert(FibonacciResult.of(3, BigDecimal.ONE));
+        repository.insert(FibonacciResult.of(4, BigDecimal.ONE));
+        repository.insert(FibonacciResult.of(5, BigDecimal.ONE));
     }
 
     @AfterEach

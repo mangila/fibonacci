@@ -36,7 +36,7 @@ class FibonacciRepositoryTest {
     void test() {
         var task = new FibonacciComputeTask(FibonacciAlgorithm.ITERATIVE, 10);
         var result = task.call();
-        repository.save(result);
+        repository.insert(result);
         var rows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "fibonacci_results");
         assertThat(rows).isEqualTo(1);
         assertThat(repository.hasSequences(List.of(1, 2, 3, 4, 5, 10))).hasSize(1);

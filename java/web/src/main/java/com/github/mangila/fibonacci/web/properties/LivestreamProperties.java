@@ -1,6 +1,6 @@
 package com.github.mangila.fibonacci.web.properties;
 
-import com.github.mangila.fibonacci.web.annotation.AlphaNumeric;
+import com.github.mangila.fibonacci.core.annotation.AlphaNumeric;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 

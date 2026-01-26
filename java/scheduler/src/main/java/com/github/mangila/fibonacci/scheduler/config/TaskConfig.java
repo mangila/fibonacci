@@ -13,7 +13,6 @@ public class TaskConfig {
         executor.setThreadNamePrefix("compute-task-");
         executor.setCorePoolSize(Runtime.getRuntime().availableProcessors());
         executor.setMaxPoolSize(Runtime.getRuntime().availableProcessors());
-        executor.setQueueCapacity(100);
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.initialize();
         return executor;

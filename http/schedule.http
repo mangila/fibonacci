@@ -1,10 +1,9 @@
 # Post request to scheduler
-POST http://localhost:8080/api/v1/scheduler
+POST http://localhost:8081/api/v1/scheduler
 Content-Type: application/json
 
 {
   "algorithm": "ITERATIVE",
-  "offset": 10,
-  "limit": 100,
-  "delayInMillis": 1000
+  "start": 1,
+  "end": 1000
 }

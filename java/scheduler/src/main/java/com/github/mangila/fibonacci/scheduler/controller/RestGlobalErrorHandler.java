@@ -28,12 +28,6 @@ public class RestGlobalErrorHandler extends ResponseEntityExceptionHandler {
     public static final String VALIDATION_ERROR_DETAIL = "Validation Failed";
     public static final String INTERNAL_SERVER_ERROR_DETAIL = "Internal Server Error";
 
-    @GetMapping("favicon.ico")
-    @ResponseBody
-    void doNothing() {
-        // do nothing
-    }
-
     @Override
     protected @Nullable ResponseEntity<Object> handleHandlerMethodValidationException(HandlerMethodValidationException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         log.error("ERR", ex);

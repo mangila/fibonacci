@@ -14,3 +14,6 @@ logging:
     com.github.mangila.fibonacci.scheduler.repository: INFO
     com.github.mangila.fibonacci.scheduler.scheduler: INFO
     com.github.mangila.fibonacci.scheduler.task: INFO
+# Server
+server:
+  port: 8081

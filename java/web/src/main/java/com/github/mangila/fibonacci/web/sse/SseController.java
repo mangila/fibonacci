@@ -2,7 +2,7 @@ package com.github.mangila.fibonacci.web.sse;
 
 import com.github.mangila.fibonacci.core.model.FibonacciQuery;
 import com.github.mangila.fibonacci.core.model.PgNotificationPayloadCollection;
-import com.github.mangila.fibonacci.web.annotation.AlphaNumeric;
+import com.github.mangila.fibonacci.core.annotation.AlphaNumeric;
 import com.github.mangila.fibonacci.web.model.FibonacciDto;
 import com.github.mangila.fibonacci.web.model.FibonacciProjectionDto;
 import com.github.mangila.fibonacci.web.model.SseSession;

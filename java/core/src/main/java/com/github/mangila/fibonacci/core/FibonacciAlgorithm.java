@@ -5,10 +5,10 @@ public enum FibonacciAlgorithm {
     ITERATIVE,
     FAST_DOUBLING;
 
-    public boolean isSuitable(int offset, int limit) {
+    public boolean isSuitable(int start, int end) {
         return switch (this) {
-            case RECURSIVE -> offset <= 10 && limit <= 20;
-            case ITERATIVE -> offset <= 100_000;
+            case RECURSIVE -> start <= 10 && end <= 20;
+            case ITERATIVE -> start <= 100_000;
             case FAST_DOUBLING -> true;
         };
     }
