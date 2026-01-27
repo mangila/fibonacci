@@ -1,10 +1,10 @@
 package com.github.mangila.fibonacci.scheduler.jobrunr;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
+import com.github.mangila.fibonacci.postgres.FibonacciRepository;
 import com.github.mangila.fibonacci.scheduler.model.FibonacciComputeCommand;
 import com.github.mangila.fibonacci.scheduler.model.FibonacciResult;
 import com.github.mangila.fibonacci.scheduler.properties.ComputeProperties;
-import com.github.mangila.fibonacci.scheduler.repository.FibonacciRepository;
 import com.github.mangila.fibonacci.scheduler.task.FibonacciComputeTask;
 import io.github.mangila.ensure4j.Ensure;
 import jakarta.annotation.PostConstruct;
@@ -74,7 +74,7 @@ public class JobRunrScheduler {
             future = computeAsyncTaskExecutor.submitCompletable(new FibonacciComputeTask(algorithm, sequence))
                     .orTimeout(3, TimeUnit.MINUTES);
             FibonacciResult result = future.join();
-            repository.insert(result);
+            repository.insert(result.sequence(), result.result(), result.precision());
             sequenceCache.put(sequence);
         } catch (Exception e) {
             log.error("Error while computing sequence {}", sequence, e);

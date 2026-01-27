@@ -35,6 +35,7 @@
         <dependency>
             <groupId>com.github.mangila.fibonacci</groupId>
             <artifactId>postgres-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

@@ -34,10 +34,9 @@ spring:
     output-query-results: true
     user: postgres
     password: postgres
+    fail-on-missing-locations: true
     locations:
-      - filesystem:java/flyway/{vendor}
-      # Test location
-      - filesystem:../../java/flyway/{vendor}
+      - classpath:flyway/{vendor}
     postgresql:
       transactional-lock: true
   docker:
