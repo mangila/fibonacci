@@ -34,6 +34,7 @@ public class JobRunrSchedulerWatcher implements SmartLifecycle {
         log.info("Stopping JobRunr scheduler");
         jobRunrScheduler.stop();
         future.cancel(true);
+        future.join();
     }
 
     @Override

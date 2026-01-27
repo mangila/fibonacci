@@ -13,11 +13,11 @@ import java.util.stream.Stream;
 // Here is a concrete implementation of the FibonacciRepository
 // an application module like this can also share an interface or just be a packaging pom
 @Repository
-public class DefaultFibonacciRepository implements FibonacciRepository {
+public class DefaultPostgresRepository implements PostgresRepository {
 
     private final JdbcClient jdbcClient;
 
-    public DefaultFibonacciRepository(JdbcClient jdbcClient) {
+    public DefaultPostgresRepository(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
     }
 

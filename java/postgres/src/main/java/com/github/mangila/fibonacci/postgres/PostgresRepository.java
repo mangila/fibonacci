@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public interface FibonacciRepository {
+public interface PostgresRepository {
 
     Optional<FibonacciEntity> queryById(int id);
 

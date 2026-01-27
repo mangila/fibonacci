@@ -1,6 +1,6 @@
 package com.github.mangila.fibonacci.web.sse;
 
-import com.github.mangila.fibonacci.postgres.FibonacciRepository;
+import com.github.mangila.fibonacci.postgres.PostgresRepository;
 import com.github.mangila.fibonacci.web.dto.*;
 import com.github.mangila.fibonacci.web.sse.model.SseSession;
 import jakarta.validation.Valid;
@@ -29,12 +29,12 @@ public class SseController {
 
     private final SimpleAsyncTaskExecutor ioAsyncTaskExecutor;
     private final FibonacciDtoMapper mapper;
-    private final FibonacciRepository repository;
+    private final PostgresRepository repository;
     private final SseEmitterRegistry emitterRegistry;
 
     public SseController(SimpleAsyncTaskExecutor ioAsyncTaskExecutor,
                          FibonacciDtoMapper mapper,
-                         FibonacciRepository repository,
+                         PostgresRepository repository,
                          SseEmitterRegistry emitterRegistry) {
         this.ioAsyncTaskExecutor = ioAsyncTaskExecutor;
         this.mapper = mapper;

@@ -1,11 +1,12 @@
 package com.github.mangila.fibonacci.scheduler.jobrunr;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
+import com.github.mangila.fibonacci.redis.RedisConfig;
+import com.github.mangila.fibonacci.redis.RedisRepository;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.scheduling.JobRequestScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,29 +19,31 @@ public class JobRunrScheduler implements Runnable {
 
     private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(JobRunrScheduler.class));
 
-    private final static String DEFAULT_NAME = "Fibonacci Calculation for sequence: (%s)";
-    private final static int DEFAULT_RETIRES = 3;
     private final static List<String> DEFAULT_LABELS = List.of("fibonacci", "compute");
 
     private volatile boolean running = false;
-    private final StringRedisTemplate stringRedisTemplate;
-    private final JobRequestScheduler jobRequestScheduler;
 
-    public JobRunrScheduler(StringRedisTemplate stringRedisTemplate,
-                            JobRequestScheduler jobRequestScheduler) {
-        this.stringRedisTemplate = stringRedisTemplate;
+    private final JobRequestScheduler jobRequestScheduler;
+    private final RedisRepository redisRepository;
+
+    public JobRunrScheduler(JobRequestScheduler jobRequestScheduler,
+                            RedisRepository redisRepository) {
         this.jobRequestScheduler = jobRequestScheduler;
+        this.redisRepository = redisRepository;
     }
 
     @Override
     public void run() {
         running = true;
+        redisRepository.longBlockingOperation(jedis -> {
+            var params = jedis.blpop(30, RedisConfig.SEQUENCE_QUEUE_KEY);
+        });
         final int sequence = 1;
         final FibonacciAlgorithm algorithm = FibonacciAlgorithm.RECURSIVE;
         jobRequestScheduler.create(aJob()
                 .withId(UUID.randomUUID())
-                .withName(DEFAULT_NAME.formatted(sequence))
-                .withAmountOfRetries(DEFAULT_RETIRES)
+                .withName("Fibonacci Calculation for sequence: (%s)")
+                .withAmountOfRetries(3)
                 .withLabels(DEFAULT_LABELS)
                 .withJobRequest(new FibonacciComputeJobRequest(sequence, algorithm)));
     }

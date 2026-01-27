@@ -35,8 +35,6 @@ spring:
     clean-disabled: true
     output-query-results: true
     fail-on-missing-locations: true
-    locations:
-      - classpath:flyway/{vendor}
     postgresql:
       transactional-lock: true
   docker:

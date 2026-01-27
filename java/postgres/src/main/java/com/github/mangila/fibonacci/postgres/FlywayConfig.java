@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.scheduler.config;
+package com.github.mangila.fibonacci.postgres;
 
 import org.springframework.boot.flyway.autoconfigure.FlywayMigrationStrategy;
 import org.springframework.context.annotation.Bean;

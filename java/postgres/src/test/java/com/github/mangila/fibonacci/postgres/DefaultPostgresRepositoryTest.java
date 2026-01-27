@@ -13,11 +13,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @JdbcTest(properties = {"spring.flyway.enabled=true"})
 @PostgresTestContainer
-@Import({DefaultFibonacciRepository.class})
-class DefaultFibonacciRepositoryTest {
+@Import({DefaultPostgresRepository.class})
+class DefaultPostgresRepositoryTest {
 
     @Autowired
-    private DefaultFibonacciRepository repository;
+    private DefaultPostgresRepository repository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
 

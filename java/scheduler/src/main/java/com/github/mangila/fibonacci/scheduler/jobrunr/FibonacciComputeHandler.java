@@ -1,6 +1,6 @@
 package com.github.mangila.fibonacci.scheduler.jobrunr;
 
-import com.github.mangila.fibonacci.postgres.FibonacciRepository;
+import com.github.mangila.fibonacci.postgres.PostgresRepository;
 import org.jobrunr.jobs.context.JobContext;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.slf4j.Logger;
@@ -14,13 +14,14 @@ import java.util.concurrent.TimeUnit;
 public class FibonacciComputeHandler implements JobRequestHandler<FibonacciComputeJobRequest> {
 
     private static final Logger log = LoggerFactory.getLogger(FibonacciComputeHandler.class);
+
     private final ThreadPoolTaskExecutor computeAsyncTaskExecutor;
-    private final FibonacciRepository repository;
+    private final PostgresRepository postgresRepository;
 
     public FibonacciComputeHandler(ThreadPoolTaskExecutor computeAsyncTaskExecutor,
-                                   FibonacciRepository repository) {
+                                   PostgresRepository postgresRepository) {
         this.computeAsyncTaskExecutor = computeAsyncTaskExecutor;
-        this.repository = repository;
+        this.postgresRepository = postgresRepository;
     }
 
     @Override
@@ -37,9 +38,16 @@ public class FibonacciComputeHandler implements JobRequestHandler<FibonacciCompu
                     return fibonacciResult;
                 });
         FibonacciComputeResult result = future.join();
-        repository.insert(result.sequence(), result.result(), result.precision());
-        // TODO: update bloom filter
-        // TODO: add redis stream log
+        var insert = postgresRepository.insert(result.sequence(), result.result(), result.precision());
+        // Potential double write problem guard
+        if (insert.isEmpty()) {
+            // TODO: get the value from the database and update filter n add to stream
+            log.info("Fibonacci sequence {} already computed", result.sequence());
+        } else {
+            log.info("Fibonacci sequence {} computed and stored", result.sequence());
+            // TODO: update bloom filter
+            // TODO: add redis stream log
+        }
     }
 
     @Override
