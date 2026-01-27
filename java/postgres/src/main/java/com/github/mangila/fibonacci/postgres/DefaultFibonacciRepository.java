@@ -11,10 +11,9 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 // Here is a concrete implementation of the FibonacciRepository
-// a application module like this can also share an interface or just be a packaging pom
-
+// an application module like this can also share an interface or just be a packaging pom
 @Repository
-public class DefaultFibonacciRepository {
+public class DefaultFibonacciRepository implements FibonacciRepository {
 
     private final JdbcClient jdbcClient;
 
@@ -22,6 +21,7 @@ public class DefaultFibonacciRepository {
         this.jdbcClient = jdbcClient;
     }
 
+    @Override
     public Optional<FibonacciEntity> queryById(int id) {
         Ensure.positive(id);
         // language=PostgreSQL
@@ -36,6 +36,7 @@ public class DefaultFibonacciRepository {
                 .optional();
     }
 
+    @Override
     @Transactional(readOnly = true, timeout = 120)
     public void streamForList(int offset, int limit, Consumer<Stream<FibonacciProjection>> consumer) {
         Ensure.positive(offset);
@@ -60,7 +61,8 @@ public class DefaultFibonacciRepository {
         }
     }
 
-    public FibonacciProjection insert(int sequence, BigDecimal result, int precision) {
+    @Override
+    public Optional<FibonacciProjection> insert(int sequence, BigDecimal result, int precision) {
         Ensure.positive(sequence);
         Ensure.notNull(result);
         Ensure.positive(precision);
@@ -78,9 +80,11 @@ public class DefaultFibonacciRepository {
                 .param("sequence", sequence)
                 .param("result", result)
                 .param("precision", precision)
-                .query(FibonacciProjection.class);
+                .query(FibonacciProjection.class)
+                .optional();
     }
 
+    @Override
     @Transactional(readOnly = true)
     public void streamSequences(int max, Consumer<Stream<Integer>> consumer) {
         Ensure.positive(max);

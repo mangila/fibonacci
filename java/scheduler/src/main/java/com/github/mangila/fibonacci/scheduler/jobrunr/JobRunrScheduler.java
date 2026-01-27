@@ -1,7 +1,6 @@
 package com.github.mangila.fibonacci.scheduler.jobrunr;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.postgres.FibonacciProjection;
 import com.github.mangila.fibonacci.postgres.DefaultFibonacciRepository;
 import com.github.mangila.fibonacci.scheduler.model.FibonacciComputeCommand;
 import com.github.mangila.fibonacci.scheduler.model.FibonacciResult;
@@ -75,7 +74,7 @@ public class JobRunrScheduler {
             future = computeAsyncTaskExecutor.submitCompletable(new FibonacciComputeTask(algorithm, sequence))
                     .orTimeout(3, TimeUnit.MINUTES);
             FibonacciResult result = future.join();
-            FibonacciProjection projection = repository.insert(result.sequence(), result.result(), result.precision());
+            var projection = repository.insert(result.sequence(), result.result(), result.precision());
             // TODO: insert to redis stream logs
             sequenceCache.put(sequence);
         } catch (Exception e) {
