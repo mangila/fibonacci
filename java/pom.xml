@@ -97,16 +97,9 @@
                     <version>3.5.1</version>
                     <configuration>
                         <from>
+                            <!-- Need an image with wget or curl installed for healthchecks-->
                             <image>eclipse-temurin:25-jre-alpine</image>
                         </from>
-                        <extraDirectories>
-                            <paths>
-                                <path>
-                                    <from>${maven.multiModuleProjectDirectory}/flyway/postgresql</from>
-                                    <into>/flyway/postgresql</into>
-                                </path>
-                            </paths>
-                        </extraDirectories>
                     </configuration>
                 </plugin>
             </plugins>

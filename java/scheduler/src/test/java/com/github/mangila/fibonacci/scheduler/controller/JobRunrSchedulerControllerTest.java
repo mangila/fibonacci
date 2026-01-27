@@ -1,7 +1,7 @@
 package com.github.mangila.fibonacci.scheduler.controller;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.scheduler.PostgresTestContainer;
+import com.github.mangila.fibonacci.postgres.test.PostgresTestContainer;
 import com.github.mangila.fibonacci.scheduler.model.FibonacciComputeCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
