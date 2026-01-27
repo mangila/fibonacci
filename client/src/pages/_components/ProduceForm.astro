@@ -43,7 +43,7 @@ import { FibonacciAlgorithm } from "../_types/types";
 <script>
   import axios from "axios";
   import { enqueueFibonacciSequences } from "../_shared/shared";
-  import type { FibonacciCommand } from "../_types/types";
+  import type { FibonacciComputeCommand } from "../_types/types";
 
   const form = document.querySelector("#produce-form") as HTMLFormElement;
 
@@ -51,7 +51,9 @@ import { FibonacciAlgorithm } from "../_types/types";
     try {
       e.preventDefault();
       const formData = new FormData(form);
-      const data = Object.fromEntries(formData) as unknown as FibonacciCommand;
+      const data = Object.fromEntries(
+        formData,
+      ) as unknown as FibonacciComputeCommand;
       const response = await enqueueFibonacciSequences(data);
       alert(`ok, the data is enqueued... ${JSON.stringify(response.data)}`);
     } catch (error) {

@@ -1,12 +1,14 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import DatasourceMenu from "../_components/DatasourceMenu.astro";
-import { WsLivestream } from "./_components/WsLivestream";
+import { SseComponent } from "./_components/SseComponent";
+
+const channel = "mangila-sse-channel";
 ---
 
 <Layout>
   <div class="prose mx-auto text-center mt-4">
-    <DatasourceMenu title="WS Livestream" />
+    <DatasourceMenu title="SSE" />
   </div>
-  <WsLivestream client:load/>
+  <SseComponent client:load channel={channel} />
 </Layout>

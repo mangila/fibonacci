@@ -1,17 +1,17 @@
 package com.github.mangila.fibonacci.web;
 
+import com.redis.testcontainers.RedisContainer;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
-import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration(proxyBeanMethods = false)
-class PostgresTestContainerConfiguration {
+public class RedisTestContainerConfiguration {
 
     @Bean
-    @ServiceConnection(value = "postgres-test-container")
-    PostgreSQLContainer postgresContainer() {
-        return new PostgreSQLContainer(DockerImageName.parse("postgres:18-alpine"));
+    @ServiceConnection(value = "redis-test-container")
+    RedisContainer redisContainer() {
+        return new RedisContainer(DockerImageName.parse("redis:8.2.3-alpine"));
     }
 }

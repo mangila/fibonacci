@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.web.sse;
 
 import com.github.benmanes.caffeine.cache.Cache;
+import com.github.mangila.fibonacci.web.sse.model.SseChannel;
 import com.github.mangila.fibonacci.web.sse.model.SseSession;
 import io.github.mangila.ensure4j.Ensure;
 import io.github.mangila.ensure4j.EnsureException;
@@ -18,7 +19,7 @@ public class SseSessionCache {
 
     private static final Logger log = LoggerFactory.getLogger(SseSessionCache.class);
 
-    private final Cache<String, CopyOnWriteArraySet<SseSession>> cache;
+    private final Cache<String, SseChannel> cache;
 
     public SseSessionCache(Cache<String, CopyOnWriteArraySet<SseSession>> cache) {
         this.cache = cache;
@@ -26,12 +27,15 @@ public class SseSessionCache {
 
     @Nullable
     public SseSession getSession(String channel, String streamKey) {
+        var channel1 = cache.getIfPresent(channel);
         var set = cache.getIfPresent(channel);
         if (set != null) {
-            return set.stream()
+            SseSession sesh = set.stream()
                     .filter(session -> session.streamKey().equals(streamKey))
                     .findFirst()
                     .orElse(null);
+            log.info(String.valueOf(set.size()));
+            return sesh;
         }
         return null;
     }

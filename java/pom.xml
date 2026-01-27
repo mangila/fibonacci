@@ -12,6 +12,8 @@
         <module>web</module>
         <module>core</module>
         <module>scheduler</module>
+        <module>postgres</module>
+        <module>redis</module>
     </modules>
 
     <properties>

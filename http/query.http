@@ -1,11 +1,25 @@
-### POST request to SSE endpoint
-POST http://localhost:8080/api/v1/sse/mangila-livestream/list?streamKey=helloworld
+### POST id request to SSE endpoint
+POST http://localhost:8080/api/v1/sse/id
 Content-Type: application/json
 
 {
-  "offset": 0,
-  "limit": 10
+  "subscription": {
+    "channel": "the-channel",
+    "streamKey": "00000000-0000-0000-0000-000000000000"
+  },
+  "id": 1
 }
 
-### GET request to SSE endpoint
-GET http://localhost:8080/api/v1/sse/mangila-livestream/id?streamKey=helloworld&id=1
+### POST stream request to SSE endpoint
+POST http://localhost:8080/api/v1/sse/stream
+Content-Type: application/json
+
+{
+  "offset": 10,
+  "limit": 10,
+  "delayInMillis": 500,
+  "subscription": {
+    "channel": "the-channel",
+    "streamKey": "00000000-0000-0000-0000-000000000000"
+  }
+}

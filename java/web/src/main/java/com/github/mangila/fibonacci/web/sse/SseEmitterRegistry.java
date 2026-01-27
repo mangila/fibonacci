@@ -1,7 +1,7 @@
 package com.github.mangila.fibonacci.web.sse;
 
 import com.github.mangila.fibonacci.web.sse.model.SseSession;
-import com.github.mangila.fibonacci.web.sse.model.SseSubscription;
+import com.github.mangila.fibonacci.web.dto.SseSubscription;
 import io.github.mangila.ensure4j.Ensure;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;

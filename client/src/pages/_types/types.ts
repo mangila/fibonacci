@@ -1,4 +1,4 @@
-export type ConnectionStatus = "offline" | "open" | "error";
+export type ConnectionStatus = "offline" | "open" | "streaming" | "error";
 
 export enum FibonacciAlgorithm {
   Recursive = "RECURSIVE",
@@ -19,7 +19,12 @@ export interface FibonacciProjectionDto {
   precision: number;
 }
 
-export interface FibonacciCommand {
+export interface SseSubscription {
+  channel: string;
+  streamKey: string;
+}
+
+export interface FibonacciComputeCommand {
   algorithm: FibonacciAlgorithm;
   offset: number;
   limit: number;

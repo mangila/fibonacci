@@ -34,7 +34,7 @@ public class FibonacciRepository {
                 .optional();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, timeout = 120)
     public void streamForList(int offset, int limit, Consumer<Stream<FibonacciProjection>> consumer) {
         Ensure.positive(offset);
         Ensure.positive(limit);
@@ -51,6 +51,7 @@ public class FibonacciRepository {
                 .param("offset", offset)
                 .param("limit", limit)
                 .withFetchSize(100)
+                .withQueryTimeout(60)
                 .query(FibonacciProjection.class);
         try (var stream = stmt.stream()) {
             consumer.accept(stream);
