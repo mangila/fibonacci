@@ -1,17 +1,10 @@
-# Application
-app:
-  compute:
-    max: 10_000
-
 # Spring
 spring:
   application:
     name: fibonacci-java-scheduler
   main:
-    web-application-type: servlet
-  web:
-    resources:
-      add-mappings: false
+    web-application-type: none
+    keep-alive: true
   threads:
     virtual:
       enabled: true
@@ -33,8 +26,6 @@ spring:
     clean-disabled: true
     output-query-results: true
     fail-on-missing-locations: true
-    locations:
-      - classpath:flyway/{vendor}
     postgresql:
       transactional-lock: true
   docker:
@@ -44,10 +35,13 @@ spring:
       enabled: false
       lifecycle-management: start-and-stop
       file: ${user.dir}/java/docker-compose-dev.yaml
+  data:
+    redis:
+      lettuce:
+        pool:
+          enabled: true
 # JobRunr
 jobrunr:
-  dashboard:
-    enabled: true
   job-scheduler:
     enabled: true
   background-job-server:
@@ -61,16 +55,6 @@ jobrunr:
   database:
     skip-create: false
     table-prefix: fibonacci_
-# Server
-server:
-  http2:
-    enabled: true
-# Actuator
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health
 # Logging
 logging:
   level:
@@ -80,12 +64,3 @@ logging:
     com.github.mangila.fibonacci.scheduler.repository: INFO
     com.github.mangila.fibonacci.scheduler.scheduler: INFO
     com.github.mangila.fibonacci.scheduler.task: INFO
-# SpringDoc
-springdoc:
-  api-docs:
-    enabled: false
-  swagger-ui:
-    enabled: false
-  show-actuator: false
-  cache:
-    disabled: false

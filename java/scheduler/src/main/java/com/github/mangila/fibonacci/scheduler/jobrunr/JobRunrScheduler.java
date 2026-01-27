@@ -1,57 +1,45 @@
 package com.github.mangila.fibonacci.scheduler.jobrunr;
 
-import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.postgres.DefaultFibonacciRepository;
-import com.github.mangila.fibonacci.scheduler.model.FibonacciComputeCommand;
-import com.github.mangila.fibonacci.scheduler.model.FibonacciResult;
-import com.github.mangila.fibonacci.scheduler.properties.ComputeProperties;
-import com.github.mangila.fibonacci.scheduler.task.FibonacciComputeTask;
-import io.github.mangila.ensure4j.Ensure;
-import jakarta.annotation.PostConstruct;
-import org.jobrunr.jobs.annotations.Job;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.scheduling.JobScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.time.Duration;
 
 @Service
-public class JobRunrScheduler {
+public class JobRunrScheduler implements Runnable {
 
     private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(JobRunrScheduler.class));
 
-    private final ThreadPoolTaskExecutor computeAsyncTaskExecutor;
+    private volatile boolean running = false;
+    private final StringRedisTemplate stringRedisTemplate;
     private final JobScheduler jobScheduler;
-    private final DefaultFibonacciRepository repository;
-    private final SequenceCache sequenceCache;
-    private final ComputeProperties computeProperties;
 
-    public JobRunrScheduler(ThreadPoolTaskExecutor computeAsyncTaskExecutor,
-                            JobScheduler jobScheduler,
-                            DefaultFibonacciRepository repository,
-                            SequenceCache sequenceCache,
-                            ComputeProperties computeProperties) {
-        this.computeAsyncTaskExecutor = computeAsyncTaskExecutor;
+    public JobRunrScheduler(StringRedisTemplate stringRedisTemplate,
+                            JobScheduler jobScheduler) {
+        this.stringRedisTemplate = stringRedisTemplate;
         this.jobScheduler = jobScheduler;
-        this.repository = repository;
-        this.sequenceCache = sequenceCache;
-        this.computeProperties = computeProperties;
     }
 
-    @PostConstruct
-    void warmUpCache() {
-        log.info("Warming up sequence cache");
-        repository.streamSequences(computeProperties.getMax(),
-                stream -> stream.forEach(sequenceCache::put));
+    @Override
+    public void run() {
+        running = true;
+        var params = stringRedisTemplate.opsForList().leftPop("queue", Duration.ZERO);
+        System.out.println("hej");
     }
 
-    public void scheduleFibonacciCalculations(FibonacciComputeCommand command) {
+    public void stop() {
+        running = false;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    /*public void scheduleFibonacciCalculations(FibonacciComputeCommand command) {
         Ensure.notNull(command);
         final int start = command.start();
         final int end = command.end();
@@ -63,28 +51,5 @@ public class JobRunrScheduler {
                 .peek(sequence -> log.info("Scheduling Fibonacci computation for sequence {}", sequence))
                 .boxed();
         jobScheduler.enqueue(sequenceStream, (sequence) -> computeFibonacci(algorithm, sequence));
-    }
-
-    @Job(name = "Fibonacci job for number %1", retries = 3, labels = "fibonacci")
-    public void computeFibonacci(FibonacciAlgorithm algorithm, int sequence) {
-        Ensure.notNull(algorithm);
-        Ensure.positive(sequence);
-        CompletableFuture<FibonacciResult> future = null;
-        try {
-            future = computeAsyncTaskExecutor.submitCompletable(new FibonacciComputeTask(algorithm, sequence))
-                    .orTimeout(3, TimeUnit.MINUTES);
-            FibonacciResult result = future.join();
-            var projection = repository.insert(result.sequence(), result.result(), result.precision());
-            // TODO: insert to redis stream logs
-            sequenceCache.put(sequence);
-        } catch (Exception e) {
-            log.error("Error while computing sequence {}", sequence, e);
-            if (future != null) {
-                future.cancel(true);
-            }
-            throw e;
-        } finally {
-            sequenceCache.release(sequence);
-        }
-    }
+    }*/
 }

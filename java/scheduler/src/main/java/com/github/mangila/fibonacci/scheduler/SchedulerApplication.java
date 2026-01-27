@@ -3,7 +3,6 @@ package com.github.mangila.fibonacci.scheduler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -15,6 +14,7 @@ import java.util.TreeMap;
 @SpringBootApplication(scanBasePackages = "com.github.mangila.fibonacci")
 public class SchedulerApplication {
 
+
     public static void main(String[] args) {
         SpringApplication.run(SchedulerApplication.class, args);
     }
@@ -22,7 +22,6 @@ public class SchedulerApplication {
     @EventListener
     public void onApplicationEvent(ApplicationReadyEvent event) {
         ConfigurableEnvironment env = (ConfigurableEnvironment) event.getApplicationContext().getEnvironment();
-
         System.out.println("========= ALL RESOLVED PROPERTIES =========");
 
         TreeMap<String, Object> props = new TreeMap<>();

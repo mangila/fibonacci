@@ -5,6 +5,7 @@ import java.math.BigInteger;
 public final class FibonacciCalculator {
 
     private FibonacciCalculator() {
+        throw new IllegalStateException("Utility class");
     }
 
     /**

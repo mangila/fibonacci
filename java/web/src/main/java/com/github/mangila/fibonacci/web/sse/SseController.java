@@ -1,7 +1,7 @@
 package com.github.mangila.fibonacci.web.sse;
 
+import com.github.mangila.fibonacci.postgres.FibonacciRepository;
 import com.github.mangila.fibonacci.web.dto.*;
-import com.github.mangila.fibonacci.web.repository.FibonacciRepository;
 import com.github.mangila.fibonacci.web.sse.model.SseSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

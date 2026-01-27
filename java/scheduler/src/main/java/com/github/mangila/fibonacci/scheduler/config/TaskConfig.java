@@ -19,8 +19,9 @@ public class TaskConfig {
     }
 
     @Bean
-    SimpleAsyncTaskExecutor simpleAsyncTaskExecutor() {
-        var executor = new SimpleAsyncTaskExecutor("simple-task-");
+    SimpleAsyncTaskExecutor schedulerThreadExecutor() {
+        var executor = new SimpleAsyncTaskExecutor();
+        executor.setThreadNamePrefix("scheduler-");
         executor.setVirtualThreads(true);
         return executor;
     }

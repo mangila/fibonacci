@@ -1,7 +1,8 @@
 package com.github.mangila.fibonacci.scheduler.task;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.scheduler.model.FibonacciResult;
+import com.github.mangila.fibonacci.scheduler.jobrunr.FibonacciComputeTask;
+import com.github.mangila.fibonacci.scheduler.jobrunr.FibonacciComputeResult;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -14,7 +15,7 @@ class FibonacciComputeTaskTest {
     @Test
     void call() {
         var task = new FibonacciComputeTask(FibonacciAlgorithm.ITERATIVE, 10);
-        FibonacciResult result = task.call();
+        FibonacciComputeResult result = task.call();
         assertNotNull(result);
         assertEquals(new BigDecimal(55), result.result());
     }
