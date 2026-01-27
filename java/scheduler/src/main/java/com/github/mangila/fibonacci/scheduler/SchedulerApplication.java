@@ -3,13 +3,16 @@ package com.github.mangila.fibonacci.scheduler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 
 import java.util.TreeMap;
 
-@SpringBootApplication
+// We can scan the components the easy way or the hard way, this is the easy way
+// All sub application modules needs to start with the application dns reverse names, and we will be fine
+@SpringBootApplication(scanBasePackages = "com.github.mangila.fibonacci")
 public class SchedulerApplication {
 
     public static void main(String[] args) {

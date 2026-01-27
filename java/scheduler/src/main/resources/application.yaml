@@ -32,8 +32,6 @@ spring:
     validate-on-migrate: true
     clean-disabled: true
     output-query-results: true
-    user: postgres
-    password: postgres
     fail-on-missing-locations: true
     locations:
       - classpath:flyway/{vendor}
