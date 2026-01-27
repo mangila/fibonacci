@@ -7,9 +7,11 @@ import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-@JdbcTest
+@JdbcTest(properties = {"spring.flyway.enabled=true"})
 @PostgresTestContainer
 @Import({DefaultFibonacciRepository.class})
 class DefaultFibonacciRepositoryTest {
@@ -29,6 +31,11 @@ class DefaultFibonacciRepositoryTest {
 
     @Test
     void insert() {
+        int sequenceId = 1;
+        var optional = repository.insert(sequenceId, BigDecimal.ONE, 1);
+        assertThat(optional).isPresent();
+        optional = repository.insert(sequenceId, BigDecimal.ONE, 1);
+        assertThat(optional).isEmpty();
     }
 
     @Test
