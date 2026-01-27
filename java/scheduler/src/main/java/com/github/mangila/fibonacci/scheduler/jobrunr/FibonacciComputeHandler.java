@@ -3,14 +3,17 @@ package com.github.mangila.fibonacci.scheduler.jobrunr;
 import com.github.mangila.fibonacci.postgres.FibonacciRepository;
 import org.jobrunr.jobs.context.JobContext;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class FibonacciComputeHandler implements JobRequestHandler<FibonacciComputeRequest> {
+public class FibonacciComputeHandler implements JobRequestHandler<FibonacciComputeJobRequest> {
 
+    private static final Logger log = LoggerFactory.getLogger(FibonacciComputeHandler.class);
     private final ThreadPoolTaskExecutor computeAsyncTaskExecutor;
     private final FibonacciRepository repository;
 
@@ -21,7 +24,7 @@ public class FibonacciComputeHandler implements JobRequestHandler<FibonacciCompu
     }
 
     @Override
-    public void run(FibonacciComputeRequest jobRequest) {
+    public void run(FibonacciComputeJobRequest jobRequest) {
         final var algorithm = jobRequest.algorithm();
         final var sequence = jobRequest.sequence();
         var task = new FibonacciComputeTask(algorithm, sequence);

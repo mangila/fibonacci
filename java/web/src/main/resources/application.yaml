@@ -45,6 +45,13 @@ spring:
         in-tests: true
       enabled: false
       file: ${user.dir}/java/docker-compose-dev.yaml
+jobrunr:
+  dashboard:
+    enabled: true
+  background-job-server:
+    enabled: false
+  job-scheduler:
+    enabled: false
 # Server
 server:
   http2:

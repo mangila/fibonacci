@@ -1,34 +1,48 @@
 package com.github.mangila.fibonacci.scheduler.jobrunr;
 
+import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
-import org.jobrunr.scheduling.JobScheduler;
+import org.jobrunr.scheduling.JobRequestScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
+import java.util.List;
+import java.util.UUID;
+
+import static org.jobrunr.scheduling.JobBuilder.aJob;
 
 @Service
 public class JobRunrScheduler implements Runnable {
 
     private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(JobRunrScheduler.class));
 
+    private final static String DEFAULT_NAME = "Fibonacci Calculation for sequence: (%s)";
+    private final static int DEFAULT_RETIRES = 3;
+    private final static List<String> DEFAULT_LABELS = List.of("fibonacci", "compute");
+
     private volatile boolean running = false;
     private final StringRedisTemplate stringRedisTemplate;
-    private final JobScheduler jobScheduler;
+    private final JobRequestScheduler jobRequestScheduler;
 
     public JobRunrScheduler(StringRedisTemplate stringRedisTemplate,
-                            JobScheduler jobScheduler) {
+                            JobRequestScheduler jobRequestScheduler) {
         this.stringRedisTemplate = stringRedisTemplate;
-        this.jobScheduler = jobScheduler;
+        this.jobRequestScheduler = jobRequestScheduler;
     }
 
     @Override
     public void run() {
         running = true;
-        var params = stringRedisTemplate.opsForList().leftPop("queue", Duration.ZERO);
-        System.out.println("hej");
+        final int sequence = 1;
+        final FibonacciAlgorithm algorithm = FibonacciAlgorithm.RECURSIVE;
+        jobRequestScheduler.create(aJob()
+                .withId(UUID.randomUUID())
+                .withName(DEFAULT_NAME.formatted(sequence))
+                .withAmountOfRetries(DEFAULT_RETIRES)
+                .withLabels(DEFAULT_LABELS)
+                .withJobRequest(new FibonacciComputeJobRequest(sequence, algorithm)));
     }
 
     public void stop() {
@@ -38,18 +52,4 @@ public class JobRunrScheduler implements Runnable {
     public boolean isRunning() {
         return running;
     }
-
-    /*public void scheduleFibonacciCalculations(FibonacciComputeCommand command) {
-        Ensure.notNull(command);
-        final int start = command.start();
-        final int end = command.end();
-        final FibonacciAlgorithm algorithm = command.algorithm();
-        Ensure.isTrue(computeProperties.getMax() >= end, "End sequence must be within the configured max limit");
-        Stream<Integer> sequenceStream = IntStream.range(start, end)
-                // this could cause a race condition, but it's ok
-                .filter(sequenceCache::tryCompute)
-                .peek(sequence -> log.info("Scheduling Fibonacci computation for sequence {}", sequence))
-                .boxed();
-        jobScheduler.enqueue(sequenceStream, (sequence) -> computeFibonacci(algorithm, sequence));
-    }*/
 }
