@@ -1,7 +1,8 @@
 package com.github.mangila.fibonacci.scheduler.jobrunr;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.postgres.FibonacciRepository;
+import com.github.mangila.fibonacci.postgres.FibonacciProjection;
+import com.github.mangila.fibonacci.postgres.DefaultFibonacciRepository;
 import com.github.mangila.fibonacci.scheduler.model.FibonacciComputeCommand;
 import com.github.mangila.fibonacci.scheduler.model.FibonacciResult;
 import com.github.mangila.fibonacci.scheduler.properties.ComputeProperties;
@@ -28,13 +29,13 @@ public class JobRunrScheduler {
 
     private final ThreadPoolTaskExecutor computeAsyncTaskExecutor;
     private final JobScheduler jobScheduler;
-    private final FibonacciRepository repository;
+    private final DefaultFibonacciRepository repository;
     private final SequenceCache sequenceCache;
     private final ComputeProperties computeProperties;
 
     public JobRunrScheduler(ThreadPoolTaskExecutor computeAsyncTaskExecutor,
                             JobScheduler jobScheduler,
-                            FibonacciRepository repository,
+                            DefaultFibonacciRepository repository,
                             SequenceCache sequenceCache,
                             ComputeProperties computeProperties) {
         this.computeAsyncTaskExecutor = computeAsyncTaskExecutor;
@@ -74,7 +75,8 @@ public class JobRunrScheduler {
             future = computeAsyncTaskExecutor.submitCompletable(new FibonacciComputeTask(algorithm, sequence))
                     .orTimeout(3, TimeUnit.MINUTES);
             FibonacciResult result = future.join();
-            repository.insert(result.sequence(), result.result(), result.precision());
+            FibonacciProjection projection = repository.insert(result.sequence(), result.result(), result.precision());
+            // TODO: insert to redis stream logs
             sequenceCache.put(sequence);
         } catch (Exception e) {
             log.error("Error while computing sequence {}", sequence, e);

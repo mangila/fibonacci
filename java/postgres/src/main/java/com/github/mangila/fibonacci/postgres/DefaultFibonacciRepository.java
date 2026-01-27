@@ -10,12 +10,15 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+// Here is a concrete implementation of the FibonacciRepository
+// a application module like this can also share an interface or just be a packaging pom
+
 @Repository
-public class FibonacciRepository {
+public class DefaultFibonacciRepository {
 
     private final JdbcClient jdbcClient;
 
-    public FibonacciRepository(JdbcClient jdbcClient) {
+    public DefaultFibonacciRepository(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
     }
 
@@ -57,7 +60,7 @@ public class FibonacciRepository {
         }
     }
 
-    public void insert(int sequence, BigDecimal result, int precision) {
+    public FibonacciProjection insert(int sequence, BigDecimal result, int precision) {
         Ensure.positive(sequence);
         Ensure.notNull(result);
         Ensure.positive(precision);
@@ -67,14 +70,15 @@ public class FibonacciRepository {
                 (sequence, result, precision)
                 VALUES (:sequence, :result, :precision)
                 ON CONFLICT (sequence) DO NOTHING
+                RETURNING id, sequence, precision;
                 """;
         // ON CONFLICT (sequence) DO NOTHING - will ignore duplicate sequences
         // And will guard for some potential extra compute race conditions
-        jdbcClient.sql(sql)
+        return jdbcClient.sql(sql)
                 .param("sequence", sequence)
                 .param("result", result)
                 .param("precision", precision)
-                .update();
+                .query(FibonacciProjection.class);
     }
 
     @Transactional(readOnly = true)
