@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.web;
+package com.github.mangila.fibonacci.redis.test;
 
 import org.springframework.context.annotation.Import;
 

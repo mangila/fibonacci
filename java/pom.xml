@@ -14,6 +14,8 @@
         <module>scheduler</module>
         <module>postgres</module>
         <module>redis</module>
+        <module>postgres-test</module>
+        <module>redis-test</module>
     </modules>
 
     <properties>
@@ -34,6 +36,26 @@
             <dependency>
                 <groupId>com.github.mangila.fibonacci</groupId>
                 <artifactId>core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.mangila.fibonacci</groupId>
+                <artifactId>postgres</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.mangila.fibonacci</groupId>
+                <artifactId>postgres-test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.mangila.fibonacci</groupId>
+                <artifactId>redis</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.mangila.fibonacci</groupId>
+                <artifactId>redis-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- Source: https://mvnrepository.com/artifact/io.github.mangila/ensure4j -->
