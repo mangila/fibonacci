@@ -16,6 +16,9 @@ import java.util.UUID;
 
 import static org.jobrunr.scheduling.JobBuilder.aJob;
 
+/**
+ * Schedules the Fibonacci computation job using JobRunr.
+ */
 @Service
 public class JobRunrScheduler implements Runnable {
 
@@ -34,6 +37,10 @@ public class JobRunrScheduler implements Runnable {
         this.redisRepository = redisRepository;
     }
 
+    /**
+     * Event listener for the ApplicationReadyEvent.
+     * Creates a recurring job to compute Fibonacci numbers and try to reserve a redis bloom filter.
+     */
     @EventListener
     public void onApplicationEvent(ApplicationReadyEvent event) {
         log.info("Create recurring job");
@@ -45,6 +52,10 @@ public class JobRunrScheduler implements Runnable {
         redisRepository.tryReserveBloomFilter();
     }
 
+    /**
+     * Block until a job is available in the redis queue
+     * and then enqueues a new computation JobRun job.
+     */
     @Override
     public void run() {
         running = true;

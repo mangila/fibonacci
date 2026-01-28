@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Watches the JobRunr scheduler and ensures it runs as a background task.
+ */
 @Component
 public class JobRunrSchedulerWatcher implements SmartLifecycle {
 

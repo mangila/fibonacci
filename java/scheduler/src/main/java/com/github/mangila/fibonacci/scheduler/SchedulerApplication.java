@@ -9,8 +9,10 @@ import org.springframework.core.env.EnumerablePropertySource;
 
 import java.util.TreeMap;
 
-// We can scan the components the easy way or the hard way, this is the easy way
-// All sub application modules need to start with the application dns reverse names, and we will be fine
+/**
+ * We can scan the components the easy way or the hard way, this is the easy way
+ * All sub application modules need to start with the application dns reverse names, and we will be fine
+ */
 @SpringBootApplication(scanBasePackages = "com.github.mangila.fibonacci")
 public class SchedulerApplication {
 

@@ -17,6 +17,7 @@ import java.util.Map;
 public class InsertRedisStreamJobHandler implements JobRequestHandler<InsertRedisStreamJobRequest> {
 
     private static final Logger log = LoggerFactory.getLogger(InsertRedisStreamJobHandler.class);
+
     private final PostgresRepository postgresRepository;
     private final RedisRepository redisRepository;
 
@@ -26,6 +27,12 @@ public class InsertRedisStreamJobHandler implements JobRequestHandler<InsertRedi
         this.redisRepository = redisRepository;
     }
 
+    /**
+     * Locks the metadata tables rows from the last inserted sequence to the limit,
+     * then query Postgres for a projection, adds it to the redis stream, and updates the metadata table
+     * <p>
+     * Will try to delete the inserted stream entry ids from the redis stream on an exception.
+     */
     @Transactional
     @Override
     public void run(InsertRedisStreamJobRequest jobRequest) throws Exception {
