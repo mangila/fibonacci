@@ -34,10 +34,13 @@ public class InsertRedisStreamJobHandler implements JobRequestHandler<InsertRedi
      * Will try to delete the inserted stream entry ids from the redis stream on an exception.
      * This is a little fuzzy there are some edge cases to consider using this rollback approach
      * network issues, redis server restarts, etc.
+     * <p>
+     * Since we want the stream data to be in order, this should be a single instance stuffs.
+     * TODO: maybe add to a Redis ZSET instead and then drain to the stream
      */
     @Transactional
     @Override
-    public void run(InsertRedisStreamJobRequest jobRequest) throws Exception {
+    public void run(InsertRedisStreamJobRequest jobRequest) {
         log.info("Processing stream log request: {}", jobRequest);
         var redisStreamIds = new ArrayList<StreamEntryID>();
         try {
