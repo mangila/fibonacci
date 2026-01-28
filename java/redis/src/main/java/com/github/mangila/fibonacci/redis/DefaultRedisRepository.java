@@ -31,6 +31,7 @@ public class DefaultRedisRepository implements RedisRepository {
         final String host = jedisConnectionFactory.getHostName();
         final int port = jedisConnectionFactory.getPort();
         try (var jedis = new Jedis(host, port, 5000, 0)) {
+            jedis.clientSetname("scheduler-long-blocking-operation");
             consumer.accept(jedis);
         } catch (Exception e) {
             throw new RuntimeException(e);

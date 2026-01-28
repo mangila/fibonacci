@@ -19,5 +19,4 @@ public class RedisConfig {
     UnifiedJedis unifiedJedis(JedisConnectionFactory jedisConnectionFactory) {
         return new JedisPooled(jedisConnectionFactory.getHostName(), jedisConnectionFactory.getPort());
     }
-
 }
