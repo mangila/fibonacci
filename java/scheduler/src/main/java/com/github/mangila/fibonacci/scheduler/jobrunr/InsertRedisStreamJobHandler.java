@@ -32,6 +32,8 @@ public class InsertRedisStreamJobHandler implements JobRequestHandler<InsertRedi
      * then query Postgres for a projection, adds it to the redis stream, and updates the metadata table
      * <p>
      * Will try to delete the inserted stream entry ids from the redis stream on an exception.
+     * This is a little fuzzy there are some edge cases to consider using this rollback approach
+     * network issues, redis server restarts, etc.
      */
     @Transactional
     @Override
