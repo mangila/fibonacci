@@ -30,6 +30,11 @@
             <groupId>io.github.mangila</groupId>
             <artifactId>ensure4j</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.mangila.fibonacci</groupId>
+            <artifactId>redis-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
