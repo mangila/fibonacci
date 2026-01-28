@@ -55,11 +55,14 @@ public class DefaultRedisRepository implements RedisRepository {
 
     @Override
     public StreamEntryID addToStream(int sequence, Map<String, String> data) {
+        Ensure.positive(sequence);
+        Ensure.notEmpty(data, "Data must not be empty");
         return jedis.xadd(RedisConfig.STREAM_KEY, new StreamEntryID(sequence, sequence), data);
     }
 
     @Override
     public void removeFromStream(List<StreamEntryID> ids) {
+        Ensure.notEmpty(ids);
         jedis.xdel(RedisConfig.STREAM_KEY, ids.toArray(StreamEntryID[]::new));
     }
 }
