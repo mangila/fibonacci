@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.mangila.fibonacci</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>shared</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.mangila.fibonacci</groupId>

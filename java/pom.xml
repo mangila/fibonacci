@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>web</module>
-        <module>core</module>
+        <module>shared</module>
         <module>scheduler</module>
         <module>postgres</module>
         <module>redis</module>
@@ -35,7 +35,7 @@
         <dependencies>
             <dependency>
                 <groupId>com.github.mangila.fibonacci</groupId>
-                <artifactId>core</artifactId>
+                <artifactId>shared</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -97,7 +97,7 @@
                     <version>3.5.1</version>
                     <configuration>
                         <from>
-                            <!-- Need an image with wget or curl installed for healthchecks-->
+                            <!-- Need an image with wget or curl installed for health checks-->
                             <image>eclipse-temurin:25-jre-alpine</image>
                         </from>
                     </configuration>
