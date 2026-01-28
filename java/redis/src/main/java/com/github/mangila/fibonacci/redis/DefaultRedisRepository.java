@@ -54,16 +54,12 @@ public class DefaultRedisRepository implements RedisRepository {
     }
 
     @Override
-    public String addToStream(int sequence, Map<String, String> data) {
-        var id = jedis.xadd(RedisConfig.STREAM_KEY, new StreamEntryID(sequence, sequence), data);
-        return id.toString();
+    public StreamEntryID addToStream(int sequence, Map<String, String> data) {
+        return jedis.xadd(RedisConfig.STREAM_KEY, new StreamEntryID(sequence, sequence), data);
     }
 
     @Override
-    public void removeFromStream(List<String> redisStreamIds) {
-        var streamIds = redisStreamIds.stream()
-                .map(StreamEntryID::new)
-                .toArray(StreamEntryID[]::new);
-        jedis.xdel(RedisConfig.STREAM_KEY, streamIds);
+    public void removeFromStream(List<StreamEntryID> ids) {
+        jedis.xdel(RedisConfig.STREAM_KEY, ids.toArray(StreamEntryID[]::new));
     }
 }

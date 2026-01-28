@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import redis.clients.jedis.StreamEntryID;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -29,16 +30,15 @@ public class InsertRedisStreamJobHandler implements JobRequestHandler<InsertRedi
     @Override
     public void run(InsertRedisStreamJobRequest jobRequest) throws Exception {
         log.info("Processing stream log request: {}", jobRequest);
-        var redisStreamIds = new ArrayList<String>();
+        var redisStreamIds = new ArrayList<StreamEntryID>();
         try {
             postgresRepository.streamMetadataLocked(jobRequest.limit(), stream -> {
                 stream.forEach(sequence -> {
-                    log.info("Processing stream log entry: {}", sequence);
                     log.info("Adding to redis stream: {}", sequence);
                     FibonacciProjection projection = postgresRepository.queryBySequence(sequence)
                             .orElseThrow();
                     Map<String, String> streamData = projection.asStringMap();
-                    String streamId = redisRepository.addToStream(sequence, streamData);
+                    StreamEntryID streamId = redisRepository.addToStream(sequence, streamData);
                     redisStreamIds.add(streamId);
                     postgresRepository.upsertMetadata(sequence, true);
                     log.info("sent to stream was ok: {}", sequence);
