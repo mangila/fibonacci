@@ -2,26 +2,31 @@ package com.github.mangila.fibonacci.scheduler.jobrunr;
 
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
 import org.jobrunr.jobs.context.JobContext;
+import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class FibonacciComputeHandler implements JobRequestHandler<FibonacciComputeJobRequest> {
 
-    private static final Logger log = LoggerFactory.getLogger(FibonacciComputeHandler.class);
+    Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(FibonacciComputeHandler.class));
 
     private final ThreadPoolTaskExecutor computeAsyncTaskExecutor;
     private final PostgresRepository postgresRepository;
+    private final TransactionTemplate transactionTemplate;
 
     public FibonacciComputeHandler(ThreadPoolTaskExecutor computeAsyncTaskExecutor,
-                                   PostgresRepository postgresRepository) {
+                                   PostgresRepository postgresRepository,
+                                   TransactionTemplate transactionTemplate) {
         this.computeAsyncTaskExecutor = computeAsyncTaskExecutor;
         this.postgresRepository = postgresRepository;
+        this.transactionTemplate = transactionTemplate;
     }
 
     @Override
@@ -38,15 +43,20 @@ public class FibonacciComputeHandler implements JobRequestHandler<FibonacciCompu
                     return fibonacciResult;
                 });
         FibonacciComputeResult result = future.join();
-        var insert = postgresRepository.insert(result.sequence(), result.result(), result.precision());
-        // Potential double write problem guard
-        if (insert.isEmpty()) {
-            // TODO: get the value from the database and update filter n add to stream
-            log.info("Fibonacci sequence {} already computed", result.sequence());
-        } else {
+        // Start a new transaction after the compute task is finished
+        // no need to wrap it inside a @Transactional and take a connection during the compute time
+        var write = transactionTemplate.execute(tx -> {
+            var insert = postgresRepository.insert(result.sequence(), result.result(), result.precision());
+            if (insert.isPresent()) {
+                postgresRepository.upsertMetadata(result.sequence(), false);
+                return true;
+            }
+            return false;
+        });
+        if (write) {
             log.info("Fibonacci sequence {} computed and stored", result.sequence());
-            // TODO: update bloom filter
-            // TODO: add redis stream log
+        } else {
+            log.info("Fibonacci sequence {} already computed", result.sequence());
         }
     }
 

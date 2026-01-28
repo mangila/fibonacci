@@ -9,10 +9,13 @@ public interface PostgresRepository {
 
     Optional<FibonacciEntity> queryById(int id);
 
-    void streamForList(int offset, int limit, Consumer<Stream<FibonacciProjection>> consumer);
+    Optional<FibonacciProjection> queryBySequence(int sequence);
+
+    void streamMetadataLocked(int limit, Consumer<Stream<Integer>> consumer);
 
     Optional<FibonacciProjection> insert(int sequence, BigDecimal result, int precision);
 
-    void streamSequences(int max, Consumer<Stream<Integer>> consumer);
+    void upsertMetadata(int sequence, boolean sentToStream);
 
+    void streamSequences(int max, Consumer<Stream<Integer>> consumer);
 }

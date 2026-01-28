@@ -37,25 +37,37 @@ public class DefaultPostgresRepository implements PostgresRepository {
     }
 
     @Override
-    @Transactional(readOnly = true, timeout = 120)
-    public void streamForList(int offset, int limit, Consumer<Stream<FibonacciProjection>> consumer) {
-        Ensure.positive(offset);
-        Ensure.positive(limit);
-        Ensure.notNull(consumer);
+    public Optional<FibonacciProjection> queryBySequence(int sequence) {
+        Ensure.positive(sequence);
         // language=PostgreSQL
         final String sql = """
                 SELECT id, sequence, precision
                 FROM fibonacci_results
-                ORDER BY sequence
-                OFFSET :offset
-                LIMIT :limit;
+                WHERE sequence = :sequence
+                """;
+        return jdbcClient.sql(sql)
+                .param("sequence", sequence)
+                .query(FibonacciProjection.class)
+                .optional();
+    }
+
+    @Override
+    public void streamMetadataLocked(int limit, Consumer<Stream<Integer>> consumer) {
+        Ensure.positive(limit);
+        Ensure.notNull(consumer);
+        // language=PostgreSQL
+        final String sql = """
+                SELECT id
+                FROM fibonacci_metadata
+                WHERE sent_to_stream = false
+                ORDER BY id
+                LIMIT :limit
+                FOR UPDATE SKIP LOCKED;
                 """;
         var stmt = jdbcClient.sql(sql)
-                .param("offset", offset)
                 .param("limit", limit)
                 .withFetchSize(100)
-                .withQueryTimeout(60)
-                .query(FibonacciProjection.class);
+                .query(Integer.class);
         try (var stream = stmt.stream()) {
             consumer.accept(stream);
         }
@@ -74,14 +86,30 @@ public class DefaultPostgresRepository implements PostgresRepository {
                 ON CONFLICT (sequence) DO NOTHING
                 RETURNING id, sequence, precision;
                 """;
-        // ON CONFLICT (sequence) DO NOTHING - will ignore duplicate sequences
-        // And will guard for some potential extra compute race conditions
         return jdbcClient.sql(sql)
                 .param("sequence", sequence)
                 .param("result", result)
                 .param("precision", precision)
                 .query(FibonacciProjection.class)
                 .optional();
+    }
+
+    @Override
+    public void upsertMetadata(int sequence, boolean sentToStream) {
+        Ensure.positive(sequence);
+        final String sql = """
+                INSERT INTO fibonacci_metadata
+                (id, sent_to_stream)
+                VALUES (:sequence, :sentToStream)
+                ON CONFLICT (id)
+                DO UPDATE SET
+                    sent_to_stream = EXCLUDED.sent_to_stream,
+                    updated_at = now();
+                """;
+        jdbcClient.sql(sql)
+                .param("sequence", sequence)
+                .param("sentToStream", sentToStream)
+                .update();
     }
 
     @Override

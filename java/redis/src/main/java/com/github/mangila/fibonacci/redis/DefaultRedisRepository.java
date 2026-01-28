@@ -1,16 +1,22 @@
 package com.github.mangila.fibonacci.redis;
 
 import io.github.mangila.ensure4j.Ensure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.StreamEntryID;
 import redis.clients.jedis.UnifiedJedis;
 
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 @Repository
 public class DefaultRedisRepository implements RedisRepository {
 
+    private static final Logger log = LoggerFactory.getLogger(DefaultRedisRepository.class);
     private final JedisConnectionFactory jedisConnectionFactory;
     private final UnifiedJedis jedis;
 
@@ -31,14 +37,33 @@ public class DefaultRedisRepository implements RedisRepository {
         }
     }
 
-    public void reserveBloomFilter(int errorRate, int capacity) {
-        Ensure.positive(errorRate, "Error rate must be positive");
-        Ensure.positive(capacity, "Capacity must be positive");
-        jedis.bfReserve(RedisConfig.BLOOM_FILTER_KEY, errorRate, capacity);
+    public void tryReserveBloomFilter() {
+        try {
+            var ok = jedis.bfReserve(RedisConfig.BLOOM_FILTER_KEY,
+                    RedisConfig.BLOOM_FILTER_ERROR_RATE,
+                    RedisConfig.BLOOM_FILTER_CAPACITY);
+            log.info("Bloom filter reserved: {}", ok);
+        } catch (Exception e) {
+            log.warn("Bloom filter already exists");
+        }
     }
 
-    public void addToBloomFilter(String value) {
+    public boolean addToBloomFilter(String value) {
         Ensure.notBlank(value, "Value must not be blank");
-        jedis.bfAdd(RedisConfig.BLOOM_FILTER_KEY, value);
+        return jedis.bfAdd(RedisConfig.BLOOM_FILTER_KEY, value);
+    }
+
+    @Override
+    public String addToStream(int sequence, Map<String, String> data) {
+        var id = jedis.xadd(RedisConfig.STREAM_KEY, new StreamEntryID(sequence, sequence), data);
+        return id.toString();
+    }
+
+    @Override
+    public void removeFromStream(List<String> redisStreamIds) {
+        var streamIds = redisStreamIds.stream()
+                .map(StreamEntryID::new)
+                .toArray(StreamEntryID[]::new);
+        jedis.xdel(RedisConfig.STREAM_KEY, streamIds);
     }
 }
