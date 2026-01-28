@@ -34,7 +34,7 @@ public class FibonacciComputeHandler implements JobRequestHandler<FibonacciCompu
      * Then proceed to insert the result to Postgres.
      * If the value is already present in Postgres it has already been computed.
      * <p>
-     * Outcomes how that could happen:
+     * Outcomes for a double write - how that could happen:
      * <br>
      * the Bloom filter missed it with its false positive rate,
      * OR
