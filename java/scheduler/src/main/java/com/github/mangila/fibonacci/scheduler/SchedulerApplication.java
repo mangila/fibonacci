@@ -9,8 +9,13 @@ import org.springframework.core.env.EnumerablePropertySource;
 
 import java.util.TreeMap;
 
-@SpringBootApplication
+/**
+ * We can scan the components the easy way or the hard way, this is the easy way
+ * All sub application modules need to start with the application dns reverse names, and we will be fine
+ */
+@SpringBootApplication(scanBasePackages = "com.github.mangila.fibonacci")
 public class SchedulerApplication {
+
 
     public static void main(String[] args) {
         SpringApplication.run(SchedulerApplication.class, args);
@@ -19,7 +24,6 @@ public class SchedulerApplication {
     @EventListener
     public void onApplicationEvent(ApplicationReadyEvent event) {
         ConfigurableEnvironment env = (ConfigurableEnvironment) event.getApplicationContext().getEnvironment();
-
         System.out.println("========= ALL RESOLVED PROPERTIES =========");
 
         TreeMap<String, Object> props = new TreeMap<>();

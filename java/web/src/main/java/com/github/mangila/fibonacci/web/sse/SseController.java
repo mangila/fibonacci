@@ -1,12 +1,10 @@
 package com.github.mangila.fibonacci.web.sse;
 
-import com.github.mangila.fibonacci.core.entity.FibonacciEntity;
-import com.github.mangila.fibonacci.web.repository.FibonacciRepository;
-import com.github.mangila.fibonacci.web.sse.model.SseFibonacciQuery;
-import com.github.mangila.fibonacci.web.sse.model.SseFibonacciStreamQuery;
+import com.github.mangila.fibonacci.postgres.PostgresRepository;
+import com.github.mangila.fibonacci.web.dto.*;
 import com.github.mangila.fibonacci.web.sse.model.SseSession;
-import com.github.mangila.fibonacci.web.sse.model.SseSubscription;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Adapted for microsoft-sse-fetcher client
@@ -31,16 +28,20 @@ public class SseController {
     private static final Logger log = LoggerFactory.getLogger(SseController.class);
 
     private final SimpleAsyncTaskExecutor ioAsyncTaskExecutor;
-    private final FibonacciRepository repository;
+    private final FibonacciDtoMapper mapper;
+    private final PostgresRepository repository;
     private final SseEmitterRegistry emitterRegistry;
 
     public SseController(SimpleAsyncTaskExecutor ioAsyncTaskExecutor,
-                         FibonacciRepository repository,
+                         FibonacciDtoMapper mapper,
+                         PostgresRepository repository,
                          SseEmitterRegistry emitterRegistry) {
         this.ioAsyncTaskExecutor = ioAsyncTaskExecutor;
+        this.mapper = mapper;
         this.repository = repository;
         this.emitterRegistry = emitterRegistry;
     }
+
 
     @GetMapping("favicon.ico")
     @ResponseBody
@@ -48,9 +49,10 @@ public class SseController {
         // do nothing
     }
 
-    @PostMapping
-    public ResponseEntity<SseEmitter> sseSubscribe(@Valid @RequestBody SseSubscription subscription) {
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SseEmitter> sseSubscribe(@RequestBody @NotNull @Valid SseSubscription subscription) {
         SseSession session = emitterRegistry.subscribe(subscription);
+        log.info("New session: {}", session);
         return ResponseEntity.ok()
                 .header("Cache-Control", "no-cache, no-store, must-revalidate")
                 // nginx buffer stuffs
@@ -59,34 +61,24 @@ public class SseController {
                 .body(session.emitter());
     }
 
-    @PostMapping("/id")
+    @PostMapping(value = "/id", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void sseQueryById(@RequestBody @Valid SseFibonacciQuery query) {
+    public void sseQueryById(@RequestBody @NotNull @Valid SseFibonacciQuery query) {
         SseSession session = emitterRegistry.getSession(query.subscription());
-        FibonacciEntity entity = repository.queryById(query.id()).orElseThrow();
+        FibonacciDto dto = repository.queryById(query.id())
+                .map(mapper::map)
+                .orElseThrow();
         try {
-            session.send("id", String.valueOf(entity.sequence()), entity);
+            session.send("id", dto.sequence(), dto);
         } catch (IOException e) {
             session.completeWithError(e);
         }
     }
 
-    @PostMapping("/stream")
+    @PostMapping(value = "/stream", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void sseQueryForList(@Valid SseFibonacciStreamQuery query) {
+    public void sseQueryForList(@RequestBody @NotNull @Valid SseFibonacciStreamQuery query) {
         SseSession session = emitterRegistry.getSession(query.subscription());
-        ioAsyncTaskExecutor.submitCompletable(() -> {
-            repository.streamForList(query.offset(), query.limit(), stream -> {
-                stream.forEach(projection -> {
-                    try {
-                        session.send("stream", String.valueOf(projection.sequence()), projection);
-                        TimeUnit.MILLISECONDS.sleep(query.delayInMillis());
-                    } catch (IOException | InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        session.completeWithError(e);
-                    }
-                });
-            });
-        });
+        ioAsyncTaskExecutor.submitCompletable(new FibonacciStreamTask(ioAsyncTaskExecutor, mapper, repository, query, session));
     }
 }

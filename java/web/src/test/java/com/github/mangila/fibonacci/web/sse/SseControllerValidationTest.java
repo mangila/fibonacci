@@ -1,7 +1,7 @@
 package com.github.mangila.fibonacci.web.sse;
 
 import com.github.mangila.fibonacci.web.repository.FibonacciRepository;
-import com.github.mangila.fibonacci.web.sse.model.SseSubscription;
+import com.github.mangila.fibonacci.web.dto.SseSubscription;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

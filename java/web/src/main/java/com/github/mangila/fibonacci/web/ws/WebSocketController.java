@@ -2,7 +2,7 @@ package com.github.mangila.fibonacci.web.ws;
 
 import com.github.mangila.fibonacci.core.entity.FibonacciEntity;
 import com.github.mangila.fibonacci.web.repository.FibonacciRepository;
-import com.github.mangila.fibonacci.web.ws.model.WsFibonacciStreamQuery;
+import com.github.mangila.fibonacci.web.dto.WsFibonacciStreamQuery;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

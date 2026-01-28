@@ -1,0 +1,14 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import DatasourceMenu from "../_components/DatasourceMenu.astro";
+import { SseComponent } from "./_components/SseComponent";
+
+const channel = "mangila-sse-channel";
+---
+
+<Layout>
+  <div class="prose mx-auto text-center mt-4">
+    <DatasourceMenu title="SSE" />
+  </div>
+  <SseComponent client:load channel={channel} />
+</Layout>

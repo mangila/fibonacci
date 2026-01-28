@@ -1,89 +1,82 @@
 package com.github.mangila.fibonacci.scheduler.jobrunr;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.scheduler.model.FibonacciComputeCommand;
-import com.github.mangila.fibonacci.scheduler.model.FibonacciResult;
-import com.github.mangila.fibonacci.scheduler.properties.ComputeProperties;
-import com.github.mangila.fibonacci.scheduler.repository.FibonacciRepository;
-import com.github.mangila.fibonacci.scheduler.task.FibonacciComputeTask;
-import io.github.mangila.ensure4j.Ensure;
-import jakarta.annotation.PostConstruct;
-import org.jobrunr.jobs.annotations.Job;
+import com.github.mangila.fibonacci.redis.RedisRepository;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
-import org.jobrunr.scheduling.JobScheduler;
+import org.jobrunr.scheduling.JobRequestScheduler;
+import org.jobrunr.scheduling.cron.Cron;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.UUID;
 
+import static org.jobrunr.scheduling.JobBuilder.aJob;
+
+/**
+ * Schedules the Fibonacci computation job using JobRunr.
+ */
 @Service
-public class JobRunrScheduler {
+public class JobRunrScheduler implements Runnable {
 
     private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(JobRunrScheduler.class));
 
-    private final ThreadPoolTaskExecutor computeAsyncTaskExecutor;
-    private final JobScheduler jobScheduler;
-    private final FibonacciRepository repository;
-    private final SequenceCache sequenceCache;
-    private final ComputeProperties computeProperties;
+    private final static List<String> DEFAULT_LABELS = List.of("fibonacci", "compute");
 
-    public JobRunrScheduler(ThreadPoolTaskExecutor computeAsyncTaskExecutor,
-                            JobScheduler jobScheduler,
-                            FibonacciRepository repository,
-                            SequenceCache sequenceCache,
-                            ComputeProperties computeProperties) {
-        this.computeAsyncTaskExecutor = computeAsyncTaskExecutor;
-        this.jobScheduler = jobScheduler;
-        this.repository = repository;
-        this.sequenceCache = sequenceCache;
-        this.computeProperties = computeProperties;
+    private volatile boolean running = false;
+
+    private final JobRequestScheduler jobRequestScheduler;
+    private final RedisRepository redisRepository;
+
+    public JobRunrScheduler(JobRequestScheduler jobRequestScheduler,
+                            RedisRepository redisRepository) {
+        this.jobRequestScheduler = jobRequestScheduler;
+        this.redisRepository = redisRepository;
     }
 
-    @PostConstruct
-    void warmUpCache() {
-        log.info("Warming up sequence cache");
-        repository.streamSequences(computeProperties.getMax(),
-                stream -> stream.forEach(sequenceCache::put));
+    /**
+     * Event listener for the ApplicationReadyEvent.
+     * Creates a recurring job to compute Fibonacci numbers and try to reserve a redis bloom filter.
+     */
+    @EventListener
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        log.info("Create recurring job");
+        jobRequestScheduler.scheduleRecurrently(
+                Cron.every15seconds(),
+                new InsertRedisStreamJobRequest(50)
+        );
+        log.info("Try reserve bloom filter");
+        redisRepository.tryReserveBloomFilter();
     }
 
-    public void scheduleFibonacciCalculations(FibonacciComputeCommand command) {
-        Ensure.notNull(command);
-        final int start = command.start();
-        final int end = command.end();
-        final FibonacciAlgorithm algorithm = command.algorithm();
-        Ensure.isTrue(computeProperties.getMax() >= end, "End sequence must be within the configured max limit");
-        Stream<Integer> sequenceStream = IntStream.range(start, end)
-                // this could cause a race condition, but it's ok
-                .filter(sequenceCache::tryCompute)
-                .peek(sequence -> log.info("Scheduling Fibonacci computation for sequence {}", sequence))
-                .boxed();
-        jobScheduler.enqueue(sequenceStream, (sequence) -> computeFibonacci(algorithm, sequence));
+    /**
+     * Block until an entry is available in the redis queue
+     * and then enqueues a new computation JobRun job.
+     */
+    @Override
+    public void run() {
+        running = true;
+        redisRepository.longBlockingOperation(jedis -> {
+            //  var params = jedis.blpop(30, RedisConfig.SEQUENCE_QUEUE_KEY);
+            final int sequence = 1;
+            final FibonacciAlgorithm algorithm = FibonacciAlgorithm.RECURSIVE;
+            jobRequestScheduler.create(aJob()
+                    .withId(UUID.randomUUID())
+                    .withName("Fibonacci Calculation for sequence: (%s)")
+                    .withAmountOfRetries(3)
+                    .withLabels(DEFAULT_LABELS)
+                    .withJobRequest(new FibonacciComputeJobRequest(sequence, algorithm)));
+        });
     }
 
-    @Job(name = "Fibonacci job for number %1", retries = 3, labels = "fibonacci")
-    public void computeFibonacci(FibonacciAlgorithm algorithm, int sequence) {
-        Ensure.notNull(algorithm);
-        Ensure.positive(sequence);
-        CompletableFuture<FibonacciResult> future = null;
-        try {
-            future = computeAsyncTaskExecutor.submitCompletable(new FibonacciComputeTask(algorithm, sequence))
-                    .orTimeout(3, TimeUnit.MINUTES);
-            FibonacciResult result = future.join();
-            repository.insert(result);
-            sequenceCache.put(sequence);
-        } catch (Exception e) {
-            log.error("Error while computing sequence {}", sequence, e);
-            if (future != null) {
-                future.cancel(true);
-            }
-            throw e;
-        } finally {
-            sequenceCache.release(sequence);
-        }
+    public void stop() {
+        running = false;
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 }

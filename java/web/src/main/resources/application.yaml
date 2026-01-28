@@ -34,12 +34,9 @@ spring:
     validate-on-migrate: true
     clean-disabled: true
     output-query-results: true
-    user: postgres
-    password: postgres
+    fail-on-missing-locations: true
     locations:
-      - filesystem:java/flyway/{vendor}
-      # Test location
-      - filesystem:../../java/flyway/{vendor}
+      - classpath:db/migration
     postgresql:
       transactional-lock: true
   docker:
@@ -48,6 +45,13 @@ spring:
         in-tests: true
       enabled: false
       file: ${user.dir}/java/docker-compose-dev.yaml
+jobrunr:
+  dashboard:
+    enabled: true
+  background-job-server:
+    enabled: false
+  job-scheduler:
+    enabled: false
 # Server
 server:
   http2:

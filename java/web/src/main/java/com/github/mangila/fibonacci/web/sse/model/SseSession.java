@@ -9,15 +9,14 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Set;
 
-public record SseSession(String channel, String streamKey, SseEmitter emitter) {
+public record SseSession(SseContext context, SseEmitter emitter) {
 
     private static final Set<ResponseBodyEmitter.DataWithMediaType> HEART_BEAT_MESSAGE = SseEmitter.event()
             .comment("heartbeat")
             .build();
 
     public SseSession {
-        Ensure.notBlank(channel);
-        Ensure.notBlank(streamKey);
+        Ensure.notNull(context);
         Ensure.notNull(emitter);
     }
 
@@ -27,8 +26,8 @@ public record SseSession(String channel, String streamKey, SseEmitter emitter) {
                 .name(eventName)
                 .data(payload, MediaType.APPLICATION_JSON)
                 .reconnectTime(Duration.ofSeconds(5).toMillis())
-                .comment(channel)
-                .comment(streamKey)
+                .comment(context().streamKey())
+                .comment(context().channel())
                 .build();
         emitter.send(event);
     }
