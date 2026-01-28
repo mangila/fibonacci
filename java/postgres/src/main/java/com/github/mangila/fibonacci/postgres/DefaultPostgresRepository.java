@@ -64,6 +64,9 @@ public class DefaultPostgresRepository implements PostgresRepository {
                 LIMIT :limit
                 FOR UPDATE SKIP LOCKED;
                 """;
+        //  FOR UPDATE SKIP LOCKED is a Postgres specific feature that locks the rows,
+        //  if another "worker" is trying to lock the same rows,
+        //  it will skip them and move to the next row.
         var stmt = jdbcClient.sql(sql)
                 .param("limit", limit)
                 .withFetchSize(100)
@@ -110,24 +113,5 @@ public class DefaultPostgresRepository implements PostgresRepository {
                 .param("sequence", sequence)
                 .param("sentToStream", sentToStream)
                 .update();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public void streamSequences(int max, Consumer<Stream<Integer>> consumer) {
-        Ensure.positive(max);
-        Ensure.notNull(consumer);
-        final String sql = """
-                SELECT sequence FROM fibonacci_results
-                ORDER BY sequence
-                LIMIT :max
-                """;
-        var stmt = jdbcClient.sql(sql)
-                .param("max", max)
-                .withFetchSize(100)
-                .query(Integer.class);
-        try (var stream = stmt.stream()) {
-            consumer.accept(stream);
-        }
     }
 }

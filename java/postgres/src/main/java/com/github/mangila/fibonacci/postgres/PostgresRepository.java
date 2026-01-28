@@ -16,6 +16,4 @@ public interface PostgresRepository {
     Optional<FibonacciProjection> insert(int sequence, BigDecimal result, int precision);
 
     void upsertMetadata(int sequence, boolean sentToStream);
-
-    void streamSequences(int max, Consumer<Stream<Integer>> consumer);
 }
