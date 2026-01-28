@@ -29,6 +29,15 @@ public class FibonacciComputeHandler implements JobRequestHandler<FibonacciCompu
         this.transactionTemplate = transactionTemplate;
     }
 
+    /**
+     * Spawns a platform thread to run the heavy fibonacci computation.
+     * Then proceed to insert the result to Postgres.
+     * If the value is already present in Postgres it has already been computed,
+     * OR
+     * the Bloom filter missed it with its false positive rate,
+     * OR
+     * we have a race condition somewhere.
+     */
     @Override
     public void run(FibonacciComputeJobRequest jobRequest) {
         final var algorithm = jobRequest.algorithm();

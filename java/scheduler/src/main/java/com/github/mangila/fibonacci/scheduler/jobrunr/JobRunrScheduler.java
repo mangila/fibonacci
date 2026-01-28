@@ -53,7 +53,7 @@ public class JobRunrScheduler implements Runnable {
     }
 
     /**
-     * Block until a entry is available in the redis queue
+     * Block until an entry is available in the redis queue
      * and then enqueues a new computation JobRun job.
      */
     @Override
