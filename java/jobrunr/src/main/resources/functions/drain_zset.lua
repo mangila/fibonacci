@@ -5,7 +5,6 @@
 -- keys[3]: sequence_key
 -- args[1]: current_sequence (the sequence to process)
 
--- MAIN EXPOSED FUNCTION: This is what Jedis calls
 local function drain_zset(keys, args)
     local zset_key = keys[1]
     local stream_key = keys[2]
