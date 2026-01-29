@@ -54,7 +54,7 @@ public class JobRunrScheduler implements Runnable {
     }
 
     /**
-     * Maintains a long lived connection to Redis and listens for new entries.
+     * Maintains a long-lived connection to Redis and listens for new entries.
      * And then enqueues a new computation JobRun job.
      */
     @Override

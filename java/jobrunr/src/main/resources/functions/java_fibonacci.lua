@@ -1,15 +1,29 @@
-#!lua name=drainer_lib
+#!lua name=java_fibonacci_lib
+
+-- keys[1]: zset_key
+-- keys[2]: bloom_filter_key
+-- args[1]: sequence
+
+-- Adds to zset and updates the bloom filter
+local function add_zset(keys, args)
+    return "OK"
+end
 
 -- keys[1]: zset_key
 -- keys[2]: stream_key
 -- keys[3]: sequence_key
--- args[1]: current_sequence (the sequence to process)
 
+-- Checks the current "pointer" to drain from and add to Redis stream
 local function drain_zset(keys, args)
     local zset_key = keys[1]
     local stream_key = keys[2]
     local sequence_key = keys[3]
-    local current_sequence = args[1]
+
+    local current_sequence = redis.call('GET', sequence_key)
+
+    if not current_sequence then
+         return { err = "ERR" }
+        end
 
     -- 1. Get the current head
     local entries = redis.call('ZRANGE', zset_key, 0, 0, 'WITHSCORES')
@@ -39,5 +53,6 @@ local function drain_zset(keys, args)
     return "OK"
 end
 
--- Register the function
+-- Register the functions
+redis.register_function('add_zset', add_zset)
 redis.register_function('drain_zset', drain_zset)
