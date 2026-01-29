@@ -5,7 +5,7 @@ Distributed computing Fibonacci sequence generator created in Java.
 #### Drawbacks with a Distributed workflow
 
 - Operational complexity.
-- Ordering of the sequence. Since it needs to be put in the stream in the same order as the Fibonacci sequence.
+- Stream timeline synchronization. Ensuring that the stream maintains the correct order of Fibonacci sequences is crucial for accurate results.
 - Latency and partial failure.
 - Race conditions.
 

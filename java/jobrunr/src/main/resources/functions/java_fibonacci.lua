@@ -23,7 +23,7 @@ local function drain_zset(keys, args)
 
     if not current_sequence then
          return { err = "ERR" }
-        end
+    end
 
     -- 1. Get the current head
     local entries = redis.call('ZRANGE', zset_key, 0, 0, 'WITHSCORES')
