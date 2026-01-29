@@ -1,13 +1,4 @@
-#!lua name=java_fibonacci_lib
-
--- keys[1]: zset_key
--- keys[2]: bloom_filter_key
--- args[1]: sequence
-
--- Adds to zset and updates the bloom filter
-local function add_zset(keys, args)
-    return "OK"
-end
+#!lua name=drain_zset_lib
 
 -- keys[1]: zset_key
 -- keys[2]: stream_key
@@ -17,12 +8,12 @@ end
 local function drain_zset(keys, args)
     local zset_key = keys[1]
     local stream_key = keys[2]
-    local sequence_key = keys[3]
+    local value_key = keys[3]
 
-    local current_sequence = redis.call('GET', sequence_key)
+    local current_sequence = redis.call('GET', value_key)
 
     if not current_sequence then
-         return { err = "ERR" }
+         return { err = "VALUE_EMPTY" }
     end
 
     -- 1. Get the current head
@@ -47,12 +38,11 @@ local function drain_zset(keys, args)
     -- 5. Remove from ZSET
     redis.call('ZREM', zset_key, tostring(current_member))
 
-    -- 6. Increment for new function call
-    redis.call('INCR', sequence_key)
+    -- 6. Increment for the next function call
+    redis.call('INCR', value_key)
 
     return "OK"
 end
 
 -- Register the functions
-redis.register_function('add_zset', add_zset)
 redis.register_function('drain_zset', drain_zset)

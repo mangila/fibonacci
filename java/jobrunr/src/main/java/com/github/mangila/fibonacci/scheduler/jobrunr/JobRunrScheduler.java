@@ -2,11 +2,12 @@ package com.github.mangila.fibonacci.scheduler.jobrunr;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.core.FibonacciComputeRequest;
-import com.github.mangila.fibonacci.redis.RedisConfig;
+import com.github.mangila.fibonacci.redis.RedisKey;
 import org.jobrunr.scheduling.JobRequestScheduler;
 import org.jobrunr.scheduling.cron.Cron;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -17,6 +18,7 @@ import tools.jackson.databind.json.JsonMapper;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static org.jobrunr.scheduling.JobBuilder.aJob;
@@ -32,13 +34,16 @@ public class JobRunrScheduler implements Runnable {
     private static final List<String> DEFAULT_LABELS = List.of("fibonacci", "compute");
 
     private volatile boolean running = false;
+    private final RedisKey queueKey;
     private final JsonMapper jsonMapper;
     private final JedisConnectionFactory jedisConnectionFactory;
     private final JobRequestScheduler jobRequestScheduler;
 
-    public JobRunrScheduler(JsonMapper jsonMapper,
+    public JobRunrScheduler(@Qualifier("queueKey") RedisKey queueKey,
+                            JsonMapper jsonMapper,
                             JedisConnectionFactory jedisConnectionFactory,
                             JobRequestScheduler jobRequestScheduler) {
+        this.queueKey = queueKey;
         this.jsonMapper = jsonMapper;
         this.jedisConnectionFactory = jedisConnectionFactory;
         this.jobRequestScheduler = jobRequestScheduler;
@@ -46,7 +51,7 @@ public class JobRunrScheduler implements Runnable {
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationEvent() {
-        log.info("Create recurring job");
+        log.info("Create recurring job: InsertRedisZsetJobRequest");
         jobRequestScheduler.scheduleRecurrently(
                 Cron.every15seconds(),
                 new InsertRedisZsetJobRequest(50)
@@ -63,7 +68,7 @@ public class JobRunrScheduler implements Runnable {
         while (!Thread.currentThread().isInterrupted()) {
             try (Jedis jedis = (Jedis) jedisConnectionFactory.getConnection().getNativeConnection()) {
                 while (true) {
-                    List<String> pop = jedis.blpop(30, RedisConfig.QUEUE_KEY);
+                    List<String> pop = jedis.blpop(30, queueKey.value());
                     if (canEnqueue(pop)) {
                         log.info("Received message: {}", pop);
                         String data = pop.get(1);
@@ -72,7 +77,7 @@ public class JobRunrScheduler implements Runnable {
                         final FibonacciAlgorithm algorithm = request.algorithm();
                         log.info("Enqueue job for sequence: {}", sequence);
                         jobRequestScheduler.create(aJob()
-                                .scheduleIn(Duration.ofSeconds(1))
+                                .scheduleIn(Duration.ofSeconds(ThreadLocalRandom.current().nextInt(1, 10)))
                                 .withId(UUID.randomUUID())
                                 .withName("Fibonacci Calculation for sequence: (%s)")
                                 .withAmountOfRetries(3)

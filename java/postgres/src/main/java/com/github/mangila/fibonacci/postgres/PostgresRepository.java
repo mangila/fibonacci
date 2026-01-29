@@ -46,14 +46,14 @@ public class PostgresRepository {
                 .optional();
     }
 
-    public void streamMetadataLocked(int limit, Consumer<Stream<Integer>> consumer) {
+    public void streamMetadataIdWhereNotSentToZsetLocked(int limit, Consumer<Stream<Integer>> consumer) {
         Ensure.positive(limit);
         Ensure.notNull(consumer);
         // language=PostgreSQL
         final String sql = """
                 SELECT id
                 FROM fibonacci_metadata
-                WHERE sent_to_stream = false
+                WHERE sent_to_zset = false
                 ORDER BY id
                 LIMIT :limit
                 FOR UPDATE SKIP LOCKED;
@@ -90,19 +90,21 @@ public class PostgresRepository {
                 .optional();
     }
 
-    public void upsertMetadata(int sequence, boolean sentToStream) {
+    public void upsertMetadata(int sequence, boolean sentToZset, boolean sentToStream) {
         Ensure.positive(sequence);
         final String sql = """
                 INSERT INTO fibonacci_metadata
-                (id, sent_to_stream)
-                VALUES (:sequence, :sentToStream)
+                (id, sent_to_zset, sent_to_stream)
+                VALUES (:sequence,:sentToZset, :sentToStream)
                 ON CONFLICT (id)
                 DO UPDATE SET
+                    sent_to_zset = EXCLUDED.sent_to_zset,
                     sent_to_stream = EXCLUDED.sent_to_stream,
                     updated_at = now();
                 """;
         jdbcClient.sql(sql)
                 .param("sequence", sequence)
+                .param("sentToZset", sentToZset)
                 .param("sentToStream", sentToStream)
                 .update();
     }

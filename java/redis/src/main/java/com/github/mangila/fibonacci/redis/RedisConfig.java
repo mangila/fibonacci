@@ -1,5 +1,7 @@
 package com.github.mangila.fibonacci.redis;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -9,15 +11,46 @@ import redis.clients.jedis.UnifiedJedis;
 @Configuration
 public class RedisConfig {
 
-    public static final String STREAM_KEY = "fibonacci::stream";
-    public static final String QUEUE_KEY = "fibonacci::queue";
-    public static final String ZSET_KEY = "fibonacci::zset";
-    public static final String VALUE_KEY = "fibonacci::value";
-    public static final String BLOOM_FILTER_KEY = "fibonacci::bloom";
-    public static final String FUNCTION_NAME = "drain_zset";
+    private static final Logger log = LoggerFactory.getLogger(RedisConfig.class);
 
     @Bean
     UnifiedJedis unifiedJedis(JedisConnectionFactory jedisConnectionFactory) {
         return new JedisPooled(jedisConnectionFactory.getHostName(), jedisConnectionFactory.getPort());
     }
+
+    @Bean
+    RedisKey streamKey() {
+        return new RedisKey("fibonacci:stream");
+    }
+
+    @Bean
+    RedisKey queueKey() {
+        return new RedisKey("fibonacci:queue");
+    }
+
+    @Bean
+    RedisKey zsetKey() {
+        return new RedisKey("fibonacci:zset");
+    }
+
+    @Bean
+    RedisKey valueKey() {
+        return new RedisKey("fibonacci:value");
+    }
+
+    @Bean
+    RedisKey bloomFilterKey() {
+        return new RedisKey("fibonacci:bloom");
+    }
+
+    @Bean
+    FunctionName drainZset() {
+        return new FunctionName("drain_zset");
+    }
+
+    @Bean
+    FunctionName addZset() {
+        return new FunctionName("add_zset");
+    }
+
 }

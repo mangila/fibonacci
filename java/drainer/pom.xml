@@ -17,4 +17,33 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <!-- START: Application source management dependencies -->
+        <dependency>
+            <groupId>io.github.mangila</groupId>
+            <artifactId>ensure4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.mangila.fibonacci</groupId>
+            <artifactId>shared</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.mangila.fibonacci</groupId>
+            <artifactId>postgres</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.mangila.fibonacci</groupId>
+            <artifactId>redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jobrunr</groupId>
+            <artifactId>jobrunr-spring-boot-4-starter</artifactId>
+        </dependency>
+        <!-- START: Spring source management dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

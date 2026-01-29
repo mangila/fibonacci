@@ -59,7 +59,9 @@ public class FibonacciComputeHandler implements JobRequestHandler<FibonacciCompu
         var write = transactionTemplate.execute(_ -> {
             var insert = postgresRepository.insert(result.sequence(), result.result(), result.precision());
             if (insert.isPresent()) {
-                postgresRepository.upsertMetadata(result.sequence(), false);
+                postgresRepository.upsertMetadata(result.sequence(),
+                        false,
+                        false);
                 return true;
             }
             return false;
