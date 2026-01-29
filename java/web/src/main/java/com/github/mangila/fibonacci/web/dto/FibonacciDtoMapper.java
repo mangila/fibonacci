@@ -1,7 +1,7 @@
 package com.github.mangila.fibonacci.web.dto;
 
-import com.github.mangila.fibonacci.core.entity.FibonacciEntity;
-import com.github.mangila.fibonacci.core.entity.FibonacciProjection;
+import com.github.mangila.fibonacci.postgres.FibonacciEntity;
+import com.github.mangila.fibonacci.postgres.FibonacciProjection;
 import io.github.mangila.ensure4j.Ensure;
 import org.springframework.stereotype.Component;
 

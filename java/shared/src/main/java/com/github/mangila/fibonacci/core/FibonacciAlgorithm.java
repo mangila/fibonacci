@@ -7,11 +7,11 @@ public enum FibonacciAlgorithm {
     ITERATIVE,
     FAST_DOUBLING;
 
-    public boolean isSuitable(int offset) {
-        Ensure.positive(offset);
+    public boolean isSuitable(int sequence) {
+        Ensure.positive(sequence);
         return switch (this) {
-            case RECURSIVE -> offset <= 30;
-            case ITERATIVE -> offset <= 100_000;
+            case RECURSIVE -> sequence <= 30;
+            case ITERATIVE -> sequence <= 100_000;
             case FAST_DOUBLING -> true;
         };
     }

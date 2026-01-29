@@ -1,31 +1,22 @@
-# Application
-app:
-  sse:
-    heartbeat:
-      enabled: true
-      interval: 10s
-    cleanup-period: 10m
 # Spring
 spring:
   application:
-    name: fibonacci-java-web
+    name: fibonacci-java-jobrunr
   main:
-    web-application-type: servlet
-  web:
-    resources:
-      add-mappings: false
+    web-application-type: none
+    keep-alive: true
+  threads:
+    virtual:
+      enabled: true
   datasource:
     url: jdbc:postgresql://localhost:5432/fibonacci
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
     hikari:
-      pool-name: fibonacci-java-spring-hikari
+      pool-name: ${spring.application.name}
       maximum-pool-size: 10
       connection-test-query: "SELECT 1"
-  sql:
-    init:
-      mode: never
   flyway:
     enabled: true
     baseline-on-migrate: true
@@ -45,27 +36,29 @@ spring:
         in-tests: true
       enabled: false
       file: ${user.dir}/java/docker-compose-dev.yaml
-      stop:
-        command: down
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      client-name: ${spring.application.name}
+      jedis:
+        pool:
+          enabled: true
+# JobRunr
 jobrunr:
-  dashboard:
+  job-scheduler:
     enabled: true
   background-job-server:
-    enabled: false
-  job-scheduler:
-    enabled: false
-  database:
-    table-prefix: fibonacci_
-# Server
-server:
-  http2:
+    thread-type: virtualthreads
     enabled: true
-# Actuator
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health
+    poll-interval-in-seconds: 15
+    name: ${spring.application.name}
+    delete-succeeded-jobs-after: 36h
+    permanently-delete-deleted-jobs-after: 72h
+    succeeded-jobs-request-size: 5000
+  database:
+    skip-create: false
+    table-prefix: fibonacci_
 # Logging
 logging:
   level:
@@ -75,12 +68,3 @@ logging:
     com.github.mangila.fibonacci.scheduler.repository: INFO
     com.github.mangila.fibonacci.scheduler.scheduler: INFO
     com.github.mangila.fibonacci.scheduler.task: INFO
-# SpringDoc
-springdoc:
-  api-docs:
-    enabled: false
-  swagger-ui:
-    enabled: false
-  show-actuator: false
-  cache:
-    disabled: false

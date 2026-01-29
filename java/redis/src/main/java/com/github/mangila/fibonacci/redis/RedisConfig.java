@@ -10,10 +10,11 @@ import redis.clients.jedis.UnifiedJedis;
 public class RedisConfig {
 
     public static final String STREAM_KEY = "fibonacci::stream";
-    public static final String SEQUENCE_QUEUE_KEY = "fibonacci::sequence";
+    public static final String QUEUE_KEY = "fibonacci::queue";
+    public static final String ZSET_KEY = "fibonacci::zset";
+    public static final String VALUE_KEY = "fibonacci::value";
     public static final String BLOOM_FILTER_KEY = "fibonacci::bloom";
-    public static final int BLOOM_FILTER_CAPACITY = 1000000;
-    public static final double BLOOM_FILTER_ERROR_RATE = 0.001;
+    public static final String FUNCTION_NAME = "drain_zset";
 
     @Bean
     UnifiedJedis unifiedJedis(JedisConnectionFactory jedisConnectionFactory) {

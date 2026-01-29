@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.web;
+package com.github.mangila.fibonacci.scheduler;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,16 +10,16 @@ import org.springframework.core.env.EnumerablePropertySource;
 import java.util.TreeMap;
 
 @SpringBootApplication(scanBasePackages = "com.github.mangila.fibonacci")
-public class WebApplication {
+public class SchedulerApplication {
+
 
     public static void main(String[] args) {
-        SpringApplication.run(WebApplication.class, args);
+        SpringApplication.run(SchedulerApplication.class, args);
     }
 
     @EventListener
     public void onApplicationEvent(ApplicationReadyEvent event) {
         ConfigurableEnvironment env = (ConfigurableEnvironment) event.getApplicationContext().getEnvironment();
-
         System.out.println("========= ALL RESOLVED PROPERTIES =========");
 
         TreeMap<String, Object> props = new TreeMap<>();

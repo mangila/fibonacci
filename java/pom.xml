@@ -11,7 +11,7 @@
     <modules>
         <module>web</module>
         <module>shared</module>
-        <module>scheduler</module>
+        <module>jobrunr</module>
         <module>postgres</module>
         <module>redis</module>
         <module>postgres-test</module>
@@ -97,7 +97,7 @@
                     <version>3.5.1</version>
                     <configuration>
                         <from>
-                            <!-- Need an image with wget or curl installed for health checks-->
+                            <!-- Need an image with wget or curl installed for actuator health checks-->
                             <image>eclipse-temurin:25-jre-alpine</image>
                         </from>
                     </configuration>

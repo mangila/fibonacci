@@ -12,6 +12,12 @@
     <artifactId>postgres</artifactId>
 
     <dependencies>
+        <!-- START: Application source management dependencies -->
+        <dependency>
+            <groupId>io.github.mangila</groupId>
+            <artifactId>ensure4j</artifactId>
+        </dependency>
+        <!-- START: Spring source management dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -32,10 +38,7 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.github.mangila</groupId>
-            <artifactId>ensure4j</artifactId>
-        </dependency>
+        <!-- START: Application test management dependencies -->
         <dependency>
             <groupId>com.github.mangila.fibonacci</groupId>
             <artifactId>postgres-test</artifactId>
