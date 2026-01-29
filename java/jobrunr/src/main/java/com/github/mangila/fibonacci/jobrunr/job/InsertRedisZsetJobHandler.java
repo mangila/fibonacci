@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.json.JsonMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -55,6 +56,8 @@ public class InsertRedisZsetJobHandler implements JobRequestHandler<InsertRedisZ
     public void run(InsertRedisZsetJobRequest jobRequest) {
         try {
             postgresRepository.streamMetadataIdWhereNotSentToZsetLocked(jobRequest.limit(), stream -> {
+                var fails = new ArrayList<FailTuple>();
+                var success = new ArrayList<Integer>();
                 stream.forEach(sequence -> {
                     log.info("Adding to redis sorted set (zset): {}", sequence);
                     try {
@@ -67,18 +70,23 @@ public class InsertRedisZsetJobHandler implements JobRequestHandler<InsertRedisZ
                                 List.of(zsetKey, bloomFilterKey),
                                 List.of(score, member)
                         );
-                        postgresRepository.upsertMetadata(sequence,
-                                true,
-                                false);
+                        success.add(sequence);
                     } catch (Exception e) {
-                        log.error("Error while adding to redis sorted set (zset): {}", sequence, e);
+                        fails.add(new FailTuple(sequence, e));
                     }
-                    log.info("Added to redis sorted set (zset): {}", sequence);
                 });
+                log.info("Successfully added {} records to redis sorted set (zset)", success.size());
+                // TODO: batch write update to postgres
+                for (FailTuple failTuple : fails) {
+                    log.error("Error while adding to redis sorted set (zset): {}", failTuple.sequence, failTuple.throwable);
+                }
             });
         } catch (Exception e) {
             log.error("Error while processing stream log request", e);
             throw e; // rollback
         }
+    }
+
+    private record FailTuple(Integer sequence, Throwable throwable) {
     }
 }
