@@ -12,7 +12,9 @@ local function add_zset(keys, args)
     local score = args[1]
     local member = args[2]
 
+    -- 1. Add to zset with the NX flag (only accept unique members)
     redis.call('ZADD', zset_key, 'NX', score, member)
+    -- 2. Update Bloom filter
     redis.call('BF.ADD', bloom_filter_key, score)
 
     return "OK"

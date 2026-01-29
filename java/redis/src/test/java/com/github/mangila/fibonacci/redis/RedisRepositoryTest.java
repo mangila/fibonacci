@@ -56,7 +56,7 @@ class RedisRepositoryTest {
     }
 
     @Test
-    @DisplayName("Tests idempotent addition to Zset using Bloom filter")
+    @DisplayName("Tests idempotent addition to Zset and check Bloom filter")
     void doubleWriteAddZset() {
         String score = "1";
         String member = "member";
@@ -74,6 +74,8 @@ class RedisRepositoryTest {
                 List.of(score, member));
         assertThat(ok).isEqualTo("OK");
         assertThat(repository.existsInBloomFilter(bloomFilterKey, score)).isTrue();
+        long size = jedis.zcard(zsetKey.value());
+        assertThat(size).isEqualTo(1);
     }
 
     @Test
