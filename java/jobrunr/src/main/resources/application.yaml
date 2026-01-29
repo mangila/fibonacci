@@ -63,8 +63,8 @@ jobrunr:
 logging:
   level:
     root: INFO
-    com.github.mangila.fibonacci.scheduler.config: INFO
-    com.github.mangila.fibonacci.scheduler.controller: INFO
-    com.github.mangila.fibonacci.scheduler.repository: INFO
-    com.github.mangila.fibonacci.scheduler.scheduler: INFO
-    com.github.mangila.fibonacci.scheduler.task: INFO
+    com.github.mangila.fibonacci.jobrunr.config: INFO
+    com.github.mangila.fibonacci.jobrunr.job: INFO
+    com.github.mangila.fibonacci.jobrunr.model: INFO
+    com.github.mangila.fibonacci.jobrunr.scheduler: INFO
+    com.github.mangila.fibonacci.jobrunr.task: INFO

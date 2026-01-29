@@ -1,8 +1,8 @@
 package com.github.mangila.fibonacci.scheduler.task;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.scheduler.jobrunr.FibonacciComputeTask;
-import com.github.mangila.fibonacci.scheduler.jobrunr.FibonacciComputeResult;
+import com.github.mangila.fibonacci.jobrunr.task.FibonacciComputeTask;
+import com.github.mangila.fibonacci.jobrunr.model.FibonacciComputeResult;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

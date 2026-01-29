@@ -3,6 +3,7 @@ package com.github.mangila.fibonacci.postgres;
 import io.github.mangila.ensure4j.Ensure;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -46,6 +47,7 @@ public class PostgresRepository {
                 .optional();
     }
 
+    @Transactional
     public void streamMetadataIdWhereNotSentToZsetLocked(int limit, Consumer<Stream<Integer>> consumer) {
         Ensure.positive(limit);
         Ensure.notNull(consumer);

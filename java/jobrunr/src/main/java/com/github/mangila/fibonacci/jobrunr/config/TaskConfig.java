@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.scheduler.config;
+package com.github.mangila.fibonacci.jobrunr.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

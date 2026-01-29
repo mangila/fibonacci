@@ -17,7 +17,6 @@
         <module>postgres-test</module>
         <module>redis-test</module>
         <module>producer</module>
-        <module>drainer</module>
     </modules>
 
     <properties>

@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.scheduler;
+package com.github.mangila.fibonacci.jobrunr;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

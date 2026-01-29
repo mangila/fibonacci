@@ -1,7 +1,10 @@
-package com.github.mangila.fibonacci.scheduler.jobrunr;
+package com.github.mangila.fibonacci.jobrunr.scheduler;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.core.FibonacciComputeRequest;
+import com.github.mangila.fibonacci.jobrunr.job.DrainZsetJobRequest;
+import com.github.mangila.fibonacci.jobrunr.job.FibonacciComputeJobRequest;
+import com.github.mangila.fibonacci.jobrunr.job.InsertRedisZsetJobRequest;
 import com.github.mangila.fibonacci.redis.RedisKey;
 import org.jobrunr.scheduling.JobRequestScheduler;
 import org.jobrunr.scheduling.cron.Cron;
@@ -55,6 +58,11 @@ public class JobRunrScheduler implements Runnable {
         jobRequestScheduler.scheduleRecurrently(
                 Cron.every15seconds(),
                 new InsertRedisZsetJobRequest(50)
+        );
+        log.info("Create recurring job: DrainZsetJobRequest");
+        jobRequestScheduler.scheduleRecurrently(
+                Cron.every15seconds(),
+                new DrainZsetJobRequest(50)
         );
     }
 

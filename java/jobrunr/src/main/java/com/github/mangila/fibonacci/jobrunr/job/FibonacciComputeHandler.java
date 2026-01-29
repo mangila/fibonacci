@@ -1,5 +1,7 @@
-package com.github.mangila.fibonacci.scheduler.jobrunr;
+package com.github.mangila.fibonacci.jobrunr.job;
 
+import com.github.mangila.fibonacci.jobrunr.model.FibonacciComputeResult;
+import com.github.mangila.fibonacci.jobrunr.task.FibonacciComputeTask;
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
 import org.jobrunr.jobs.context.JobContext;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;

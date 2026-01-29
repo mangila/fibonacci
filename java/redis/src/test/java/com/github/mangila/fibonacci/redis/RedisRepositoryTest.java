@@ -79,30 +79,8 @@ class RedisRepositoryTest {
     }
 
     @Test
-    @DisplayName("Confirms VALUE_EMPTY error when draining nonexistent key value pair")
-    void drainZsetFailValueEmpty() {
-        String score = "1";
-        String member = "member";
-        Object ok = repository.functionCall(
-                addZset,
-                List.of(zsetKey, bloomFilterKey),
-                List.of(score, member)
-        );
-        assertThat(ok).isEqualTo("OK");
-        assertThat(repository.existsInBloomFilter(bloomFilterKey, score)).isTrue();
-        assertThatThrownBy(() -> repository.functionCall(
-                drainZset,
-                List.of(zsetKey, streamKey, valueKey),
-                Collections.emptyList()))
-                .isInstanceOf(JedisDataException.class)
-                .hasMessageContaining("VALUE_EMPTY");
-    }
-
-    @Test
     @DisplayName("Confirms ZSET_EMPTY error when draining empty Zset")
     void drainZsetFailZsetEmpty() {
-        var ok = repository.set(valueKey, "1");
-        assertThat(ok).isEqualTo("OK");
         assertThatThrownBy(() -> repository.functionCall(
                 drainZset,
                 List.of(zsetKey, streamKey, valueKey),
@@ -114,8 +92,6 @@ class RedisRepositoryTest {
     @Test
     @DisplayName("Confirms SEQUENCE_MISMATCH error when draining Zset with different sequence value")
     void drainZsetFailSequenceMismatch() {
-        var ok = repository.set(valueKey, "1");
-        assertThat(ok).isEqualTo("OK");
         String score = "2";
         String member = "member";
         var fnOk = repository.functionCall(
@@ -136,8 +112,6 @@ class RedisRepositoryTest {
     @Test
     @DisplayName("Drains Zset and increments VALUE")
     void drainZset() {
-        var ok = repository.set(valueKey, "1");
-        assertThat(ok).isEqualTo("OK");
         String score = "1";
         String member = "member";
         var fnOk = repository.functionCall(
@@ -151,9 +125,9 @@ class RedisRepositoryTest {
                 List.of(zsetKey, streamKey, valueKey),
                 Collections.emptyList());
         assertThat(repository.existsInBloomFilter(bloomFilterKey, score)).isTrue();
-        assertThat(fnOk).isEqualTo("OK");
-        var incr = jedis.get(valueKey.value());
-        assertThat(incr).isEqualTo("2");
+        assertThat(fnOk).isEqualTo("1");
+        var value = jedis.get(valueKey.value());
+        assertThat(value).isEqualTo("2");
         var size = jedis.zcard(zsetKey.value());
         assertThat(size).isEqualTo(0);
         long streamSize = jedis.xlen(streamKey.value());

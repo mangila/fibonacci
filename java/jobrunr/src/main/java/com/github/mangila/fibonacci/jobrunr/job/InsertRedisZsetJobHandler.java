@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.scheduler.jobrunr;
+package com.github.mangila.fibonacci.jobrunr.job;
 
 import com.github.mangila.fibonacci.postgres.FibonacciProjection;
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
@@ -43,10 +42,15 @@ public class InsertRedisZsetJobHandler implements JobRequestHandler<InsertRedisZ
     }
 
     /**
-     * Locks the metadata tables rows from the last inserted sequence to the limit,
-     * then query Postgres for a projection, serialize it to JSON, and invokes the add_zset redis function.
+     * Acquire x-lock on some rows on the "processing table", fetches from the "main table"
+     * does JSON serialization, and invokes the add_zset redis function.
+     * If a failure just continues with the next row.
+     * Redis append to the zset will discard a double writing if the score is the same.
+     * If a bigger failure on the connection level, the transaction will roll back.
+     * <br>
+     * There can be a potential duplicate in the zset, but it will never be processed twice to the stream.
+     * Manual intervention is needed to remove duplicates. (or a cleanup script)
      */
-    @Transactional
     @Override
     public void run(InsertRedisZsetJobRequest jobRequest) {
         try {

@@ -13,7 +13,8 @@ local function drain_zset(keys, args)
     local current_sequence = redis.call('GET', value_key)
 
     if not current_sequence then
-         return { err = "VALUE_EMPTY" }
+         current_sequence = redis.call('INCR', value_key)
+         current_sequence = tostring(current_sequence)
     end
 
     -- 1. Get the current head
@@ -41,7 +42,8 @@ local function drain_zset(keys, args)
     -- 6. Increment for the next function call
     redis.call('INCR', value_key)
 
-    return "OK"
+    -- 7. returns the "pointer" as string
+    return tostring(current_sequence)
 end
 
 -- Register the functions

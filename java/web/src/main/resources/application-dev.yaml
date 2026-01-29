@@ -5,6 +5,9 @@ spring:
   docker:
     compose:
       enabled: true
+      stop:
+        command: down
+      file: ${user.dir}/java/docker-compose-dev.yaml
 # Logging
 logging:
   level:

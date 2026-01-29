@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.scheduler.jobrunr;
+package com.github.mangila.fibonacci.jobrunr.job;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
 import org.jobrunr.jobs.lambdas.JobRequest;

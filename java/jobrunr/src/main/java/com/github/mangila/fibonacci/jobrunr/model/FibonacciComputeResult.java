@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.scheduler.jobrunr;
+package com.github.mangila.fibonacci.jobrunr.model;
 
 import io.github.mangila.ensure4j.Ensure;
 
