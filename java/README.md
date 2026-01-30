@@ -20,8 +20,7 @@ Distributed computing Fibonacci sequence generator created in Java.
 
 #### Process modules
 
-- `producer`: producer component that generates Fibonacci sequences and sends them to the queue. (headless)
-- `jobrunr`: scheduler component that pulls messages, computes fibonacci number and adds to zset and later drains to the Redis stream. (headless)
+- `jobrunr`: jobrunr scheduler service that can act as a producer node, worker node or both. (headless)
 - `web-api`: web api component that exposes the Fibonacci numbers via REST and SSE, uses the Redis stream (web server)
 
 #### Code modules
@@ -39,7 +38,7 @@ graph TD
     subgraph "Backend"
         Web[Web]
         Scheduler[JobRunr]
-        Producer[Producer]
+        Scheduler[JobRunr]
         DB[(PostgreSQL)]
         DB2[(Redis)]
     end
@@ -50,7 +49,6 @@ graph TD
 
     Scheduler <--> DB
     Scheduler <--> DB2
-    Producer <--> DB2
     Web <--> DB
     Web <--> DB2
     Web <--> Client

@@ -1,3 +1,18 @@
+# Application
+app:
+  produce:
+    enabled: true
+    limit: 50
+  consume:
+    enabled: true
+    limit: 50
+  zset:
+    drain:
+      enabled: true
+      limit: 50
+    insert:
+      enabled: true
+      limit: 50
 # Spring
 spring:
   application:
