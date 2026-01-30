@@ -3,18 +3,18 @@ package com.github.mangila.fibonacci.jobrunr.job.producer;
 import com.github.mangila.fibonacci.jobrunr.job.model.FibonacciComputeRequest;
 import com.github.mangila.fibonacci.redis.FunctionName;
 import com.github.mangila.fibonacci.redis.RedisKey;
-import org.jobrunr.jobs.context.JobDashboardProgressBar;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.exceptions.JedisDataException;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
+@ConditionalOnProperty(prefix = "app.produce", name = "enabled", havingValue = "true")
 @Component
 public class FibonacciProduceJobHandler implements JobRequestHandler<FibonacciProduceJobRequest> {
 
@@ -39,9 +39,6 @@ public class FibonacciProduceJobHandler implements JobRequestHandler<FibonacciPr
     @Override
     public void run(FibonacciProduceJobRequest jobRequest) throws Exception {
         final var limit = jobRequest.limit();
-        final var context = jobContext();
-        var progressBar = context.progressBar(limit);
-        List<Object> pipelineResults;
         try (Jedis jedis = (Jedis) jedisConnectionFactory.getConnection().getNativeConnection()) {
             var pipeline = jedis.pipelined();
             for (int i = 1; i < limit; i++) {
@@ -50,27 +47,7 @@ public class FibonacciProduceJobHandler implements JobRequestHandler<FibonacciPr
                 final String json = jsonMapper.writeValueAsString(request);
                 pipeline.fcall(produceSequence.value(), keys, List.of(iteration, json));
             }
-            pipelineResults = pipeline.syncAndReturnAll();
+            pipeline.sync();
         }
-        for (Object result : pipelineResults) {
-            handlePipelineResult(result, progressBar);
-        }
-    }
-
-    private void handlePipelineResult(Object result, JobDashboardProgressBar progressBar) {
-        switch (result) {
-            case String s -> {
-                if (s.startsWith("OK")) {
-                    log.info("{}", result);
-                    progressBar.incrementSucceeded();
-                } else {
-                    log.warn("{}", result);
-                    progressBar.incrementFailed();
-                }
-            }
-            case JedisDataException e -> log.error("{}", e.getMessage(), e);
-            default -> throw new IllegalStateException("Unexpected value: " + result);
-        }
-
     }
 }

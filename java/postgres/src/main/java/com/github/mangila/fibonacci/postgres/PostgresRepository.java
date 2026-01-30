@@ -53,8 +53,14 @@ public class PostgresRepository {
                 .optional();
     }
 
+    /**
+     * FOR UPDATE SKIP LOCKED is a Postgres specific feature that locks the rows,
+     * if another "worker" is trying to lock the same rows,
+     * it will skip them and move to the next row.
+     *
+     */
     @Transactional
-    public void streamMetadataLocked(int limit, Consumer<Stream<Integer>> consumer) {
+    public void streamMetadataWhereSentToZsetIsFalseLocked(int limit, Consumer<Stream<Integer>> consumer) {
         Ensure.positive(limit);
         Ensure.notNull(consumer);
         // language=PostgreSQL
@@ -66,9 +72,6 @@ public class PostgresRepository {
                 LIMIT :limit
                 FOR UPDATE SKIP LOCKED;
                 """;
-        //  FOR UPDATE SKIP LOCKED is a Postgres specific feature that locks the rows,
-        //  if another "worker" is trying to lock the same rows,
-        //  it will skip them and move to the next row.
         var stmt = jdbcClient.sql(sql)
                 .param("limit", limit)
                 .withFetchSize(100)

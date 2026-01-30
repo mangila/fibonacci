@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.redis;
 
 import io.github.mangila.ensure4j.Ensure;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -63,5 +64,18 @@ public class RedisRepository {
     public void flushEverything() {
         flushAll();
         functionFlush();
+    }
+
+    @Nullable
+    public String popQueue(RedisKey key) {
+        return jedis.lpop(key.value());
+    }
+
+    public boolean addBloomFilter(RedisKey key, int sequence) {
+        return jedis.bfAdd(key.value(), String.valueOf(sequence));
+    }
+
+    public boolean checkBloomFilter(RedisKey key, int sequence) {
+        return jedis.bfExists(key.value(), String.valueOf(sequence));
     }
 }

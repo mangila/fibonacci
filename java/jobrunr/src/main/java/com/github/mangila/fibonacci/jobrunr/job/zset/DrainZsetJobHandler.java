@@ -9,6 +9,7 @@ import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+@ConditionalOnProperty(prefix = "app.zset.drain", name = "enabled", havingValue = "true")
 @Component
 public class DrainZsetJobHandler implements JobRequestHandler<DrainZsetJobRequest> {
 
@@ -51,16 +53,16 @@ public class DrainZsetJobHandler implements JobRequestHandler<DrainZsetJobReques
     @Override
     public void run(DrainZsetJobRequest jobRequest) throws Exception {
         final int limit = jobRequest.limit();
-        List<Object> results;
+        List<Object> pipelineResults;
         try (Jedis jedis = (Jedis) jedisConnectionFactory.getConnection().getNativeConnection()) {
             var pipeline = jedis.pipelined();
             for (int i = 0; i < limit; i++) {
                 jedis.fcall(drainZset.value(), keys, Collections.emptyList());
             }
-            results = pipeline.syncAndReturnAll();
+            pipelineResults = pipeline.syncAndReturnAll();
         }
         var success = new ArrayList<FibonacciMetadataProjection>();
-        for (Object result : results) {
+        for (Object result : pipelineResults) {
             var metadata = handleResult(result);
             if (metadata != null) {
                 success.add(metadata);

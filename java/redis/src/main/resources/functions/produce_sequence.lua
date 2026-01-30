@@ -16,11 +16,10 @@ local function produce_sequence(keys, args)
     local exists = redis.call('BF.EXISTS', bloomfilter_key, sequence)
 
     -- 2. check if it exists in the bloom filter
-    -- else then push to queue and update bloom filter
+    -- else then push to queue
     if exists == 1 then
         return "EXISTS: " .. sequence
     else
-        redis.call('BF.ADD', bloomfilter_key, sequence)
         redis.call('RPUSH', queue_key, payload)
         return "OK: " .. sequence
      end

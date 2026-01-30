@@ -54,7 +54,6 @@ public class ApplicationProperties {
         public void setAlgorithm(FibonacciAlgorithm algorithm) {
             this.algorithm = algorithm;
         }
-
     }
 
     public static class Zset {

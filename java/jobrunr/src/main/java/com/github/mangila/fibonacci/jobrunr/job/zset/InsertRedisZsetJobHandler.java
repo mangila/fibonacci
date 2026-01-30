@@ -9,12 +9,14 @@ import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.util.ArrayList;
 
+@ConditionalOnProperty(prefix = "app.zset.insert", name = "enabled", havingValue = "true")
 @Component
 public class InsertRedisZsetJobHandler implements JobRequestHandler<InsertRedisZsetJobRequest> {
 
@@ -38,19 +40,14 @@ public class InsertRedisZsetJobHandler implements JobRequestHandler<InsertRedisZ
     @Override
     public void run(InsertRedisZsetJobRequest jobRequest) {
         try {
-            postgresRepository.streamMetadataLocked(jobRequest.limit(), stream -> {
+            postgresRepository.streamMetadataWhereSentToZsetIsFalseLocked(jobRequest.limit(), stream -> {
                 var success = new ArrayList<FibonacciMetadataProjection>();
                 stream.forEach(sequence -> {
                     try {
                         FibonacciProjection projection = postgresRepository.queryBySequence(sequence)
                                 .orElseThrow();
                         final String member = jsonMapper.writeValueAsString(projection);
-                        log.info("Adding to redis sorted set (zset): {} -> {}", sequence, member);
-                        redisRepository.addZset(
-                                zset,
-                                sequence,
-                                member
-                        );
+                        redisRepository.addZset(zset, sequence, member);
                         success.add(new FibonacciMetadataProjection(sequence,
                                 true,
                                 false));
@@ -60,6 +57,9 @@ public class InsertRedisZsetJobHandler implements JobRequestHandler<InsertRedisZ
                 });
                 if (!CollectionUtils.isEmpty(success)) {
                     postgresRepository.batchUpsertMetadata(success);
+                    log.info("Successfully added {} sequences to redis sorted set (zset)", success.size());
+                } else {
+                    log.info("No sequences added to redis sorted set (zset)");
                 }
             });
         } catch (Exception e) {
