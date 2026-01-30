@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 
 import java.nio.charset.StandardCharsets;
@@ -14,24 +15,31 @@ public class RedisBootstrap {
 
     private static final Logger log = LoggerFactory.getLogger(RedisBootstrap.class);
 
+    private final Environment environment;
     private final RedisRepository redisRepository;
-    private final RedisKey bloomFilterKey;
-    private final Resource addZsetScript;
+    private final RedisKey bloomFilter;
     private final Resource drainZsetScript;
+    private final Resource produceSequenceScript;
 
     public RedisBootstrap(
+            Environment environment,
             RedisRepository redisRepository,
-            RedisKey bloomFilterKey,
+            RedisKey bloomFilter,
             @Value("classpath:/functions/drain_zset.lua") Resource drainZsetScript,
-            @Value("classpath:/functions/add_zset.lua") Resource addZsetScript) {
+            @Value("classpath:/functions/produce_sequence.lua") Resource produceSequenceScript) {
+        this.environment = environment;
         this.redisRepository = redisRepository;
-        this.bloomFilterKey = bloomFilterKey;
-        this.addZsetScript = addZsetScript;
+        this.bloomFilter = bloomFilter;
         this.drainZsetScript = drainZsetScript;
+        this.produceSequenceScript = produceSequenceScript;
     }
 
     @PostConstruct
     void init() {
+        if (environment.matchesProfiles("dev")) {
+            log.warn("Flushing Redis database");
+            redisRepository.flushEverything();
+        }
         log.info("Redis bootstrap started");
         tryInitBloomFilter();
         tryLoadFunctions();
@@ -40,8 +48,8 @@ public class RedisBootstrap {
 
     private void tryInitBloomFilter() {
         try {
-            log.info("Creating bloom filter: {}", bloomFilterKey);
-            var ok = redisRepository.createBloomFilter(bloomFilterKey, 0.001, 100_000);
+            log.info("Creating bloom filter: {}", bloomFilter);
+            var ok = redisRepository.createBloomFilter(bloomFilter, 0.001, 100_000);
             log.info("Bloom filter created: {}", ok);
         } catch (Exception e) {
             log.warn(e.getMessage());
@@ -59,8 +67,8 @@ public class RedisBootstrap {
             log.warn(e.getMessage());
         }
         try {
-            log.info("Loading Lua function: {}", addZsetScript.getFilename());
-            code = addZsetScript.getContentAsString(StandardCharsets.UTF_8);
+            log.info("Loading Lua function: {}", produceSequenceScript.getFilename());
+            code = produceSequenceScript.getContentAsString(StandardCharsets.UTF_8);
             var ok = redisRepository.functionLoad(code);
             log.info("Function loaded: {}", ok);
         } catch (Exception e) {

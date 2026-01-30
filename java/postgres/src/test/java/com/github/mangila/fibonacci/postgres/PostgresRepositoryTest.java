@@ -64,14 +64,14 @@ class PostgresRepositoryTest {
     }
 
     @Test
-    void streamMetadataIdWhereNotSentToZsetLocked() {
+    void streamMetadataLocked() {
         int sequenceId = 1;
         repository.insert(sequenceId, BigDecimal.ONE, 1);
         repository.insert(sequenceId + 1, BigDecimal.ONE, 1);
         repository.upsertMetadata(sequenceId + 1, false, false);
         repository.upsertMetadata(sequenceId, true, true);
         var l = new ArrayList<Integer>();
-        repository.streamMetadataIdWhereNotSentToZsetLocked(10, stream -> {
+        repository.streamMetadataLocked(10, stream -> {
             stream.forEach(l::add);
         });
         assertThat(l).hasSize(1);
@@ -89,10 +89,10 @@ class PostgresRepositoryTest {
         // Acquires lock; streams metadata IDs; adds to list
         var lockingThread = CompletableFuture.supplyAsync(() -> {
             var l = new ArrayList<Integer>();
-            repository.streamMetadataIdWhereNotSentToZsetLocked(10, stream -> {
+            repository.streamMetadataLocked(10, stream -> {
                 stream.forEach(integer -> {
                     try {
-                        TimeUnit.SECONDS.sleep(1000);
+                        TimeUnit.SECONDS.sleep(1);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -107,7 +107,7 @@ class PostgresRepositoryTest {
 
         var skippedLockThread = new ArrayList<Integer>();
         // Acquires new lock; should skip the first streams lock
-        repository.streamMetadataIdWhereNotSentToZsetLocked(10, stream -> {
+        repository.streamMetadataLocked(10, stream -> {
             stream.forEach(skippedLockThread::add);
         });
 

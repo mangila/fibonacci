@@ -1,9 +1,9 @@
 package com.github.mangila.fibonacci.jobrunr.scheduler;
 
-import com.github.mangila.fibonacci.jobrunr.job.DrainZsetJobRequest;
-import com.github.mangila.fibonacci.jobrunr.job.FibonacciConsumeJobRequest;
-import com.github.mangila.fibonacci.jobrunr.job.FibonacciProduceJobRequest;
-import com.github.mangila.fibonacci.jobrunr.job.InsertRedisZsetJobRequest;
+import com.github.mangila.fibonacci.jobrunr.job.consumer.FibonacciConsumeJobRequest;
+import com.github.mangila.fibonacci.jobrunr.job.producer.FibonacciProduceJobRequest;
+import com.github.mangila.fibonacci.jobrunr.job.zset.DrainZsetJobRequest;
+import com.github.mangila.fibonacci.jobrunr.job.zset.InsertRedisZsetJobRequest;
 import com.github.mangila.fibonacci.jobrunr.properties.ApplicationProperties;
 import org.jobrunr.scheduling.JobRequestScheduler;
 import org.jobrunr.scheduling.cron.Cron;
@@ -13,9 +13,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-/**
- * Schedules the Fibonacci computation job using JobRunr.
- */
+import java.time.Duration;
+
 @Service
 public class JobRunrScheduler {
 
@@ -39,7 +38,7 @@ public class JobRunrScheduler {
             log.info("Produce job enabled, starting recurring job: FibonacciProduceJobRequest");
             jobRequestScheduler.scheduleRecurrently(
                     Cron.every15seconds(),
-                    new FibonacciProduceJobRequest(produce.getLimit())
+                    new FibonacciProduceJobRequest(produce.getLimit(), produce.getAlgorithm())
             );
         }
         if (consume.isEnabled()) {

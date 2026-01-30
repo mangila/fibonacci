@@ -2,7 +2,7 @@
 
 -- keys[1]: zset_key
 -- keys[2]: stream_key
--- keys[3]: sequence_key
+-- keys[3]: value_key
 
 -- Checks the current "pointer" to drain from and add to Redis stream
 local function drain_zset(keys, args)
@@ -22,19 +22,19 @@ local function drain_zset(keys, args)
 
     -- 2. If ZSET is empty, stop
     if #entries == 0 then
-        return { err = "ZSET_EMPTY" }
+        return "ZSET_EMPTY"
     end
 
     local current_member = entries[1]
     local current_score = entries[2]
 
     -- 3. The "Sequence Check"
-    if tostring(current_score) ~= current_sequence then
-        return { err = "SEQUENCE_MISMATCH", actual = current_member }
+    if current_score ~= current_sequence then
+        return "SEQUENCE_MISMATCH: " .. current_score .. ":" .. current_sequence
     end
 
     -- 4. Move to Stream
-    redis.call('XADD', stream_key, '*', 'member', current_member)
+    redis.call('XADD', stream_key, current_sequence, 'member', current_member)
 
     -- 5. Remove from ZSET
     redis.call('ZREM', zset_key, tostring(current_member))

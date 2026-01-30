@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.UnifiedJedis;
+import redis.clients.jedis.params.ZAddParams;
 
 import java.util.List;
 
@@ -19,12 +20,6 @@ public class RedisRepository {
         this.jedis = jedis;
     }
 
-    public String set(RedisKey key, String value) {
-        Ensure.notNull(key, "Key must not be null");
-        Ensure.notBlank(value, "Value must not be blank");
-        return jedis.set(key.value(), value);
-    }
-
     public String createBloomFilter(RedisKey key, double errorRate, int capacity) {
         Ensure.notNull(key, "Key must not be null");
         // TODO: ensure with floats
@@ -32,19 +27,19 @@ public class RedisRepository {
         return jedis.bfReserve(key.value(), errorRate, capacity);
     }
 
-    public boolean existsInBloomFilter(RedisKey key, String value) {
+    public long addZset(RedisKey key, int score, String member) {
         Ensure.notNull(key, "Key must not be null");
-        Ensure.notBlank(value, "Value must not be blank");
-        return jedis.bfExists(key.value(), value);
-    }
-
-    public long pushList(RedisKey key, String value) {
-        Ensure.notNull(key, "Key must not be null");
-        Ensure.notBlank(value, "Value must not be blank");
-        return jedis.lpush(key.value(), value);
+        Ensure.positive(score, "Score must be positive");
+        Ensure.notBlank(member, "Member must not be blank");
+        return jedis.zadd(key.value(),
+                score,
+                member,
+                ZAddParams.zAddParams().nx());
     }
 
     public String functionLoad(String code) {
+        // TODO: ensure string start with and end with
+        // Ensure.startsWith("#!lua name=", code);
         Ensure.notBlank(code, "Code must not be blank");
         return jedis.functionLoad(code);
     }
@@ -55,5 +50,18 @@ public class RedisRepository {
         Ensure.notNull(args, "Args must not be null");
         var keysAsString = keys.stream().map(RedisKey::value).toList();
         return jedis.fcall(functionName.value(), keysAsString, args);
+    }
+
+    public void flushAll() {
+        jedis.flushAll();
+    }
+
+    public void functionFlush() {
+        jedis.functionFlush();
+    }
+
+    public void flushEverything() {
+        flushAll();
+        functionFlush();
     }
 }

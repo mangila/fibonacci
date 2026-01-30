@@ -1,15 +1,16 @@
 package com.github.mangila.fibonacci.jobrunr.properties;
 
+import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "app")
 public class ApplicationProperties {
 
-    private final JobConfig produce = new JobConfig();
+    private final ProducerConfig produce = new ProducerConfig();
     private final JobConfig consume = new JobConfig();
     private final Zset zset = new Zset();
 
-    public JobConfig getProduce() {
+    public ProducerConfig getProduce() {
         return produce;
     }
 
@@ -40,6 +41,20 @@ public class ApplicationProperties {
         public void setLimit(int limit) {
             this.limit = limit;
         }
+    }
+
+    public static class ProducerConfig extends JobConfig {
+
+        private FibonacciAlgorithm algorithm = FibonacciAlgorithm.ITERATIVE;
+
+        public FibonacciAlgorithm getAlgorithm() {
+            return algorithm;
+        }
+
+        public void setAlgorithm(FibonacciAlgorithm algorithm) {
+            this.algorithm = algorithm;
+        }
+
     }
 
     public static class Zset {

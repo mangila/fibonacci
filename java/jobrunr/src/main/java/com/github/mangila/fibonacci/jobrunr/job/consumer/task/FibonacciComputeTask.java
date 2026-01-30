@@ -1,8 +1,8 @@
-package com.github.mangila.fibonacci.jobrunr.task;
+package com.github.mangila.fibonacci.jobrunr.job.consumer.task;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.core.FibonacciCalculator;
-import com.github.mangila.fibonacci.jobrunr.model.FibonacciComputeResult;
+import com.github.mangila.fibonacci.jobrunr.job.model.FibonacciComputeResult;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

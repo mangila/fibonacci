@@ -1,11 +1,14 @@
 package com.github.mangila.fibonacci.postgres;
 
 import io.github.mangila.ensure4j.Ensure;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -13,9 +16,12 @@ import java.util.stream.Stream;
 @Repository
 public class PostgresRepository {
 
+    // NamedParameterJdbcTemplate must be used for batch operations
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final JdbcClient jdbcClient;
 
-    public PostgresRepository(JdbcClient jdbcClient) {
+    public PostgresRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, JdbcClient jdbcClient) {
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.jdbcClient = jdbcClient;
     }
 
@@ -48,7 +54,7 @@ public class PostgresRepository {
     }
 
     @Transactional
-    public void streamMetadataIdWhereNotSentToZsetLocked(int limit, Consumer<Stream<Integer>> consumer) {
+    public void streamMetadataLocked(int limit, Consumer<Stream<Integer>> consumer) {
         Ensure.positive(limit);
         Ensure.notNull(consumer);
         // language=PostgreSQL
@@ -92,12 +98,29 @@ public class PostgresRepository {
                 .optional();
     }
 
-    public void upsertMetadata(int sequence, boolean sentToZset, boolean sentToStream) {
-        Ensure.positive(sequence);
+    public void batchUpsertMetadata(List<FibonacciMetadataProjection> metadataProjections) {
+        Ensure.notEmpty(metadataProjections);
+        // language=PostgreSQL
+        final String sql = """
+                INSERT INTO fibonacci_metadata
+                (id,sent_to_zset,sent_to_stream)
+                VALUES (:id, :sentToZset, :sentToStream)
+                ON CONFLICT (id)
+                DO UPDATE SET
+                    sent_to_zset = EXCLUDED.sent_to_zset,
+                    sent_to_stream = EXCLUDED.sent_to_stream,
+                    updated_at = now();
+                """;
+        namedParameterJdbcTemplate.batchUpdate(sql, SqlParameterSourceUtils.createBatch(metadataProjections));
+    }
+
+    public void upsertMetadata(FibonacciMetadataProjection metadataProjection) {
+        Ensure.positive(metadataProjection.id());
+        // language=PostgreSQL
         final String sql = """
                 INSERT INTO fibonacci_metadata
                 (id, sent_to_zset, sent_to_stream)
-                VALUES (:sequence,:sentToZset, :sentToStream)
+                VALUES (:id,:sentToZset, :sentToStream)
                 ON CONFLICT (id)
                 DO UPDATE SET
                     sent_to_zset = EXCLUDED.sent_to_zset,
@@ -105,9 +128,9 @@ public class PostgresRepository {
                     updated_at = now();
                 """;
         jdbcClient.sql(sql)
-                .param("sequence", sequence)
-                .param("sentToZset", sentToZset)
-                .param("sentToStream", sentToStream)
+                .param("id", metadataProjection.id())
+                .param("sentToZset", metadataProjection.sentToZset())
+                .param("sentToStream", metadataProjection.sentToStream())
                 .update();
     }
 }

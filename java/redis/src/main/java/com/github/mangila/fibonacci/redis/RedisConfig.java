@@ -1,56 +1,65 @@
 package com.github.mangila.fibonacci.redis;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import redis.clients.jedis.DefaultJedisClientConfig;
+import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisPooled;
 import redis.clients.jedis.UnifiedJedis;
 
 @Configuration
 public class RedisConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(RedisConfig.class);
-
+    /**
+     * Use with more advanced commands for Redis that Spring template does not provide
+     */
     @Bean
     UnifiedJedis unifiedJedis(JedisConnectionFactory jedisConnectionFactory) {
-        return new JedisPooled(jedisConnectionFactory.getHostName(), jedisConnectionFactory.getPort());
+        RedisStandaloneConfiguration config = jedisConnectionFactory.getStandaloneConfiguration();
+        return new JedisPooled(
+                new HostAndPort(config.getHostName(), config.getPort()),
+                DefaultJedisClientConfig.builder()
+                        .connectionTimeoutMillis(2000)
+                        .socketTimeoutMillis(2000)
+                        .database(config.getDatabase())
+                        .build()
+        );
     }
 
     @Bean
-    RedisKey streamKey() {
+    RedisKey stream() {
         return new RedisKey("fibonacci:stream");
     }
 
     @Bean
-    RedisKey queueKey() {
+    RedisKey queue() {
         return new RedisKey("fibonacci:queue");
     }
 
     @Bean
-    RedisKey zsetKey() {
+    RedisKey zset() {
         return new RedisKey("fibonacci:zset");
     }
 
     @Bean
-    RedisKey valueKey() {
+    RedisKey value() {
         return new RedisKey("fibonacci:value");
     }
 
     @Bean
-    RedisKey bloomFilterKey() {
+    RedisKey bloomFilter() {
         return new RedisKey("fibonacci:bloom");
+    }
+
+    @Bean
+    FunctionName produceSequence() {
+        return new FunctionName("produce_sequence");
     }
 
     @Bean
     FunctionName drainZset() {
         return new FunctionName("drain_zset");
     }
-
-    @Bean
-    FunctionName addZset() {
-        return new FunctionName("add_zset");
-    }
-
 }

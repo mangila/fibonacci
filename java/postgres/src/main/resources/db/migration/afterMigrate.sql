@@ -1,3 +1,4 @@
 -- Sanity checks
 EXPLAIN (ANALYZE, BUFFERS) SELECT id FROM fibonacci_results ORDER BY id LIMIT 1000;
 EXPLAIN (ANALYZE, BUFFERS) SELECT sequence FROM fibonacci_results ORDER BY sequence LIMIT 1000;
+EXPLAIN (ANALYZE, BUFFERS) SELECT id FROM fibonacci_metadata ORDER BY id LIMIT 1000;

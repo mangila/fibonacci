@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.jobrunr.job;
+package com.github.mangila.fibonacci.jobrunr.job.zset;
 
 import org.jobrunr.jobs.lambdas.JobRequest;
 

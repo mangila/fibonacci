@@ -3,6 +3,7 @@ app:
   produce:
     enabled: true
     limit: 50
+    algorithm: iterative
   consume:
     enabled: true
     limit: 50
