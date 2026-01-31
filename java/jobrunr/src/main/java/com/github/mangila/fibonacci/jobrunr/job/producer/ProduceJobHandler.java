@@ -6,30 +6,26 @@ import com.github.mangila.fibonacci.redis.RedisKey;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
-@ConditionalOnProperty(prefix = "app.produce", name = "enabled", havingValue = "true")
-@Component
-public class FibonacciProduceJobHandler implements JobRequestHandler<FibonacciProduceJobRequest> {
+public class ProduceJobHandler implements JobRequestHandler<ProduceJobRequest> {
 
-    private static final Logger log = LoggerFactory.getLogger(FibonacciProduceJobHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(ProduceJobHandler.class);
 
     private final JsonMapper jsonMapper;
     private final JedisConnectionFactory jedisConnectionFactory;
     private final FunctionName produceSequence;
     private final List<String> keys;
 
-    public FibonacciProduceJobHandler(JsonMapper jsonMapper,
-                                      JedisConnectionFactory jedisConnectionFactory,
-                                      FunctionName produceSequence,
-                                      RedisKey bloomFilter,
-                                      RedisKey queue) {
+    public ProduceJobHandler(JsonMapper jsonMapper,
+                             JedisConnectionFactory jedisConnectionFactory,
+                             FunctionName produceSequence,
+                             RedisKey bloomFilter,
+                             RedisKey queue) {
         this.jsonMapper = jsonMapper;
         this.jedisConnectionFactory = jedisConnectionFactory;
         this.produceSequence = produceSequence;
@@ -37,7 +33,7 @@ public class FibonacciProduceJobHandler implements JobRequestHandler<FibonacciPr
     }
 
     @Override
-    public void run(FibonacciProduceJobRequest jobRequest) throws Exception {
+    public void run(ProduceJobRequest jobRequest) throws Exception {
         final var limit = jobRequest.limit();
         try (Jedis jedis = (Jedis) jedisConnectionFactory.getConnection().getNativeConnection()) {
             var pipeline = jedis.pipelined();
