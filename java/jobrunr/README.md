@@ -7,7 +7,39 @@ underlying job processing framework.
 Change config for different modes.
 
 - Producer
-- Conusmer
-- zset
-    - insert
-    - drain
+- Consumer
+- Zset
+    - Insert
+    - Drain
+
+## Arrow Diagram
+
+```mermaid
+graph TD
+    subgraph "Redis"
+        Queue
+        Zset
+        Bloomfilter
+        Function
+    end
+
+    subgraph "JobRunr"
+        Consumer
+        Producer
+        Compute
+        Drain-Zset
+        Insert-Zset
+    end
+
+    DB[(PostgreSQL)]
+    Producer <--> Function
+    Consumer <--> Queue
+    Consumer <--> Bloomfilter
+    Compute <--> DB
+    Drain-Zset <--> Function
+    Drain-Zset <--> DB
+    Insert-Zset <--> Zset
+    Insert-Zset <--> DB
+
+
+```
