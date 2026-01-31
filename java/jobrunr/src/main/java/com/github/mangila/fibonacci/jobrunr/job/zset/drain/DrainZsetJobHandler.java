@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.jobrunr.job.zset;
+package com.github.mangila.fibonacci.jobrunr.job.zset.drain;
 
 import com.github.mangila.fibonacci.postgres.FibonacciMetadataProjection;
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
@@ -9,9 +9,7 @@ import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
 import redis.clients.jedis.Jedis;
@@ -22,8 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-@ConditionalOnProperty(prefix = "app.zset.drain", name = "enabled", havingValue = "true")
-@Component
 public class DrainZsetJobHandler implements JobRequestHandler<DrainZsetJobRequest> {
 
     private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(DrainZsetJobHandler.class));

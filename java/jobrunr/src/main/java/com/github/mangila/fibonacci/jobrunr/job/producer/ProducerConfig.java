@@ -1,6 +1,5 @@
 package com.github.mangila.fibonacci.jobrunr.job.producer;
 
-import com.github.mangila.fibonacci.jobrunr.properties.ApplicationProperties;
 import com.github.mangila.fibonacci.redis.FunctionName;
 import com.github.mangila.fibonacci.redis.RedisBootstrap;
 import com.github.mangila.fibonacci.redis.RedisKey;
@@ -13,30 +12,30 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import tools.jackson.databind.json.JsonMapper;
 
-@ConditionalOnProperty(prefix = "app.produce", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "app.job.producer", name = "enabled", havingValue = "true")
 @Configuration
 public class ProducerConfig {
 
     @Bean
-    ProduceJobHandler fibonacciProduceJobHandler(JsonMapper jsonMapper,
-                                                 JedisConnectionFactory jedisConnectionFactory,
-                                                 FunctionName produceSequence,
-                                                 RedisKey bloomFilter,
-                                                 RedisKey queue
+    ProducerJobHandler fibonacciProduceJobHandler(JsonMapper jsonMapper,
+                                                  JedisConnectionFactory jedisConnectionFactory,
+                                                  FunctionName produceSequence,
+                                                  RedisKey bloomFilter,
+                                                  RedisKey queue
     ) {
-        return new ProduceJobHandler(jsonMapper, jedisConnectionFactory, produceSequence, bloomFilter, queue);
+        return new ProducerJobHandler(jsonMapper, jedisConnectionFactory, produceSequence, bloomFilter, queue);
     }
 
     @Bean
     ProducerBootstrap producerBootstrap(RedisKey bloomFilter,
                                         RedisBootstrap redisBootstrap,
-                                        @Value("classpath:/functions/produce_sequence.lua") Resource produceSequenceScript) {
+                                        @Value("classpath:functions/produce_sequence.lua") Resource produceSequenceScript) {
         return new ProducerBootstrap(bloomFilter, redisBootstrap, produceSequenceScript);
     }
 
     @Bean
-    ProducerScheduler producerScheduler(ApplicationProperties applicationProperties, JobRequestScheduler jobRequestScheduler) {
-        return new ProducerScheduler(applicationProperties, jobRequestScheduler);
+    ProducerScheduler producerScheduler(ProducerProperties properties, JobRequestScheduler jobRequestScheduler) {
+        return new ProducerScheduler(properties, jobRequestScheduler);
     }
 
 }

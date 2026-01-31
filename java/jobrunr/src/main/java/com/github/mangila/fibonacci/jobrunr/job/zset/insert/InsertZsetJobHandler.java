@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.jobrunr.job.zset;
+package com.github.mangila.fibonacci.jobrunr.job.zset.insert;
 
 import com.github.mangila.fibonacci.postgres.FibonacciMetadataProjection;
 import com.github.mangila.fibonacci.postgres.FibonacciProjection;
@@ -9,28 +9,24 @@ import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.util.ArrayList;
 
-@ConditionalOnProperty(prefix = "app.zset.insert", name = "enabled", havingValue = "true")
-@Component
-public class InsertRedisZsetJobHandler implements JobRequestHandler<InsertRedisZsetJobRequest> {
+public class InsertZsetJobHandler implements JobRequestHandler<InsertZsetJobRequest> {
 
-    private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(InsertRedisZsetJobHandler.class));
+    private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(InsertZsetJobHandler.class));
 
     private final RedisKey zset;
     private final JsonMapper jsonMapper;
     private final PostgresRepository postgresRepository;
     private final RedisRepository redisRepository;
 
-    public InsertRedisZsetJobHandler(RedisKey zset,
-                                     JsonMapper jsonMapper,
-                                     PostgresRepository postgresRepository,
-                                     RedisRepository redisRepository) {
+    public InsertZsetJobHandler(RedisKey zset,
+                                JsonMapper jsonMapper,
+                                PostgresRepository postgresRepository,
+                                RedisRepository redisRepository) {
         this.zset = zset;
         this.jsonMapper = jsonMapper;
         this.postgresRepository = postgresRepository;
@@ -38,13 +34,13 @@ public class InsertRedisZsetJobHandler implements JobRequestHandler<InsertRedisZ
     }
 
     @Override
-    public void run(InsertRedisZsetJobRequest jobRequest) {
+    public void run(InsertZsetJobRequest jobRequest) {
         try {
             postgresRepository.streamMetadataWhereSentToZsetIsFalseLocked(jobRequest.limit(), stream -> {
                 var success = new ArrayList<FibonacciMetadataProjection>();
                 stream.forEach(sequence -> {
                     try {
-                        FibonacciProjection projection = postgresRepository.queryBySequence(sequence)
+                        final FibonacciProjection projection = postgresRepository.queryBySequence(sequence)
                                 .orElseThrow();
                         final String member = jsonMapper.writeValueAsString(projection);
                         redisRepository.addZset(zset, sequence, member);

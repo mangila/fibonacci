@@ -12,20 +12,20 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
-public class ProduceJobHandler implements JobRequestHandler<ProduceJobRequest> {
+public class ProducerJobHandler implements JobRequestHandler<ProducerJobRequest> {
 
-    private static final Logger log = LoggerFactory.getLogger(ProduceJobHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(ProducerJobHandler.class);
 
     private final JsonMapper jsonMapper;
     private final JedisConnectionFactory jedisConnectionFactory;
     private final FunctionName produceSequence;
     private final List<String> keys;
 
-    public ProduceJobHandler(JsonMapper jsonMapper,
-                             JedisConnectionFactory jedisConnectionFactory,
-                             FunctionName produceSequence,
-                             RedisKey bloomFilter,
-                             RedisKey queue) {
+    public ProducerJobHandler(JsonMapper jsonMapper,
+                              JedisConnectionFactory jedisConnectionFactory,
+                              FunctionName produceSequence,
+                              RedisKey bloomFilter,
+                              RedisKey queue) {
         this.jsonMapper = jsonMapper;
         this.jedisConnectionFactory = jedisConnectionFactory;
         this.produceSequence = produceSequence;
@@ -33,7 +33,7 @@ public class ProduceJobHandler implements JobRequestHandler<ProduceJobRequest> {
     }
 
     @Override
-    public void run(ProduceJobRequest jobRequest) throws Exception {
+    public void run(ProducerJobRequest jobRequest) throws Exception {
         final var limit = jobRequest.limit();
         try (Jedis jedis = (Jedis) jedisConnectionFactory.getConnection().getNativeConnection()) {
             var pipeline = jedis.pipelined();

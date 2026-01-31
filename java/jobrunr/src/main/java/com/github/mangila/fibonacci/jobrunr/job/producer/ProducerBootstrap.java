@@ -22,7 +22,7 @@ public class ProducerBootstrap {
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    void initRedis() {
+    void init() {
         redisBootstrap.tryInitBloomFilter(bloomFilter);
         redisBootstrap.tryLoadFunction(produceSequenceScript);
     }

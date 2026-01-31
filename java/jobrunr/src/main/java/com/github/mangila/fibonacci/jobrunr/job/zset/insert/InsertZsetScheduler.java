@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.jobrunr.job.producer;
+package com.github.mangila.fibonacci.jobrunr.job.zset.insert;
 
 import org.jobrunr.scheduling.JobRequestScheduler;
 import org.jobrunr.scheduling.RecurringJobBuilder;
@@ -8,30 +8,30 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
-public class ProducerScheduler {
+public class InsertZsetScheduler {
 
-    private static final Logger log = LoggerFactory.getLogger(ProducerScheduler.class);
+    private static final Logger log = LoggerFactory.getLogger(InsertZsetScheduler.class);
 
-    private final ProducerProperties properties;
+    private final InsertZsetProperties properties;
     private final JobRequestScheduler jobRequestScheduler;
 
-    public ProducerScheduler(ProducerProperties properties,
-                             JobRequestScheduler jobRequestScheduler) {
+    public InsertZsetScheduler(InsertZsetProperties properties,
+                               JobRequestScheduler jobRequestScheduler) {
         this.properties = properties;
         this.jobRequestScheduler = jobRequestScheduler;
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    void schedule() {
-        log.info("Producer is enabled");
+    public void schedule() {
+        log.info("Zset insert is enabled");
         final var limit = properties.getLimit();
-        final var algorithm = properties.getAlgorithm();
-        var job = RecurringJobBuilder.aRecurringJob()
+        final var job = RecurringJobBuilder.aRecurringJob()
                 .withCron(Cron.every15seconds())
-                .withName("Produce fibonacci numbers")
-                .withJobRequest(new ProducerJobRequest(limit, algorithm))
-                .withLabels("producer")
+                .withName("Insert to zset")
+                .withJobRequest(new InsertZsetJobRequest(limit))
+                .withLabels("zset-insert")
                 .withAmountOfRetries(3);
         jobRequestScheduler.createRecurrently(job);
     }
+
 }

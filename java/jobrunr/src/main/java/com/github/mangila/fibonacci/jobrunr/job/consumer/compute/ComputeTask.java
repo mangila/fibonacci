@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.jobrunr.job.consumer.task;
+package com.github.mangila.fibonacci.jobrunr.job.consumer.compute;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.core.FibonacciCalculator;
@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
  * @param algorithm
  * @param sequence
  */
-public record FibonacciComputeTask(FibonacciAlgorithm algorithm, int sequence) implements Callable<FibonacciComputeResult> {
+public record ComputeTask(FibonacciAlgorithm algorithm, int sequence) implements Callable<FibonacciComputeResult> {
 
     @Override
     public FibonacciComputeResult call() {

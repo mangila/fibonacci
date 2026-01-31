@@ -4,16 +4,16 @@ import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
 import io.github.mangila.ensure4j.Ensure;
 import org.jobrunr.jobs.lambdas.JobRequest;
 
-public record ProduceJobRequest(int limit, FibonacciAlgorithm algorithm) implements JobRequest {
+public record ProducerJobRequest(int limit, FibonacciAlgorithm algorithm) implements JobRequest {
 
-    public ProduceJobRequest {
+    public ProducerJobRequest {
         Ensure.positive(limit);
         Ensure.notNull(algorithm);
     }
 
     @Override
-    public Class<ProduceJobHandler> getJobRequestHandler() {
-        return ProduceJobHandler.class;
+    public Class<ProducerJobHandler> getJobRequestHandler() {
+        return ProducerJobHandler.class;
     }
 
 }

@@ -1,19 +1,20 @@
 # Application
 app:
-  produce:
-    enabled: true
-    limit: 200
-    algorithm: iterative
-  consume:
-    enabled: true
-    limit: 50
-  zset:
-    drain:
+  job:
+    producer:
+      enabled: true
+      limit: 200
+      algorithm: iterative
+    consumer:
       enabled: true
       limit: 50
-    insert:
-      enabled: true
-      limit: 50
+    zset:
+      drain:
+        enabled: true
+        limit: 50
+      insert:
+        enabled: true
+        limit: 50
 # Spring
 spring:
   application:
