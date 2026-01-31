@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.jobrunr.job.model;
+package com.github.mangila.fibonacci.jobrunr.job.consumer.compute.model;
 
 import io.github.mangila.ensure4j.Ensure;
 import org.jobrunr.jobs.context.JobContext;

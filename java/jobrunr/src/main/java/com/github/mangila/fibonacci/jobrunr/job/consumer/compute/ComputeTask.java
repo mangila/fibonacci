@@ -2,7 +2,7 @@ package com.github.mangila.fibonacci.jobrunr.job.consumer.compute;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.core.FibonacciCalculator;
-import com.github.mangila.fibonacci.jobrunr.job.model.FibonacciComputeResult;
+import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.model.FibonacciComputeResult;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
