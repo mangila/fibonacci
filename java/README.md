@@ -2,6 +2,10 @@
 
 Distributed computing Fibonacci sequence generator created in Java.
 
+### Workflow
+
+Datapipeline is a distributed workflow that generates Fibonacci numbers using JobRunr as a processing engine.
+
 #### Drawbacks with a Distributed workflow
 
 - Operational complexity.
@@ -16,12 +20,24 @@ Distributed computing Fibonacci sequence generator created in Java.
 - Separation of concerns.
 - Straightforward to release new versions.
 
+### API
+
+The API exposes the Fibonacci numbers via REST, SSE and WebSockets through STOMP.
+
+### Links
+
+The application is exposing Redis Insight, JobRunr dashboard and a swagger UI.
+
+- [Redis Insight] - (http://localhost:8001/) - Hosted from the docker image `redis/redis-stack`
+- [JobRunr dashboard] - (http://localhost:8000/) - Hosted from the web module
+- [Swagger UI] - (http://localhost:8080/swagger-ui.html) - Hosted from the web module
+
 ### Modules
 
 #### Process modules
 
 - `jobrunr`: jobrunr scheduler service that can act as a producer node, worker node or both. (headless)
-- `web-api`: web api component that exposes the Fibonacci numbers via REST and SSE, uses the Redis stream (web server)
+- `web`: web api component that exposes the Fibonacci numbers via REST and SSE, uses the Redis stream (web server)
 
 #### Code modules
 
