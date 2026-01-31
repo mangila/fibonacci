@@ -1,5 +1,6 @@
 package com.github.mangila.fibonacci.jobrunr.job.zset.insert;
 
+import com.github.mangila.fibonacci.jobrunr.job.zset.model.StepSuccess;
 import com.github.mangila.fibonacci.postgres.FibonacciMetadataProjection;
 import com.github.mangila.fibonacci.postgres.FibonacciProjection;
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
@@ -35,9 +36,11 @@ public class InsertZsetJobHandler implements JobRequestHandler<InsertZsetJobRequ
 
     @Override
     public void run(InsertZsetJobRequest jobRequest) {
-        try {
-            postgresRepository.streamMetadataWhereSentToZsetIsFalseLocked(jobRequest.limit(), stream -> {
-                var success = new ArrayList<FibonacciMetadataProjection>();
+        final var context = jobContext();
+        final var limit = jobRequest.limit();
+        final var stepSuccess = context.runStepOnce("insert", () -> {
+            var success = new ArrayList<FibonacciMetadataProjection>();
+            postgresRepository.streamMetadataWhereSentToZsetIsFalseLocked(limit, stream -> {
                 stream.forEach(sequence -> {
                     try {
                         final FibonacciProjection projection = postgresRepository.queryBySequence(sequence)
@@ -51,16 +54,15 @@ public class InsertZsetJobHandler implements JobRequestHandler<InsertZsetJobRequ
                         log.error("Error while adding to redis sorted set (zset): {}", sequence, e);
                     }
                 });
-                if (!CollectionUtils.isEmpty(success)) {
-                    postgresRepository.batchUpsertMetadata(success);
-                    log.info("Successfully added {} sequences to redis sorted set (zset)", success.size());
-                } else {
-                    log.info("No sequences added to redis sorted set (zset)");
-                }
             });
-        } catch (Exception e) {
-            log.error("Error while processing stream log request", e);
-            throw e; // rollback
+            return new StepSuccess(success);
+        });
+        final var metadata = stepSuccess.metadata();
+        if (!CollectionUtils.isEmpty(metadata)) {
+            postgresRepository.batchUpsertMetadata(metadata);
+            log.info("Successfully added {} sequences to redis sorted set (zset)", metadata.size());
+        } else {
+            log.info("No sequences added to redis sorted set (zset)");
         }
     }
 }

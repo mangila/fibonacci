@@ -1,14 +1,12 @@
-package com.github.mangila.fibonacci.jobrunr.task;
+package com.github.mangila.fibonacci.jobrunr.job.consumer.compute;
 
 import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.ComputeTask;
 import com.github.mangila.fibonacci.jobrunr.job.model.FibonacciComputeResult;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ComputeTaskTest {
 

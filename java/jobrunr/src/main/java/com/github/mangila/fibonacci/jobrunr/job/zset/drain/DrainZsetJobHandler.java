@@ -1,5 +1,6 @@
 package com.github.mangila.fibonacci.jobrunr.job.zset.drain;
 
+import com.github.mangila.fibonacci.jobrunr.job.zset.model.StepSuccess;
 import com.github.mangila.fibonacci.postgres.FibonacciMetadataProjection;
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
 import com.github.mangila.fibonacci.redis.FunctionName;
@@ -46,33 +47,40 @@ public class DrainZsetJobHandler implements JobRequestHandler<DrainZsetJobReques
         this.drainZset = drainZset;
     }
 
+
     @Override
     public void run(DrainZsetJobRequest jobRequest) throws Exception {
         final int limit = jobRequest.limit();
-        List<Object> pipelineResults;
-        try (Jedis jedis = (Jedis) jedisConnectionFactory.getConnection().getNativeConnection()) {
-            var pipeline = jedis.pipelined();
-            for (int i = 0; i < limit; i++) {
-                jedis.fcall(drainZset.value(), keys, Collections.emptyList());
+        final var context = jobContext();
+        var stepSuccess = context.runStepOnce("drain", () -> {
+            List<Object> pipelineResults;
+            try (Jedis jedis = (Jedis) jedisConnectionFactory.getConnection().getNativeConnection()) {
+                var pipeline = jedis.pipelined();
+                for (int i = 0; i < limit; i++) {
+                    jedis.fcall(drainZset.value(), keys, Collections.emptyList());
+                }
+                pipelineResults = pipeline.syncAndReturnAll();
             }
-            pipelineResults = pipeline.syncAndReturnAll();
-        }
-        var success = new ArrayList<FibonacciMetadataProjection>();
-        for (Object result : pipelineResults) {
-            var metadata = handleResult(result);
-            if (metadata != null) {
-                success.add(metadata);
+            var successResults = new ArrayList<FibonacciMetadataProjection>();
+            for (Object result : pipelineResults) {
+                var metadata = handleResult(result);
+                if (metadata != null) {
+                    successResults.add(metadata);
+                }
             }
-        }
-        if (!CollectionUtils.isEmpty(success)) {
+            return new StepSuccess(successResults);
+        });
+        final var metadata = stepSuccess.metadata();
+        if (!CollectionUtils.isEmpty(metadata)) {
             transactionTemplate.executeWithoutResult(_ -> {
-                postgresRepository.batchUpsertMetadata(success);
+                postgresRepository.batchUpsertMetadata(metadata);
             });
-            log.info("Successfully drained {} records", success.size());
+            log.info("Successfully drained {} records", metadata.size());
         } else {
             log.info("Nothing to drain from zset");
         }
     }
+
 
     @Nullable
     private static FibonacciMetadataProjection handleResult(Object result) {

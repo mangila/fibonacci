@@ -13,4 +13,6 @@ public record DrainZsetJobRequest(int limit) implements JobRequest {
     public Class<DrainZsetJobHandler> getJobRequestHandler() {
         return DrainZsetJobHandler.class;
     }
+
+
 }
