@@ -23,8 +23,9 @@ public class ComputeScheduler {
     public UUID schedule(ComputeJobRequest request) {
         log.info("Scheduling Fibonacci calculation for sequence: {}", request.sequence());
         final var sequence = request.sequence();
+        final var jitter = ThreadLocalRandom.current().nextInt(1, 10);
         return jobRequestScheduler.create(aJob()
-                        .scheduleIn(Duration.ofSeconds(ThreadLocalRandom.current().nextInt(1, 10)))
+                        .scheduleIn(Duration.ofSeconds(jitter))
                         .withName("Fibonacci Calculation for sequence: (%s)".formatted(sequence))
                         .withAmountOfRetries(3)
                         .withLabels("compute")

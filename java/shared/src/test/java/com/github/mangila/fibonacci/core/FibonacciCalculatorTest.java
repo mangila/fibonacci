@@ -23,13 +23,15 @@ class FibonacciCalculatorTest {
     private static final int ONE_MILLION = 1_000_000;
     private static final int TEN_MILLION = 10_000_000;
 
+    private final FibonacciCalculator calculator = FibonacciCalculator.getInstance();
+
     @DisplayName("Fibonacci calculation with different algos should be the same")
     @Test
     void test() {
         int n = 35;
-        var recursiveResult = FibonacciCalculator.naiveRecursive(n);
-        var iterativeResult = FibonacciCalculator.iterative(n);
-        var fastDoublingResult = FibonacciCalculator.fastDoubling(n);
+        var recursiveResult = calculator.naiveRecursive(n);
+        var iterativeResult = calculator.iterative(n);
+        var fastDoublingResult = calculator.fastDoubling(n);
         assertThat(recursiveResult)
                 .isEqualTo(iterativeResult)
                 .isEqualTo(fastDoublingResult);
@@ -43,7 +45,7 @@ class FibonacciCalculatorTest {
     void fastDoubling(int n) {
         var stopWatch = new StopWatch();
         stopWatch.start();
-        FibonacciCalculator.fastDoubling(n);
+        calculator.fastDoubling(n);
         stopWatch.stop();
         System.out.println(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
     }
@@ -55,7 +57,7 @@ class FibonacciCalculatorTest {
     void iterative(int n) {
         var stopWatch = new StopWatch();
         stopWatch.start();
-        FibonacciCalculator.iterative(n);
+        calculator.iterative(n);
         stopWatch.stop();
         System.out.println(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
     }

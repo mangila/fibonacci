@@ -4,8 +4,14 @@ import java.math.BigInteger;
 
 public final class FibonacciCalculator {
 
+    private static final FibonacciCalculator INSTANCE = new FibonacciCalculator();
+
     private FibonacciCalculator() {
-        throw new IllegalStateException("Utility class");
+        // Private constructor to prevent instantiation
+    }
+
+    public static FibonacciCalculator getInstance() {
+        return INSTANCE;
     }
 
     /**
@@ -14,7 +20,7 @@ public final class FibonacciCalculator {
      * @param n The sequence of the Fibonacci number to calculate.
      * @return The n-th Fibonacci number.
      */
-    public static BigInteger naiveRecursive(int n) {
+    public BigInteger naiveRecursive(int n) {
         if (n <= 0) return BigInteger.ZERO;
         if (n == 1) return BigInteger.ONE;
         return naiveRecursive(n - 1).add(naiveRecursive(n - 2));
@@ -26,7 +32,7 @@ public final class FibonacciCalculator {
      * @param n The sequence of the Fibonacci number to calculate.
      * @return The n-th Fibonacci number.
      */
-    public static BigInteger iterative(int n) {
+    public BigInteger iterative(int n) {
         if (n <= 0) return BigInteger.ZERO;
         if (n == 1) return BigInteger.ONE;
 
@@ -50,7 +56,7 @@ public final class FibonacciCalculator {
      * @param n The sequence of the Fibonacci number to calculate.
      * @return The n-th Fibonacci number.
      */
-    public static BigInteger fastDoubling(int n) {
+    public BigInteger fastDoubling(int n) {
         if (n == 0) return BigInteger.ZERO;
         if (n <= 2) return BigInteger.ONE;
 

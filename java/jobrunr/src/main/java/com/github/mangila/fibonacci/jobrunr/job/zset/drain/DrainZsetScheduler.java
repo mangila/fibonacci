@@ -2,7 +2,6 @@ package com.github.mangila.fibonacci.jobrunr.job.zset.drain;
 
 import org.jobrunr.scheduling.JobRequestScheduler;
 import org.jobrunr.scheduling.RecurringJobBuilder;
-import org.jobrunr.scheduling.cron.Cron;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -25,8 +24,9 @@ public class DrainZsetScheduler {
     void schedule() {
         log.info("Zset drain is enabled");
         final var limit = properties.getLimit();
+        final var cron = properties.getCron();
         final var job = RecurringJobBuilder.aRecurringJob()
-                .withCron(Cron.every15seconds())
+                .withCron(cron)
                 .withName("Drain zset")
                 .withJobRequest(new DrainZsetJobRequest(limit))
                 .withLabels("zset-drain")

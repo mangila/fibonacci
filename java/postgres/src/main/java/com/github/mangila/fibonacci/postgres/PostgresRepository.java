@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.postgres;
 
 import io.github.mangila.ensure4j.Ensure;
+import org.intellij.lang.annotations.Language;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -27,8 +28,7 @@ public class PostgresRepository {
 
     public Optional<FibonacciEntity> queryById(int id) {
         Ensure.positive(id);
-        // language=PostgreSQL
-        final String sql = """
+        @Language("PostgreSQL") final String sql = """
                 SELECT id, sequence, result, precision
                 FROM fibonacci_results
                 WHERE id = :id
@@ -41,8 +41,7 @@ public class PostgresRepository {
 
     public Optional<FibonacciProjection> queryBySequence(int sequence) {
         Ensure.positive(sequence);
-        // language=PostgreSQL
-        final String sql = """
+        @Language("PostgreSQL") final String sql = """
                 SELECT id, sequence, precision
                 FROM fibonacci_results
                 WHERE sequence = :sequence
@@ -63,8 +62,7 @@ public class PostgresRepository {
     public void streamMetadataWhereSentToZsetIsFalseLocked(int limit, Consumer<Stream<Integer>> consumer) {
         Ensure.positive(limit);
         Ensure.notNull(consumer);
-        // language=PostgreSQL
-        final String sql = """
+        @Language("PostgreSQL") final String sql = """
                 SELECT id
                 FROM fibonacci_metadata
                 WHERE sent_to_zset = false
@@ -85,8 +83,7 @@ public class PostgresRepository {
         Ensure.positive(sequence);
         Ensure.notNull(result);
         Ensure.positive(precision);
-        // language=PostgreSQL
-        final String sql = """
+        @Language("PostgreSQL") final String sql = """
                 INSERT INTO fibonacci_results
                 (sequence, result, precision)
                 VALUES (:sequence, :result, :precision)
@@ -119,8 +116,7 @@ public class PostgresRepository {
 
     public void upsertMetadata(FibonacciMetadataProjection metadataProjection) {
         Ensure.positive(metadataProjection.id());
-        // language=PostgreSQL
-        final String sql = """
+        @Language("PostgreSQL") final String sql = """
                 INSERT INTO fibonacci_metadata
                 (id, sent_to_zset, sent_to_stream)
                 VALUES (:id,:sentToZset, :sentToStream)

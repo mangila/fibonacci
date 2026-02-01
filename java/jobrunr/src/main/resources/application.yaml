@@ -2,19 +2,23 @@
 app:
   job:
     producer:
-      enabled: true
+      enabled: false
       limit: 200
       algorithm: iterative
+      cron: "0 0/1 * * * *"
     consumer:
-      enabled: true
+      enabled: false
       limit: 50
+      cron: "0 0/1 * * * *"
     zset:
       drain:
-        enabled: true
+        enabled: false
         limit: 50
+        cron: "0 0/1 * * * *"
       insert:
-        enabled: true
+        enabled: false
         limit: 50
+        cron: "0 0/1 * * * *"
 # Spring
 spring:
   application:

@@ -10,17 +10,20 @@ import java.util.concurrent.Callable;
 
 /**
  * No memoization is implemented, let it compute every number
+ *
  * @param algorithm
  * @param sequence
  */
 public record ComputeTask(FibonacciAlgorithm algorithm, int sequence) implements Callable<FibonacciComputeResult> {
 
+    private static final FibonacciCalculator CALCULATOR = FibonacciCalculator.getInstance();
+
     @Override
     public FibonacciComputeResult call() {
         BigInteger fib = switch (algorithm) {
-            case FAST_DOUBLING -> FibonacciCalculator.fastDoubling(sequence);
-            case ITERATIVE -> FibonacciCalculator.iterative(sequence);
-            case RECURSIVE -> FibonacciCalculator.naiveRecursive(sequence);
+            case FAST_DOUBLING -> CALCULATOR.fastDoubling(sequence);
+            case ITERATIVE -> CALCULATOR.iterative(sequence);
+            case RECURSIVE -> CALCULATOR.naiveRecursive(sequence);
         };
         return FibonacciComputeResult.of(sequence, new BigDecimal(fib));
     }

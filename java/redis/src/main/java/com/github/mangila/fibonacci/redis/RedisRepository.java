@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.redis;
 
 import io.github.mangila.ensure4j.Ensure;
+import org.intellij.lang.annotations.Language;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ public class RedisRepository {
                 ZAddParams.zAddParams().nx());
     }
 
-    public String functionLoad(String code) {
+    public String functionLoad(@Language("Lua") String code) {
         // TODO: ensure string start with and end with
         // Ensure.startsWith("#!lua name=", code);
         Ensure.notBlank(code, "Code must not be blank");

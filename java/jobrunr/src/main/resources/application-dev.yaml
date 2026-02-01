@@ -1,3 +1,24 @@
+# Application
+app:
+  job:
+    producer:
+      enabled: true
+      limit: 200
+      algorithm: iterative
+      cron: "0/15 * * * * *"
+    consumer:
+      enabled: true
+      limit: 50
+      cron: "0/15 * * * * *"
+    zset:
+      drain:
+        enabled: true
+        limit: 50
+        cron: "0/15 * * * * *"
+      insert:
+        enabled: true
+        limit: 50
+        cron: "0/15 * * * * *"
 # Spring Properties
 spring:
   flyway:
