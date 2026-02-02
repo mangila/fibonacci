@@ -51,13 +51,7 @@ public class PostgresRepository {
                 .query(FibonacciProjection.class)
                 .optional();
     }
-
-    /**
-     * FOR UPDATE SKIP LOCKED is a Postgres specific feature that locks the rows,
-     * if another "worker" is trying to lock the same rows,
-     * it will skip them and move to the next row.
-     *
-     */
+    
     @Transactional
     public void streamMetadataWhereSentToZsetIsFalseLocked(int limit, Consumer<Stream<Integer>> consumer) {
         Ensure.positive(limit);
@@ -100,8 +94,7 @@ public class PostgresRepository {
 
     public void batchUpsertMetadata(List<FibonacciMetadataProjection> metadataProjections) {
         Ensure.notEmpty(metadataProjections);
-        // language=PostgreSQL
-        final String sql = """
+        @Language("PostgreSQL") final String sql = """
                 INSERT INTO fibonacci_metadata
                 (id,sent_to_zset,sent_to_stream)
                 VALUES (:id, :sentToZset, :sentToStream)
@@ -115,6 +108,7 @@ public class PostgresRepository {
     }
 
     public void upsertMetadata(FibonacciMetadataProjection metadataProjection) {
+        Ensure.notNull(metadataProjection);
         Ensure.positive(metadataProjection.id());
         @Language("PostgreSQL") final String sql = """
                 INSERT INTO fibonacci_metadata

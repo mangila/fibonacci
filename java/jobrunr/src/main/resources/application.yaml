@@ -30,7 +30,7 @@ spring:
     virtual:
       enabled: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/fibonacci
+    url: jdbc:postgresql://localhost:5432/fibonacci?reWriteBatchedInserts=true
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
