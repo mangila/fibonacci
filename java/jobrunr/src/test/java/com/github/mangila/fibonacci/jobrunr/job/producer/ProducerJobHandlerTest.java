@@ -34,7 +34,7 @@ class ProducerJobHandlerTest {
         await()
                 .atMost(Duration.ofSeconds(30))
                 .untilAsserted(() -> {
-                    verify(jsonMapper, times(49));
+                    verify(jsonMapper, times(50));
                 });
 
     }

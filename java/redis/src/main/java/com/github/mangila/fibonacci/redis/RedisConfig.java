@@ -7,7 +7,6 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import redis.clients.jedis.DefaultJedisClientConfig;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisPooled;
-import redis.clients.jedis.UnifiedJedis;
 
 @Configuration
 public class RedisConfig {
@@ -16,7 +15,7 @@ public class RedisConfig {
      * Use with more advanced commands for Redis that Spring template does not provide
      */
     @Bean
-    UnifiedJedis unifiedJedis(JedisConnectionFactory jedisConnectionFactory) {
+    JedisPooled jedis(JedisConnectionFactory jedisConnectionFactory) {
         RedisStandaloneConfiguration config = jedisConnectionFactory.getStandaloneConfiguration();
         return new JedisPooled(
                 new HostAndPort(config.getHostName(), config.getPort()),

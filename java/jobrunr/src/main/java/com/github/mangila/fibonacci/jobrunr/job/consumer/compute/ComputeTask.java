@@ -16,14 +16,13 @@ import java.util.concurrent.Callable;
  */
 public record ComputeTask(FibonacciAlgorithm algorithm, int sequence) implements Callable<FibonacciComputeResult> {
 
-    private static final FibonacciCalculator CALCULATOR = FibonacciCalculator.getInstance();
-
     @Override
     public FibonacciComputeResult call() {
+        var instance = FibonacciCalculator.getInstance();
         BigInteger fib = switch (algorithm) {
-            case FAST_DOUBLING -> CALCULATOR.fastDoubling(sequence);
-            case ITERATIVE -> CALCULATOR.iterative(sequence);
-            case RECURSIVE -> CALCULATOR.naiveRecursive(sequence);
+            case FAST_DOUBLING -> instance.fastDoubling(sequence);
+            case ITERATIVE -> instance.iterative(sequence);
+            case RECURSIVE -> instance.naiveRecursive(sequence);
         };
         return FibonacciComputeResult.of(sequence, new BigDecimal(fib));
     }

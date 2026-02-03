@@ -10,8 +10,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.transaction.support.TransactionTemplate;
+import redis.clients.jedis.JedisPooled;
 
 @ConditionalOnProperty(prefix = "app.job.zset.drain", name = "enabled", havingValue = "true")
 @Configuration
@@ -25,7 +25,7 @@ public class DrainZsetConfig {
 
     @Bean
     DrainZsetJobHandler drainZsetJobHandler(
-            JedisConnectionFactory jedisConnectionFactory,
+            JedisPooled jedis,
             PostgresRepository postgresRepository,
             TransactionTemplate transactionTemplate,
             RedisKey zset,
@@ -34,7 +34,7 @@ public class DrainZsetConfig {
             FunctionName drainZset
     ) {
         return new DrainZsetJobHandler(
-                jedisConnectionFactory,
+                jedis,
                 postgresRepository,
                 transactionTemplate,
                 zset,

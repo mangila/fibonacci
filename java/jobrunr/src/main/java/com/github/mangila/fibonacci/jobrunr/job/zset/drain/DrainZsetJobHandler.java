@@ -10,35 +10,35 @@ import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.exceptions.JedisDataException;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class DrainZsetJobHandler implements JobRequestHandler<DrainZsetJobRequest> {
 
     private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(DrainZsetJobHandler.class));
 
-    private final JedisConnectionFactory jedisConnectionFactory;
+    private final JedisPooled jedisPooled;
     private final PostgresRepository postgresRepository;
     private final TransactionTemplate transactionTemplate;
     private final FunctionName drainZset;
     private final List<String> keys;
 
-    public DrainZsetJobHandler(JedisConnectionFactory jedisConnectionFactory,
+    public DrainZsetJobHandler(JedisPooled jedisPooled,
                                PostgresRepository postgresRepository,
                                TransactionTemplate transactionTemplate,
                                RedisKey zset,
                                RedisKey stream,
                                RedisKey value,
                                FunctionName drainZset) {
-        this.jedisConnectionFactory = jedisConnectionFactory;
+        this.jedisPooled = jedisPooled;
         this.postgresRepository = postgresRepository;
         this.transactionTemplate = transactionTemplate;
         this.keys = Stream.of(zset, stream, value)
@@ -53,22 +53,17 @@ public class DrainZsetJobHandler implements JobRequestHandler<DrainZsetJobReques
         final int limit = jobRequest.limit();
         final var context = jobContext();
         var stepSuccess = context.runStepOnce("drain", () -> {
-            List<Object> pipelineResults;
-            try (Jedis jedis = (Jedis) jedisConnectionFactory.getConnection().getNativeConnection()) {
-                var pipeline = jedis.pipelined();
+            try (Pipeline pipeline = jedisPooled.pipelined()) {
                 for (int i = 0; i < limit; i++) {
-                    jedis.fcall(drainZset.value(), keys, Collections.emptyList());
+                    pipeline.fcall(drainZset.value(), keys, Collections.emptyList());
                 }
-                pipelineResults = pipeline.syncAndReturnAll();
+                var successResults = pipeline.syncAndReturnAll()
+                        .stream()
+                        .map(DrainZsetJobHandler::handleResult)
+                        .filter(Objects::nonNull)
+                        .toList();
+                return new StepSuccess(successResults);
             }
-            var successResults = new ArrayList<FibonacciMetadataProjection>();
-            for (Object result : pipelineResults) {
-                var metadata = handleResult(result);
-                if (metadata != null) {
-                    successResults.add(metadata);
-                }
-            }
-            return new StepSuccess(successResults);
         });
         final var metadata = stepSuccess.metadata();
         if (!CollectionUtils.isEmpty(metadata)) {

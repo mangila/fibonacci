@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import redis.clients.jedis.JedisPooled;
 import tools.jackson.databind.json.JsonMapper;
 
 @ConditionalOnProperty(prefix = "app.job.producer", name = "enabled", havingValue = "true")
@@ -18,12 +18,12 @@ public class ProducerConfig {
 
     @Bean
     ProducerJobHandler fibonacciProduceJobHandler(JsonMapper jsonMapper,
-                                                  JedisConnectionFactory jedisConnectionFactory,
+                                                  JedisPooled jedis,
                                                   FunctionName produceSequence,
                                                   RedisKey bloomFilter,
                                                   RedisKey queue
     ) {
-        return new ProducerJobHandler(jsonMapper, jedisConnectionFactory, produceSequence, bloomFilter, queue);
+        return new ProducerJobHandler(jsonMapper, jedis, produceSequence, bloomFilter, queue);
     }
 
     @Bean

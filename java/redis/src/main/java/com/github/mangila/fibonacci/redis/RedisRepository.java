@@ -6,7 +6,7 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import redis.clients.jedis.UnifiedJedis;
+import redis.clients.jedis.JedisPooled;
 import redis.clients.jedis.params.ZAddParams;
 
 import java.util.List;
@@ -16,9 +16,9 @@ public class RedisRepository {
 
     private static final Logger log = LoggerFactory.getLogger(RedisRepository.class);
 
-    private final UnifiedJedis jedis;
+    private final JedisPooled jedis;
 
-    public RedisRepository(UnifiedJedis jedis) {
+    public RedisRepository(JedisPooled jedis) {
         this.jedis = jedis;
     }
 
