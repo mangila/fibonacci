@@ -8,6 +8,8 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.List;
+
 @Service
 public class SseService {
 
@@ -24,13 +26,13 @@ public class SseService {
     }
 
     public SseEmitter subscribe(SseSubscription subscription) {
-        // Public channel
-        container.addMessageListener(adapter, new ChannelTopic(subscription.channel()));
-        // Private channel
         var privateChannel = subscription.channel()
                 .concat(":")
                 .concat(subscription.username());
-        container.addMessageListener(adapter, new ChannelTopic(privateChannel));
+        container.addMessageListener(adapter,
+                List.of(new ChannelTopic(subscription.channel()),
+                        new ChannelTopic(privateChannel))
+        );
 
         var emitter = new SseEmitter(Long.MAX_VALUE);
 

@@ -1,26 +1,20 @@
 package com.github.mangila.fibonacci.web.sse.config;
 
+import com.github.mangila.fibonacci.web.sse.model.SseQuery;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
-import tools.jackson.databind.ObjectMapper;
+import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
 
 @Configuration
 public class SseConfig {
 
-    private final ObjectMapper objectMapper;
-
-    public SseConfig(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
-
     @Bean
     MessageListenerAdapter listenerAdapter(SseMessageHandler sseMessageHandler) {
         var adapter = new MessageListenerAdapter(sseMessageHandler, "handleMessage");
-        adapter.setSerializer(new GenericJacksonJsonRedisSerializer(objectMapper));
+        adapter.setSerializer(new JacksonJsonRedisSerializer<>(SseQuery.class));
         return adapter;
     }
 
