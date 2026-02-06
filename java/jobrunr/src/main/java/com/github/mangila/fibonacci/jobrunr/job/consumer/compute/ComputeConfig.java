@@ -24,10 +24,10 @@ public class ComputeConfig {
     }
 
     @Bean
-    ComputeHandler computeHandler(ThreadPoolTaskExecutor computeAsyncTaskExecutor,
-                                  PostgresRepository postgresRepository,
-                                  TransactionTemplate transactionTemplate) {
-        return new ComputeHandler(computeAsyncTaskExecutor, postgresRepository, transactionTemplate);
+    ComputeJobHandler computeHandler(ThreadPoolTaskExecutor computeAsyncTaskExecutor,
+                                     PostgresRepository postgresRepository,
+                                     TransactionTemplate transactionTemplate) {
+        return new ComputeJobHandler(computeAsyncTaskExecutor, postgresRepository, transactionTemplate);
     }
 
     @Bean

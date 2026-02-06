@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.web.properties;
+package com.github.mangila.fibonacci.web.sse.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;

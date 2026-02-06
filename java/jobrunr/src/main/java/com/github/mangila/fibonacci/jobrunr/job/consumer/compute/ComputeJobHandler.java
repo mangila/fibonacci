@@ -13,17 +13,17 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.concurrent.TimeUnit;
 
-public class ComputeHandler implements JobRequestHandler<ComputeJobRequest> {
+public class ComputeJobHandler implements JobRequestHandler<ComputeJobRequest> {
 
-    private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(ComputeHandler.class));
+    private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(ComputeJobHandler.class));
 
     private final ThreadPoolTaskExecutor computeAsyncTaskExecutor;
     private final PostgresRepository postgresRepository;
     private final TransactionTemplate transactionTemplate;
 
-    public ComputeHandler(ThreadPoolTaskExecutor computeAsyncTaskExecutor,
-                          PostgresRepository postgresRepository,
-                          TransactionTemplate transactionTemplate) {
+    public ComputeJobHandler(ThreadPoolTaskExecutor computeAsyncTaskExecutor,
+                             PostgresRepository postgresRepository,
+                             TransactionTemplate transactionTemplate) {
         this.computeAsyncTaskExecutor = computeAsyncTaskExecutor;
         this.postgresRepository = postgresRepository;
         this.transactionTemplate = transactionTemplate;

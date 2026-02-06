@@ -13,7 +13,7 @@ public record ComputeJobRequest(int sequence, FibonacciAlgorithm algorithm) impl
     }
 
     @Override
-    public Class<ComputeHandler> getJobRequestHandler() {
-        return ComputeHandler.class;
+    public Class<ComputeJobHandler> getJobRequestHandler() {
+        return ComputeJobHandler.class;
     }
 }

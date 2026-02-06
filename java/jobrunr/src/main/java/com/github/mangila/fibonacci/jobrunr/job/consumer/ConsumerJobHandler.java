@@ -5,6 +5,7 @@ import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.ComputeSchedule
 import com.github.mangila.fibonacci.jobrunr.job.model.FibonacciComputeRequest;
 import com.github.mangila.fibonacci.redis.RedisKey;
 import com.github.mangila.fibonacci.redis.RedisRepository;
+import org.intellij.lang.annotations.Language;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ public class ConsumerJobHandler implements JobRequestHandler<ConsumerJobRequest>
         final int limit = jobRequest.limit();
         for (int i = 0; i < limit; i++) {
             try {
+                @Language("JSON")
                 String json = redisRepository.popQueue(queue);
                 if (json != null) {
                     final var payload = jsonMapper.readValue(json, FibonacciComputeRequest.class);

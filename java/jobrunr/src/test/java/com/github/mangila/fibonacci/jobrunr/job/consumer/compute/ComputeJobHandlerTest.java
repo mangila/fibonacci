@@ -36,7 +36,7 @@ import static org.mockito.Mockito.times;
                 "app.job.consumer.limit=50",
                 "app.job.consumer.cron=0/15 * * * * *",
         })
-class ComputeHandlerTest {
+class ComputeJobHandlerTest {
 
     @MockitoSpyBean
     private ThreadPoolTaskExecutor computeAsyncTaskExecutor;
