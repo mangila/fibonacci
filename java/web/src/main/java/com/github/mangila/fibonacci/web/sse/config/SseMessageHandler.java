@@ -48,8 +48,11 @@ public class SseMessageHandler {
         }
         var readOptions = StreamReadOptions.empty()
                 .count(limit)
+                .noack()
                 .block(Duration.ofSeconds(5));
-        var readOffset = ReadOffset.from(String.valueOf(offset).concat("-0"));
+        var timeLineOffset = String.valueOf(offset)
+                .concat("-0");
+        var readOffset = ReadOffset.from(timeLineOffset);
         var streamOptions = StreamOffset.create(stream.value(), readOffset);
         stringRedisTemplate.opsForStream().read(readOptions, streamOptions)
                 .forEach(record -> {

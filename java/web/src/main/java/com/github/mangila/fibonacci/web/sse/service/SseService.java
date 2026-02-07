@@ -29,10 +29,11 @@ public class SseService {
         var privateChannel = subscription.channel()
                 .concat(":")
                 .concat(subscription.username());
-        container.addMessageListener(adapter,
-                List.of(new ChannelTopic(subscription.channel()),
-                        new ChannelTopic(privateChannel))
+        var topics = List.of(
+                new ChannelTopic(subscription.channel()),
+                new ChannelTopic(privateChannel)
         );
+        container.addMessageListener(adapter, topics);
 
         var emitter = new SseEmitter(Long.MAX_VALUE);
 
