@@ -72,11 +72,12 @@ jobrunr:
   background-job-server:
     thread-type: virtualthreads
     enabled: true
-    poll-interval-in-seconds: 15
+    poll-interval-in-seconds: 30
     name: ${spring.application.name}
     delete-succeeded-jobs-after: 36h
     permanently-delete-deleted-jobs-after: 72h
     succeeded-jobs-request-size: 5000
+    server-timeout-poll-interval-multiplicand: 4
   database:
     skip-create: false
     table-prefix: fibonacci_

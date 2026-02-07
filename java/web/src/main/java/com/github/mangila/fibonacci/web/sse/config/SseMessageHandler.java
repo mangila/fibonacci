@@ -2,7 +2,7 @@ package com.github.mangila.fibonacci.web.sse.config;
 
 import com.github.mangila.fibonacci.postgres.FibonacciProjection;
 import com.github.mangila.fibonacci.redis.RedisKey;
-import com.github.mangila.fibonacci.web.sse.model.SseQuery;
+import com.github.mangila.fibonacci.web.sse.model.Query;
 import com.github.mangila.fibonacci.web.sse.service.SseSessionRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,11 +37,10 @@ public class SseMessageHandler {
         this.registry = registry;
     }
 
-    public void handleMessage(SseQuery message, String channel) {
-        log.info("Received message: {}", message);
-        log.info("Received channel: {}", channel);
-        final var offset = message.offset();
-        final var limit = message.limit();
+    public void handleMessage(Query query, String channel) {
+        log.info("Handle query: {}", query);
+        final var offset = query.offset();
+        final var limit = query.limit();
         var sessions = registry.getSessions(channel);
         if (CollectionUtils.isEmpty(sessions)) {
             return;
@@ -54,7 +53,9 @@ public class SseMessageHandler {
                 .concat("-0");
         var readOffset = ReadOffset.from(timeLineOffset);
         var streamOptions = StreamOffset.create(stream.value(), readOffset);
-        stringRedisTemplate.opsForStream().read(readOptions, streamOptions)
+        //noinspection unchecked
+        stringRedisTemplate.opsForStream()
+                .read(readOptions, streamOptions)
                 .forEach(record -> {
                     log.info("Received record: {}", record);
                     final var data = record.getValue();

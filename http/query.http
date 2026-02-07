@@ -1,25 +1,14 @@
 ### POST id request to SSE endpoint
-POST http://localhost:8080/api/v1/sse/id
+POST http://{{baseUrl}}/api/v1/sse/query
 Content-Type: application/json
 
 {
   "subscription": {
-    "channel": "the-channel",
-    "streamKey": "00000000-0000-0000-0000-000000000000"
+    "channel": "{{channel}}",
+    "username": "{{username}}"
   },
-  "id": 1
-}
-
-### POST stream request to SSE endpoint
-POST http://localhost:8080/api/v1/sse/stream
-Content-Type: application/json
-
-{
-  "offset": 10,
-  "limit": 10,
-  "delayInMillis": 500,
-  "subscription": {
-    "channel": "the-channel",
-    "streamKey": "00000000-0000-0000-0000-000000000000"
+  "query" : {
+    "offset" : 1,
+    "limit" : 10
   }
 }

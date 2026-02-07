@@ -5,18 +5,19 @@ import io.github.mangila.ensure4j.Ensure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.Set;
 
 public record SseSession(
-        SseSubscription subscription,
+        Subscription subscription,
         SseEmitter emitter
 ) {
     private static final Logger log = LoggerFactory.getLogger(SseSession.class);
 
-    private static final Set<?> HEART_BEAT_EVENT = SseEmitter.event()
+    private static final Set<ResponseBodyEmitter.DataWithMediaType> HEART_BEAT_EVENT = SseEmitter.event()
             .comment("heartbeat")
             .reconnectTime(1000L)
             .build();

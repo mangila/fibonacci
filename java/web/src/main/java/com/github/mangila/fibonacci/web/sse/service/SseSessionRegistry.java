@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 public class SseSessionRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(SseSessionRegistry.class);
+
     private final Cache<String, CopyOnWriteArrayList<SseSession>> sessions = Caffeine.newBuilder()
             .maximumSize(100)
             .removalListener((String sessionId, CopyOnWriteArrayList<SseSession> sessions, RemovalCause cause) -> {

@@ -1,0 +1,8 @@
+# Post request to scheduler
+POST http://{{baseUrl}}/api/v1/sse/subscribe
+content-type: application/json
+
+{
+  "channel": "{{channel}}",
+  "username": "{{username}}"
+}
