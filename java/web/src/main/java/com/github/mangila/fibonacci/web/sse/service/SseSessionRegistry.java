@@ -2,6 +2,7 @@ package com.github.mangila.fibonacci.web.sse.service;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.mangila.fibonacci.web.sse.model.SseSession;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -18,9 +19,10 @@ public class SseSessionRegistry {
     private static final Logger log = LoggerFactory.getLogger(SseSessionRegistry.class);
     private final Cache<String, CopyOnWriteArrayList<SseSession>> sessions = Caffeine.newBuilder()
             .maximumSize(100)
-            .evictionListener((key, value, cause) -> {
+            .removalListener((String sessionId, CopyOnWriteArrayList<SseSession> sessions, RemovalCause cause) -> {
                 if (cause.wasEvicted()) {
-                    System.out.println("Evicted: " + key);
+                    log.warn("Session evicted for {}", sessionId);
+                    sessions.forEach(session -> session.emitter().complete());
                 }
             })
             .build();
