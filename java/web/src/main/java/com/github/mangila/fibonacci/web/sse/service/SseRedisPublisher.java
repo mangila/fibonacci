@@ -1,6 +1,6 @@
 package com.github.mangila.fibonacci.web.sse.service;
 
-import com.github.mangila.fibonacci.web.sse.model.Option;
+import com.github.mangila.fibonacci.web.sse.model.SseOption;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.json.JsonMapper;
@@ -17,7 +17,7 @@ public class SseRedisPublisher {
         this.stringRedisTemplate = stringRedisTemplate;
     }
 
-    public void publish(String channel, Option option) {
+    public void publish(String channel, SseOption option) {
         var json = jsonMapper.writeValueAsString(option);
         stringRedisTemplate.convertAndSend(channel, json);
     }

@@ -1,8 +1,8 @@
 package com.github.mangila.fibonacci.web.sse.service;
 
-import com.github.mangila.fibonacci.web.sse.model.Request;
-import com.github.mangila.fibonacci.web.sse.model.Session;
-import com.github.mangila.fibonacci.web.sse.model.Subscription;
+import com.github.mangila.fibonacci.web.sse.model.SseRequest;
+import com.github.mangila.fibonacci.web.sse.model.SseSession;
+import com.github.mangila.fibonacci.web.sse.model.SseSubscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -33,25 +33,25 @@ public class SseService {
         this.adapter = adapter;
     }
 
-    public SseEmitter subscribe(Subscription subscription) {
+    public SseEmitter subscribe(SseSubscription sseSubscription) {
         var topics = List.of(
-                new ChannelTopic(subscription.channel()),
-                new ChannelTopic(subscription.privateChannel())
+                new ChannelTopic(sseSubscription.channel()),
+                new ChannelTopic(sseSubscription.privateChannel())
         );
-        log.info("{} - Subscribing to topics: {}", subscription.username(), topics);
+        log.info("{} - Subscribing to topics: {}", sseSubscription.username(), topics);
         container.addMessageListener(adapter, topics);
 
         var emitter = new SseEmitter(Long.MAX_VALUE);
 
-        registry.add(new Session(subscription, emitter));
+        registry.add(new SseSession(sseSubscription, emitter));
 
         return emitter;
     }
 
-    public void query(Request request) {
+    public void query(SseRequest request) {
         log.info("Querying for {}", request);
         final var query = request.option();
-        final var subscription = request.subscription();
+        final var subscription = request.sseSubscription();
         publisher.publish(subscription.channel(), query);
         publisher.publish(subscription.privateChannel(), query);
     }

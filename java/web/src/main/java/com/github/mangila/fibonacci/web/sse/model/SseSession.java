@@ -11,19 +11,19 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.Set;
 
-public record Session(
-        Subscription subscription,
+public record SseSession(
+        SseSubscription sseSubscription,
         SseEmitter emitter
 ) {
-    private static final Logger log = LoggerFactory.getLogger(Session.class);
+    private static final Logger log = LoggerFactory.getLogger(SseSession.class);
 
     private static final Set<ResponseBodyEmitter.DataWithMediaType> HEART_BEAT_EVENT = SseEmitter.event()
             .comment("heartbeat")
             .reconnectTime(1000L)
             .build();
 
-    public Session {
-        Ensure.notNull(subscription, "Subscription must not be null");
+    public SseSession {
+        Ensure.notNull(sseSubscription, "Subscription must not be null");
         Ensure.notNull(emitter, "Emitter must not be null");
     }
 
@@ -32,9 +32,9 @@ public record Session(
             final var sseEvent = SseEmitter.event()
                     .id(String.valueOf(event.sequence()))
                     .data(event, MediaType.APPLICATION_JSON)
-                    .name(subscription.channel())
+                    .name(sseSubscription.channel())
                     .reconnectTime(1000L)
-                    .comment(subscription().username())
+                    .comment(sseSubscription().username())
                     .build();
             emitter.send(sseEvent);
         } catch (IOException e) {

@@ -2,7 +2,7 @@ package com.github.mangila.fibonacci.web.sse.config;
 
 import com.github.mangila.fibonacci.postgres.FibonacciProjection;
 import com.github.mangila.fibonacci.redis.RedisKey;
-import com.github.mangila.fibonacci.web.sse.model.Option;
+import com.github.mangila.fibonacci.web.sse.model.SseOption;
 import com.github.mangila.fibonacci.web.sse.service.SseSessionRegistry;
 import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public class SseMessageHandler {
         this.registry = registry;
     }
 
-    public void handleMessage(Option option, String channel) {
+    public void handleMessage(SseOption option, String channel) {
         log.info("Handle query: {}", option);
         final var offset = option.offset();
         final var limit = option.limit();

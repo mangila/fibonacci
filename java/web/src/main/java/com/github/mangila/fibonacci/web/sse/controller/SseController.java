@@ -1,7 +1,7 @@
 package com.github.mangila.fibonacci.web.sse.controller;
 
-import com.github.mangila.fibonacci.web.sse.model.Request;
-import com.github.mangila.fibonacci.web.sse.model.Subscription;
+import com.github.mangila.fibonacci.web.sse.model.SseRequest;
+import com.github.mangila.fibonacci.web.sse.model.SseSubscription;
 import com.github.mangila.fibonacci.web.sse.service.SseService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -25,12 +25,12 @@ public class SseController {
     }
 
     @PostMapping("subscribe")
-    public SseEmitter sseSubscribe(@RequestBody @NotNull @Valid Subscription subscription) {
-        return service.subscribe(subscription);
+    public SseEmitter sseSubscribe(@RequestBody @NotNull @Valid SseSubscription sseSubscription) {
+        return service.subscribe(sseSubscription);
     }
 
     @PostMapping("query")
-    public ResponseEntity<Map<String, String>> sseQuery(@RequestBody @NotNull @Valid Request request) {
+    public ResponseEntity<Map<String, String>> sseQuery(@RequestBody @NotNull @Valid SseRequest request) {
         service.query(request);
         return ResponseEntity.ok(Map.of("status", "ok"));
     }

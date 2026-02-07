@@ -3,7 +3,7 @@ POST http://{{baseUrl}}/api/v1/sse/option
 Content-Type: application/json
 
 {
-  "subscription": {
+  "sseSubscription": {
     "channel": "{{channel}}",
     "username": "{{username}}"
   },

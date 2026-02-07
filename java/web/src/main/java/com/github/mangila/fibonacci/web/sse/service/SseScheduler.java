@@ -1,6 +1,6 @@
 package com.github.mangila.fibonacci.web.sse.service;
 
-import com.github.mangila.fibonacci.web.sse.model.Session;
+import com.github.mangila.fibonacci.web.sse.model.SseSession;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +22,6 @@ public class SseScheduler {
     )
     void heartbeat() {
         sessionRegistry.getAllSessions()
-                .forEach(Session::sendHeartbeat);
+                .forEach(SseSession::sendHeartbeat);
     }
 }

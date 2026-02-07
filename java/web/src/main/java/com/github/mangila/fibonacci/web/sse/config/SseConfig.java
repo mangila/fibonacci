@@ -1,6 +1,6 @@
 package com.github.mangila.fibonacci.web.sse.config;
 
-import com.github.mangila.fibonacci.web.sse.model.Option;
+import com.github.mangila.fibonacci.web.sse.model.SseOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +19,7 @@ public class SseConfig {
     @Bean
     MessageListenerAdapter listenerAdapter(SseMessageHandler sseMessageHandler) {
         var adapter = new MessageListenerAdapter(sseMessageHandler, "handleMessage");
-        adapter.setSerializer(new JacksonJsonRedisSerializer<>(Option.class));
+        adapter.setSerializer(new JacksonJsonRedisSerializer<>(SseOption.class));
         return adapter;
     }
 
