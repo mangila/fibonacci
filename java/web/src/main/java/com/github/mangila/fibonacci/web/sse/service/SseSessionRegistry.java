@@ -3,6 +3,7 @@ package com.github.mangila.fibonacci.web.sse.service;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.mangila.fibonacci.web.sse.model.SseSession;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,5 +29,10 @@ public class SseSessionRegistry {
                     }
                     return list;
                 }).add(session);
+    }
+
+    @Nullable
+    public CopyOnWriteArrayList<SseSession> getSessions(String channel) {
+        return sessions.getIfPresent(channel);
     }
 }
