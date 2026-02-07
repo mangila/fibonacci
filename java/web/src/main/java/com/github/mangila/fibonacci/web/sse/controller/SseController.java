@@ -1,6 +1,6 @@
 package com.github.mangila.fibonacci.web.sse.controller;
 
-import com.github.mangila.fibonacci.web.sse.model.SseQueryRequest;
+import com.github.mangila.fibonacci.web.sse.model.Request;
 import com.github.mangila.fibonacci.web.sse.model.Subscription;
 import com.github.mangila.fibonacci.web.sse.service.SseService;
 import jakarta.validation.Valid;
@@ -30,7 +30,7 @@ public class SseController {
     }
 
     @PostMapping("query")
-    public ResponseEntity<Map<String, String>> sseQuery(@RequestBody @NotNull @Valid SseQueryRequest request) {
+    public ResponseEntity<Map<String, String>> sseQuery(@RequestBody @NotNull @Valid Request request) {
         service.query(request);
         return ResponseEntity.ok(Map.of("status", "ok"));
     }

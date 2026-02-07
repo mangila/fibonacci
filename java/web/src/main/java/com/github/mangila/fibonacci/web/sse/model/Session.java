@@ -11,18 +11,18 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.Set;
 
-public record SseSession(
+public record Session(
         Subscription subscription,
         SseEmitter emitter
 ) {
-    private static final Logger log = LoggerFactory.getLogger(SseSession.class);
+    private static final Logger log = LoggerFactory.getLogger(Session.class);
 
     private static final Set<ResponseBodyEmitter.DataWithMediaType> HEART_BEAT_EVENT = SseEmitter.event()
             .comment("heartbeat")
             .reconnectTime(1000L)
             .build();
 
-    public SseSession {
+    public Session {
         Ensure.notNull(subscription, "Subscription must not be null");
         Ensure.notNull(emitter, "Emitter must not be null");
     }

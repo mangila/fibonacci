@@ -1,5 +1,5 @@
 ### POST id request to SSE endpoint
-POST http://{{baseUrl}}/api/v1/sse/query
+POST http://{{baseUrl}}/api/v1/sse/option
 Content-Type: application/json
 
 {
@@ -7,7 +7,7 @@ Content-Type: application/json
     "channel": "{{channel}}",
     "username": "{{username}}"
   },
-  "query" : {
+  "option" : {
     "offset" : 1,
     "limit" : 10
   }

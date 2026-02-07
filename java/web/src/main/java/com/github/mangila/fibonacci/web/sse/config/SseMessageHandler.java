@@ -2,8 +2,9 @@ package com.github.mangila.fibonacci.web.sse.config;
 
 import com.github.mangila.fibonacci.postgres.FibonacciProjection;
 import com.github.mangila.fibonacci.redis.RedisKey;
-import com.github.mangila.fibonacci.web.sse.model.Query;
+import com.github.mangila.fibonacci.web.sse.model.Option;
 import com.github.mangila.fibonacci.web.sse.service.SseSessionRegistry;
+import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -37,10 +38,10 @@ public class SseMessageHandler {
         this.registry = registry;
     }
 
-    public void handleMessage(Query query, String channel) {
-        log.info("Handle query: {}", query);
-        final var offset = query.offset();
-        final var limit = query.limit();
+    public void handleMessage(Option option, String channel) {
+        log.info("Handle query: {}", option);
+        final var offset = option.offset();
+        final var limit = option.limit();
         var sessions = registry.getSessions(channel);
         if (CollectionUtils.isEmpty(sessions)) {
             return;
@@ -49,8 +50,8 @@ public class SseMessageHandler {
                 .count(limit)
                 .noack()
                 .block(Duration.ofSeconds(5));
-        var timeLineOffset = String.valueOf(offset)
-                .concat("-0");
+        // timeline structure: 1-0, 2-0, 3-0 .. etc
+        var timeLineOffset = String.valueOf(offset).concat("-0");
         var readOffset = ReadOffset.from(timeLineOffset);
         var streamOptions = StreamOffset.create(stream.value(), readOffset);
         //noinspection unchecked
@@ -59,8 +60,9 @@ public class SseMessageHandler {
                 .forEach(record -> {
                     log.info("Received record: {}", record);
                     final var data = record.getValue();
-                    final var member = data.get("member");
-                    final var event = jsonMapper.readValue(member.toString(), FibonacciProjection.class);
+                    @Language("JSON")
+                    final var member = data.get("member").toString();
+                    final var event = jsonMapper.readValue(member, FibonacciProjection.class);
                     for (var session : sessions) {
                         session.send(event);
                     }

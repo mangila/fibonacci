@@ -3,7 +3,7 @@ package com.github.mangila.fibonacci.web.sse.service;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
-import com.github.mangila.fibonacci.web.sse.model.SseSession;
+import com.github.mangila.fibonacci.web.sse.model.Session;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +18,9 @@ public class SseSessionRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(SseSessionRegistry.class);
 
-    private final Cache<String, CopyOnWriteArrayList<SseSession>> sessions = Caffeine.newBuilder()
+    private final Cache<String, CopyOnWriteArrayList<Session>> sessions = Caffeine.newBuilder()
             .maximumSize(100)
-            .removalListener((String sessionId, CopyOnWriteArrayList<SseSession> sessions, RemovalCause cause) -> {
+            .removalListener((String sessionId, CopyOnWriteArrayList<Session> sessions, RemovalCause cause) -> {
                 if (cause.wasEvicted()) {
                     log.warn("Session evicted for {}", sessionId);
                     sessions.forEach(session -> session.emitter().complete());
@@ -28,7 +28,7 @@ public class SseSessionRegistry {
             })
             .build();
 
-    public void add(SseSession session) {
+    public void add(Session session) {
         final var channel = session.subscription().channel();
         sessions.asMap()
                 .compute(channel, (_, list) -> {
@@ -53,18 +53,18 @@ public class SseSessionRegistry {
     }
 
     @Nullable
-    public CopyOnWriteArrayList<SseSession> getSessions(String channel) {
+    public CopyOnWriteArrayList<Session> getSessions(String channel) {
         return sessions.getIfPresent(channel);
     }
 
-    public Stream<SseSession> getAllSessions() {
+    public Stream<Session> getAllSessions() {
         return sessions.asMap()
                 .values()
                 .stream()
                 .flatMap(List::stream);
     }
 
-    private void remove(SseSession session) {
+    private void remove(Session session) {
         final var channel = session.subscription().channel();
         sessions.asMap()
                 .computeIfPresent(channel, (_, list) -> {

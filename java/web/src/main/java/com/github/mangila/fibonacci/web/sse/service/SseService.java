@@ -1,7 +1,7 @@
 package com.github.mangila.fibonacci.web.sse.service;
 
-import com.github.mangila.fibonacci.web.sse.model.SseQueryRequest;
-import com.github.mangila.fibonacci.web.sse.model.SseSession;
+import com.github.mangila.fibonacci.web.sse.model.Request;
+import com.github.mangila.fibonacci.web.sse.model.Session;
 import com.github.mangila.fibonacci.web.sse.model.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,14 +43,14 @@ public class SseService {
 
         var emitter = new SseEmitter(Long.MAX_VALUE);
 
-        registry.add(new SseSession(subscription, emitter));
+        registry.add(new Session(subscription, emitter));
 
         return emitter;
     }
 
-    public void query(SseQueryRequest request) {
+    public void query(Request request) {
         log.info("Querying for {}", request);
-        final var query = request.query();
+        final var query = request.option();
         final var subscription = request.subscription();
         publisher.publish(subscription.channel(), query);
         publisher.publish(subscription.privateChannel(), query);
