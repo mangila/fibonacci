@@ -39,22 +39,22 @@ public record SseSession(
                     .build();
             emitter.send(sseEvent);
         } catch (IOException e) {
-            log.error("Error while sending event: {}", e.getMessage(), e);
+            log.error("Error while sending event: {} -- {}", sseSubscription, event, e);
         }
     }
 
-    public void send(FibonacciDto dto) {
+    public void send(FibonacciDto event) {
         try {
             final var sseEvent = SseEmitter.event()
-                    .id(String.valueOf(dto.sequence()))
-                    .data(dto, MediaType.APPLICATION_JSON)
+                    .id(String.valueOf(event.sequence()))
+                    .data(event, MediaType.APPLICATION_JSON)
                     .name(sseSubscription.channel())
                     .reconnectTime(1000L)
                     .comment(sseSubscription().username())
                     .build();
             emitter.send(sseEvent);
         } catch (IOException e) {
-            log.error("Error while sending event: {}", e.getMessage(), e);
+            log.error("Error while sending event: {} -- {}", sseSubscription, event, e);
         }
     }
 

@@ -50,16 +50,20 @@ public class SseMessageHandler {
 
     public void handleMessage(@Language("JSON") String message, String channel) {
         log.info("Handle message - {} - {}", message, channel);
-        var node = jsonMapper.readTree(message);
-        Ensure.isTrue(node.isObject(), "json node must be an object");
-        if (isStreamOption(node)) {
-            var sseStreamOption = jsonMapper.treeToValue(node, SseStreamOption.class);
-            processStream(sseStreamOption, channel);
-        } else if (isIdOption(node)) {
-            var sseIdOption = jsonMapper.treeToValue(node, SseIdOption.class);
-            processId(sseIdOption, channel);
-        } else {
-            log.warn("Unknown node property");
+        try {
+            var node = jsonMapper.readTree(message);
+            Ensure.isTrue(node.isObject(), "json node must be an object");
+            if (isStreamOption(node)) {
+                var sseStreamOption = jsonMapper.treeToValue(node, SseStreamOption.class);
+                processStream(sseStreamOption, channel);
+            } else if (isIdOption(node)) {
+                var sseIdOption = jsonMapper.treeToValue(node, SseIdOption.class);
+                processId(sseIdOption, channel);
+            } else {
+                log.warn("Unknown node property");
+            }
+        } catch (Exception e) {
+            log.error("ERR - processing message", e);
         }
     }
 
