@@ -9,6 +9,7 @@ import java.time.Duration;
 @Validated
 public class SseProperties {
 
+    private boolean enabled = false;
     private Duration cleanupPeriod = Duration.ofMinutes(10);
     private final Heartbeat heartbeat = new Heartbeat();
 
@@ -22,6 +23,14 @@ public class SseProperties {
 
     public Heartbeat getHeartbeat() {
         return heartbeat;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public static class Heartbeat {

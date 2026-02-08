@@ -10,4 +10,3 @@ Redis Fuctions is well suited for scenarios when Read/Transform/Write operations
 
 Instead of going back and forth between Redis Server and the redis client.
 All the redis commands are executed on the server.
-Combine function calls with Redis pipelines for better performance.

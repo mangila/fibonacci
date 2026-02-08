@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.web.sse.model;
 
 import com.github.mangila.fibonacci.postgres.FibonacciProjection;
+import com.github.mangila.fibonacci.web.shared.FibonacciDto;
 import io.github.mangila.ensure4j.Ensure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,21 @@ public record SseSession(
             final var sseEvent = SseEmitter.event()
                     .id(String.valueOf(event.sequence()))
                     .data(event, MediaType.APPLICATION_JSON)
+                    .name(sseSubscription.channel())
+                    .reconnectTime(1000L)
+                    .comment(sseSubscription().username())
+                    .build();
+            emitter.send(sseEvent);
+        } catch (IOException e) {
+            log.error("Error while sending event: {}", e.getMessage(), e);
+        }
+    }
+
+    public void send(FibonacciDto dto) {
+        try {
+            final var sseEvent = SseEmitter.event()
+                    .id(String.valueOf(dto.sequence()))
+                    .data(dto, MediaType.APPLICATION_JSON)
                     .name(sseSubscription.channel())
                     .reconnectTime(1000L)
                     .comment(sseSubscription().username())

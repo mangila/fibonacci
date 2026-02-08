@@ -10,11 +10,11 @@ import org.springframework.core.env.EnumerablePropertySource;
 import java.util.TreeMap;
 
 @SpringBootApplication(scanBasePackages = "com.github.mangila.fibonacci")
-public class SchedulerApplication {
+public class JobRunrApplication {
 
 
     public static void main(String[] args) {
-        SpringApplication.run(SchedulerApplication.class, args);
+        SpringApplication.run(JobRunrApplication.class, args);
     }
 
     @EventListener

@@ -7,7 +7,6 @@ public final class FibonacciCalculator {
     private static final FibonacciCalculator INSTANCE = new FibonacciCalculator();
 
     private FibonacciCalculator() {
-        // Private constructor to prevent instantiation
     }
 
     public static FibonacciCalculator getInstance() {

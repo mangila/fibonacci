@@ -1,6 +1,9 @@
 # Application
 app:
+  flush:
+    enabled: false
   sse:
+    enabled: true
     heartbeat:
       enabled: true
       interval: 10s

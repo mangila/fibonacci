@@ -1,5 +1,7 @@
 # Application
 app:
+  flush:
+    enabled: false
   job:
     producer:
       enabled: false
@@ -87,6 +89,6 @@ logging:
     root: INFO
     com.github.mangila.fibonacci.jobrunr.config: INFO
     com.github.mangila.fibonacci.jobrunr.job: INFO
-    com.github.mangila.fibonacci.jobrunr.model: INFO
-    com.github.mangila.fibonacci.jobrunr.scheduler: INFO
-    com.github.mangila.fibonacci.jobrunr.task: INFO
+    com.github.mangila.fibonacci.jobrunr.job.consumer: INFO
+    com.github.mangila.fibonacci.jobrunr.job.producer: INFO
+    com.github.mangila.fibonacci.jobrunr.job.zset: INFO

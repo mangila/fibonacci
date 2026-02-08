@@ -20,9 +20,9 @@ public class SseSessionRegistry {
 
     private final Cache<String, CopyOnWriteArrayList<SseSession>> sessions = Caffeine.newBuilder()
             .maximumSize(100)
-            .removalListener((String sessionId, CopyOnWriteArrayList<SseSession> sseSessions, RemovalCause cause) -> {
+            .removalListener((String channel, CopyOnWriteArrayList<SseSession> sseSessions, RemovalCause cause) -> {
                 if (cause.wasEvicted()) {
-                    log.warn("Session evicted for {}", sessionId);
+                    log.warn("Session evicted for {}", channel);
                     sseSessions.forEach(sseSession -> sseSession.emitter().complete());
                 }
             })

@@ -2,6 +2,7 @@ package com.github.mangila.fibonacci.web.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.SimpleAsyncTaskScheduler;
 
@@ -9,8 +10,8 @@ import org.springframework.scheduling.concurrent.SimpleAsyncTaskScheduler;
 @EnableScheduling
 public class SchedulerConfig {
 
-    @Bean("sseTaskScheduler")
-    SimpleAsyncTaskScheduler sseTaskScheduler() {
+    @Bean("ioAsyncTaskExecutor")
+    SimpleAsyncTaskExecutor ioAsyncTaskExecutor() {
         var scheduler = new SimpleAsyncTaskScheduler();
         scheduler.setThreadNamePrefix("sse-scheduler-");
         scheduler.setVirtualThreads(true);

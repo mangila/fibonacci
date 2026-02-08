@@ -1,7 +1,6 @@
 package com.github.mangila.fibonacci.jobrunr.job.consumer;
 
 import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.ComputeScheduler;
-import com.github.mangila.fibonacci.redis.RedisBootstrap;
 import com.github.mangila.fibonacci.redis.RedisKey;
 import com.github.mangila.fibonacci.redis.RedisRepository;
 import org.jobrunr.scheduling.JobRequestScheduler;
@@ -15,8 +14,8 @@ import tools.jackson.databind.json.JsonMapper;
 public class ConsumerConfig {
 
     @Bean
-    ConsumerBootstrap consumerBootstrap(RedisKey bloomFilter, RedisBootstrap redisBootstrap) {
-        return new ConsumerBootstrap(bloomFilter, redisBootstrap);
+    ConsumerBootstrap consumerBootstrap(RedisKey bloomFilter, RedisRepository redisRepository) {
+        return new ConsumerBootstrap(bloomFilter, redisRepository);
     }
 
     @Bean

@@ -6,11 +6,4 @@ public record SseSubscription(
         @AlphaNumeric String channel,
         @AlphaNumeric String username
 ) {
-
-    public String privateChannel() {
-        return this.channel()
-                .concat(":")
-                .concat(this.username());
-    }
-
 }

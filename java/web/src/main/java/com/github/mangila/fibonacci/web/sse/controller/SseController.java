@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.web.sse.controller;
 
-import com.github.mangila.fibonacci.web.sse.model.SseRequest;
+import com.github.mangila.fibonacci.web.sse.model.SseIdQuery;
+import com.github.mangila.fibonacci.web.sse.model.SseStreamQuery;
 import com.github.mangila.fibonacci.web.sse.model.SseSubscription;
 import com.github.mangila.fibonacci.web.sse.service.SseService;
 import jakarta.validation.Valid;
@@ -18,6 +19,8 @@ import java.util.Map;
 @RequestMapping("api/v1/sse")
 public class SseController {
 
+    private static final Map<String, String> OK = Map.of("status", "ok");
+
     private final SseService service;
 
     public SseController(SseService service) {
@@ -30,8 +33,14 @@ public class SseController {
     }
 
     @PostMapping("query")
-    public ResponseEntity<Map<String, String>> sseQuery(@RequestBody @NotNull @Valid SseRequest request) {
-        service.query(request);
-        return ResponseEntity.ok(Map.of("status", "ok"));
+    public ResponseEntity<Map<String, String>> sseQuery(@RequestBody @NotNull @Valid SseStreamQuery streamQuery) {
+        service.query(streamQuery);
+        return ResponseEntity.ok(OK);
+    }
+
+    @PostMapping("id")
+    public ResponseEntity<?> sseId(@RequestBody @NotNull @Valid SseIdQuery idQuery) {
+        service.queryById(idQuery);
+        return ResponseEntity.ok(OK);
     }
 }

@@ -6,3 +6,32 @@ content-type: application/json
   "channel": "{{channel}}",
   "username": "{{username}}"
 }
+
+### POST stream query request to SSE endpoint
+POST http://{{baseUrl}}/api/v1/sse/query
+Content-Type: application/json
+
+{
+  "sseSubscription": {
+    "channel": "{{channel}}",
+    "username": "{{username}}"
+  },
+  "option" : {
+    "offset" : 1,
+    "limit" : 100
+  }
+}
+
+### POST id query request to SSE endpoint
+POST http://{{baseUrl}}/api/v1/sse/id
+Content-Type: application/json
+
+{
+  "sseSubscription": {
+    "channel": "{{channel}}",
+    "username": "{{username}}"
+  },
+   "option" : {
+    "id" : 1
+  }
+}

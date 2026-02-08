@@ -1,8 +1,8 @@
 package com.github.mangila.fibonacci.jobrunr.job.producer;
 
 import com.github.mangila.fibonacci.redis.FunctionName;
-import com.github.mangila.fibonacci.redis.RedisBootstrap;
 import com.github.mangila.fibonacci.redis.RedisKey;
+import com.github.mangila.fibonacci.redis.RedisRepository;
 import org.jobrunr.scheduling.JobRequestScheduler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -28,9 +28,9 @@ public class ProducerConfig {
 
     @Bean
     ProducerBootstrap producerBootstrap(RedisKey bloomFilter,
-                                        RedisBootstrap redisBootstrap,
+                                        RedisRepository redisRepository,
                                         @Value("classpath:functions/produce_sequence.lua") Resource produceSequenceScript) {
-        return new ProducerBootstrap(bloomFilter, redisBootstrap, produceSequenceScript);
+        return new ProducerBootstrap(redisRepository, bloomFilter, produceSequenceScript);
     }
 
     @Bean

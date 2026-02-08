@@ -4,12 +4,12 @@ import io.github.mangila.ensure4j.Ensure;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-public record SseRequest(
+public record SseStreamQuery(
         @NotNull @Valid SseSubscription sseSubscription,
-        @NotNull @Valid SseOption option
+        @NotNull @Valid SseStreamOption option
 ) {
-    public SseRequest {
+    public SseStreamQuery {
         Ensure.notNull(sseSubscription, "Subscription must not be null");
-        Ensure.notNull(option, "Query must not be null");
+        Ensure.notNull(option, "Option must not be null");
     }
 }

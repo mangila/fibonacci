@@ -11,6 +11,9 @@ import redis.clients.jedis.JedisPooled;
 @Configuration
 public class RedisConfig {
 
+    public static final double DEFAULT_BLOOM_FILTER_ERROR_RATE = 0.001;
+    public static final int DEFAULT_BLOOM_FILTER_CAPACITY = 100_000;
+
     /**
      * Use with more advanced commands for Redis that Spring template does not provide
      */

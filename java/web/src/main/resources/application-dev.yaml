@@ -1,3 +1,11 @@
+app:
+  flush:
+    enabled: false
+  sse:
+    heartbeat:
+      enabled: true
+      interval: 10s
+    cleanup-period: 10m
 # Spring Properties
 spring:
   flyway:

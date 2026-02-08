@@ -2,8 +2,8 @@ package com.github.mangila.fibonacci.jobrunr.job.zset.drain;
 
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
 import com.github.mangila.fibonacci.redis.FunctionName;
-import com.github.mangila.fibonacci.redis.RedisBootstrap;
 import com.github.mangila.fibonacci.redis.RedisKey;
+import com.github.mangila.fibonacci.redis.RedisRepository;
 import org.jobrunr.scheduling.JobRequestScheduler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -18,9 +18,9 @@ import redis.clients.jedis.JedisPooled;
 public class DrainZsetConfig {
 
     @Bean
-    DrainZsetBootstrap drainZsetBootstrap(RedisBootstrap redisBootstrap,
+    DrainZsetBootstrap drainZsetBootstrap(RedisRepository redisRepository,
                                           @Value("classpath:functions/drain_zset.lua") Resource drainZsetScript) {
-        return new DrainZsetBootstrap(redisBootstrap, drainZsetScript);
+        return new DrainZsetBootstrap(redisRepository, drainZsetScript);
     }
 
     @Bean
