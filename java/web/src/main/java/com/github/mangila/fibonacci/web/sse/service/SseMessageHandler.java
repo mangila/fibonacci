@@ -88,6 +88,9 @@ public class SseMessageHandler {
             var timeLineOffset = String.valueOf(offset).concat("-0");
             var readOffset = ReadOffset.from(timeLineOffset);
             var streamOptions = StreamOffset.create(stream.value(), readOffset);
+            for (var session : sessions) {
+                session.sendStreamStart();
+            }
             //noinspection unchecked
             stringRedisTemplate.opsForStream()
                     .read(readOptions, streamOptions)
@@ -100,6 +103,9 @@ public class SseMessageHandler {
                             session.send(event);
                         }
                     });
+            for (var session : sessions) {
+                session.sendStreamEnd();
+            }
         } else {
             log.warn("No sse sessions for channel - {}", channel);
         }

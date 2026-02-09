@@ -21,12 +21,24 @@ export interface FibonacciProjectionDto {
 
 export interface SseSubscription {
   channel: string;
-  streamKey: string;
+  username: string;
 }
 
-export interface FibonacciComputeCommand {
-  algorithm: FibonacciAlgorithm;
+export interface SseStreamQuery {
+  sseSubscription: SseSubscription;
+  option: SseStreamOption;
+}
+
+export interface SseStreamOption {
   offset: number;
   limit: number;
-  delayInMillis: number;
+}
+
+export interface SseIdQuery {
+  sseSubscription: SseSubscription;
+  option: SseIdOption;
+}
+
+export interface SseIdOption {
+  id: number;
 }

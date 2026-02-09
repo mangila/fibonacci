@@ -1,10 +1,11 @@
 import { useDynamicList, useMount, useUnmount, useUpdateEffect } from "ahooks";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import type {
   ConnectionStatus,
   FibonacciDto,
   FibonacciProjectionDto,
+  SseSubscription,
 } from "../../_types/types";
 import { ErrorBoundary } from "react-error-boundary";
 import { FibonacciCard } from "../../_components/FibonacciCard";
@@ -17,6 +18,7 @@ import {
   SSE_BASE_PATH,
   URL_BASE,
 } from "../../_shared/shared";
+import { ChannelCard } from "../../_components/ChannelCard";
 
 function handleSubmit(_, formData: FormData) {
   const offsetData = formData.get("offset");
@@ -35,10 +37,10 @@ function handleSubmit(_, formData: FormData) {
 }
 
 interface Props {
-  channel: string;
+  subscription: SseSubscription;
 }
 
-export const SseComponent = ({ channel }: Props) => {
+export const SseComponent = ({ subscription }: Props) => {
   const [status, setStatus] = useState<ConnectionStatus>("offline");
   const [state, formAction, isPending] = useActionState(handleSubmit, null);
   const { list, push, resetList } = useDynamicList<FibonacciProjectionDto>([]);
@@ -48,7 +50,6 @@ export const SseComponent = ({ channel }: Props) => {
     precision: 0,
     result: "",
   });
-  const streamKeyRef = useRef<string>(null);
   const abortControllerRef = useRef<AbortController>(null);
 
   const openSseConnection = async () => {
@@ -59,9 +60,7 @@ export const SseComponent = ({ channel }: Props) => {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-    const sseUrl = new URL(SSE_BASE_PATH, URL_BASE);
-    const streamKey = crypto.randomUUID();
-    streamKeyRef.current = streamKey;
+    const sseUrl = new URL(SSE_BASE_PATH + "/subscribe", URL_BASE);
 
     await fetchEventSource(sseUrl.href, {
       method: "POST",
@@ -69,10 +68,7 @@ export const SseComponent = ({ channel }: Props) => {
         "Content-Type": "application/json",
       },
       signal: controller.signal,
-      body: JSON.stringify({
-        channel: channel,
-        streamKey: streamKey,
-      }),
+      body: JSON.stringify(subscription),
       onopen() {
         setStatus("open");
       },
@@ -105,23 +101,28 @@ export const SseComponent = ({ channel }: Props) => {
   };
 
   useMount(async () => {
-    console.log("mpunt")
+    console.log("mount");
     await openSseConnection();
   });
 
   useUnmount(() => {
-    console.log("unmount")
+    console.log("unmount");
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
   });
 
   useUpdateEffect(() => {
-    if (state && streamKeyRef.current) {
-      const streamKey = streamKeyRef.current;
+    if (state) {
       const offset = state.offset;
       const limit = state.limit;
-      queryByStream(channel, streamKey, offset, limit);
+      queryByStream({
+        sseSubscription: subscription,
+        option: {
+          offset: parseInt(offset),
+          limit: parseInt(limit),
+        },
+      });
     }
   }, [state]);
 
@@ -129,6 +130,7 @@ export const SseComponent = ({ channel }: Props) => {
     <ErrorBoundary fallback={"the err is human..."}>
       <QueryForm isPending={isPending} payload={formAction} />
       <div className="flex justify-center m-4">
+        <ChannelCard subscription={subscription} />
         <StatusCard status={status} />
         <CountCard count={list.length} />
       </div>
@@ -138,10 +140,12 @@ export const SseComponent = ({ channel }: Props) => {
             <div
               key={value.id}
               onClick={() => {
-                if (streamKeyRef.current) {
-                  const streamKey = streamKeyRef.current;
-                  queryById(channel, streamKey, value.id);
-                }
+                queryById({
+                  sseSubscription: subscription,
+                  option: {
+                    id: value.id,
+                  },
+                });
               }}
             >
               <FibonacciCard

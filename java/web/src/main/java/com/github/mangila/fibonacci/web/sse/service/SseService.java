@@ -43,7 +43,7 @@ public class SseService {
         return emitter;
     }
 
-    public void query(SseStreamQuery streamQuery) {
+    public void queryByStream(SseStreamQuery streamQuery) {
         log.info("Querying for {}", streamQuery);
         final var option = streamQuery.option();
         final var subscription = streamQuery.sseSubscription();

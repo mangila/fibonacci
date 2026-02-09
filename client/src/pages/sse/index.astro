@@ -1,14 +1,18 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import DatasourceMenu from "../_components/DatasourceMenu.astro";
+import type { SseSubscription } from "../_types/types";
 import { SseComponent } from "./_components/SseComponent";
 
-const channel = "mangila-sse-channel";
+const subscription: SseSubscription = {
+  channel: "mangila-sse-channel",
+  username: "mangila",
+};
 ---
 
 <Layout>
   <div class="prose mx-auto text-center mt-4">
     <DatasourceMenu title="SSE" />
   </div>
-  <SseComponent client:load channel={channel} />
+  <SseComponent client:load subscription={subscription} />
 </Layout>

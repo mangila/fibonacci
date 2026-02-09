@@ -23,46 +23,60 @@ public record SseSession(
             .reconnectTime(1000L)
             .build();
 
+    private static final Set<ResponseBodyEmitter.DataWithMediaType> STREAM_START_EVENT = SseEmitter.event()
+            .name("stream-start")
+            .reconnectTime(1000L)
+            .build();
+
+    private static final Set<ResponseBodyEmitter.DataWithMediaType> STREAM_END_EVENT = SseEmitter.event()
+            .name("stream-end")
+            .reconnectTime(1000L)
+            .build();
+
     public SseSession {
         Ensure.notNull(sseSubscription, "Subscription must not be null");
         Ensure.notNull(emitter, "Emitter must not be null");
     }
 
     public void send(FibonacciProjection event) {
-        try {
-            final var sseEvent = SseEmitter.event()
-                    .id(String.valueOf(event.sequence()))
-                    .data(event, MediaType.APPLICATION_JSON)
-                    .name(sseSubscription.channel())
-                    .reconnectTime(1000L)
-                    .comment(sseSubscription().username())
-                    .build();
-            emitter.send(sseEvent);
-        } catch (IOException e) {
-            log.error("Error while sending event: {} -- {}", sseSubscription, event, e);
-        }
+        final var sseEvent = SseEmitter.event()
+                .id(String.valueOf(event.sequence()))
+                .data(event, MediaType.APPLICATION_JSON)
+                .name("stream")
+                .reconnectTime(1000L)
+                .comment(sseSubscription.channel())
+                .build();
+        send(sseEvent);
     }
 
     public void send(FibonacciDto event) {
-        try {
-            final var sseEvent = SseEmitter.event()
-                    .id(String.valueOf(event.sequence()))
-                    .data(event, MediaType.APPLICATION_JSON)
-                    .name(sseSubscription.channel())
-                    .reconnectTime(1000L)
-                    .comment(sseSubscription().username())
-                    .build();
-            emitter.send(sseEvent);
-        } catch (IOException e) {
-            log.error("Error while sending event: {} -- {}", sseSubscription, event, e);
-        }
+        final var sseEvent = SseEmitter.event()
+                .id(String.valueOf(event.sequence()))
+                .data(event, MediaType.APPLICATION_JSON)
+                .name("id")
+                .reconnectTime(1000L)
+                .comment(sseSubscription.channel())
+                .build();
+        send(sseEvent);
+    }
+
+    public void sendStreamStart() {
+        send(STREAM_START_EVENT);
+    }
+
+    public void sendStreamEnd() {
+        send(STREAM_END_EVENT);
     }
 
     public void sendHeartbeat() {
+        send(HEART_BEAT_EVENT);
+    }
+
+    private void send(Set<ResponseBodyEmitter.DataWithMediaType> event) {
         try {
-            emitter.send(HEART_BEAT_EVENT);
+            emitter.send(event);
         } catch (IOException e) {
-            log.error("Error while sending heartbeat: {}", e.getMessage(), e);
+            log.error("Error while sending heartbeat: {} -- {}", sseSubscription, e.getMessage(), e);
         }
     }
 }

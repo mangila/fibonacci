@@ -8,7 +8,7 @@ content-type: application/json
 }
 
 ### POST stream query request to SSE endpoint
-POST http://{{baseUrl}}/api/v1/sse/query
+POST http://{{baseUrl}}/api/v1/sse/stream
 Content-Type: application/json
 
 {

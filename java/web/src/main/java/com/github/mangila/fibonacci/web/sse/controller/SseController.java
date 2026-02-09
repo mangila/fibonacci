@@ -32,15 +32,15 @@ public class SseController {
         return service.subscribe(sseSubscription);
     }
 
-    @PostMapping("query")
-    public ResponseEntity<Map<String, String>> sseQuery(@RequestBody @NotNull @Valid SseStreamQuery streamQuery) {
-        service.query(streamQuery);
+    @PostMapping("stream")
+    public ResponseEntity<Map<String, String>> sseQueryByStream(@RequestBody @NotNull @Valid SseStreamQuery streamQuery) {
+        service.queryByStream(streamQuery);
         return ResponseEntity.ok(OK);
     }
 
     @PostMapping("id")
-    public ResponseEntity<?> sseId(@RequestBody @NotNull @Valid SseIdQuery idQuery) {
-        service.queryById(idQuery);
+    public ResponseEntity<?> sseQueryById(@RequestBody @NotNull @Valid SseIdQuery sseIdQuery) {
+        service.queryById(sseIdQuery);
         return ResponseEntity.ok(OK);
     }
 }

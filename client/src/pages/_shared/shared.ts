@@ -1,58 +1,22 @@
 import axios from "axios";
 import { Client } from "@stomp/stompjs";
-import type { FibonacciComputeCommand } from "../_types/types";
+import type { SseIdQuery, SseStreamQuery } from "../_types/types";
 
 export const URL_BASE = new URL(import.meta.env.PUBLIC_FIBONACCI_API_URL);
 export const SSE_BASE_PATH = "/api/v1/sse";
 export const STOMP_URL = import.meta.env.PUBLIC_STOMP_URL;
-export const SCHEDULER_URL_BASE = import.meta.env
-  .PUBLIC_FIBONACCI_SCHEDULER_URL;
-export const TEXT_DECODER = new TextDecoder("utf-8");
 
 const BASE = new URL(URL_BASE);
-const API_BASE = SSE_BASE_PATH;
+const SSE_API_BASE = SSE_BASE_PATH;
 
-export async function queryByStream(
-  channel: string,
-  streamKey: string,
-  offset: string,
-  limit: string,
-) {
-  const url = new URL(API_BASE + `/stream`, BASE);
-  await axios.post(url.href, {
-    subscription: {
-      channel: channel,
-      streamKey: streamKey,
-    },
-    offset: offset,
-    limit: limit
-  });
+export async function queryByStream(query: SseStreamQuery) {
+  const url = new URL(SSE_API_BASE + `/stream`, BASE);
+  await axios.post(url.href, query);
 }
 
-export async function queryById(
-  channel: string,
-  streamKey: string,
-  id: number,
-) {
-  const url = new URL(API_BASE + `/id`, BASE);
-  await axios.post(url.href, {
-    subscription: {
-      channel: channel,
-      streamKey: streamKey,
-    },
-    id: id,
-  });
-}
-
-export async function enqueueFibonacciSequences(data: FibonacciComputeCommand) {
-  const url = new URL("api/v1/scheduler", SCHEDULER_URL_BASE);
-  const response = await axios.post(url.href, {
-    algorithm: data.algorithm,
-    offset: data.offset,
-    limit: data.limit,
-    delayInMillis: data.delayInMillis,
-  });
-  return response;
+export async function queryById(query: SseIdQuery) {
+  const url = new URL(SSE_API_BASE + `/id`, BASE);
+  await axios.post(url.href, query);
 }
 
 export function createStompClient(url: string) {
