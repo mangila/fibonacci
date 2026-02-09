@@ -28,7 +28,7 @@ public class ConsumerBootstrap {
                     RedisConfig.DEFAULT_BLOOM_FILTER_ERROR_RATE,
                     RedisConfig.DEFAULT_BLOOM_FILTER_CAPACITY);
         } catch (Exception e) {
-            log.error("Err creating bloom filter", e);
+            log.warn("Err creating bloom filter", e);
         }
     }
 }

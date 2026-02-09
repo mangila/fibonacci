@@ -29,7 +29,7 @@ public class DrainZsetBootstrap {
             String code = drainZsetScript.getContentAsString(StandardCharsets.UTF_8);
             redisRepository.functionLoad(code);
         } catch (Exception e) {
-            log.error("Err loading function: {}", drainZsetScript.getFilename(), e);
+            log.warn("Err loading function: {}", drainZsetScript.getFilename(), e);
         }
     }
 }

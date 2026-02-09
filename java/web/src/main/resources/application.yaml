@@ -26,9 +26,6 @@ spring:
       pool-name: fibonacci-java-spring-hikari
       maximum-pool-size: 10
       connection-test-query: "SELECT 1"
-  sql:
-    init:
-      mode: never
   flyway:
     enabled: true
     baseline-on-migrate: true
@@ -42,6 +39,14 @@ spring:
       - classpath:db/migration
     postgresql:
       transactional-lock: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      client-name: ${spring.application.name}
+      jedis:
+        pool:
+          enabled: true
   docker:
     compose:
       skip:

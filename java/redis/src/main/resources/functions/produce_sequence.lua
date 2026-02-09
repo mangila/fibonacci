@@ -15,8 +15,7 @@ local function produce_sequence(keys, args)
     -- 1. Check redis bloom filter
     local exists = redis.call('BF.EXISTS', bloomfilter_key, sequence)
 
-    -- 2. check if it exists in the bloom filter
-    -- else then push to queue
+    -- 2. check if it exists in the bloom filter, else then push to queue
     if exists == 1 then
         return "EXISTS: " .. sequence
     else

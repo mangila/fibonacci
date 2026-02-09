@@ -53,12 +53,6 @@ spring:
       - classpath:db/migration
     postgresql:
       transactional-lock: true
-  docker:
-    compose:
-      skip:
-        in-tests: true
-      enabled: false
-      file: ${user.dir}/java/docker-compose-dev.yaml
   data:
     redis:
       host: localhost
@@ -67,6 +61,12 @@ spring:
       jedis:
         pool:
           enabled: true
+  docker:
+    compose:
+      skip:
+        in-tests: true
+      enabled: false
+      file: ${user.dir}/java/docker-compose-dev.yaml
 # JobRunr
 jobrunr:
   job-scheduler:

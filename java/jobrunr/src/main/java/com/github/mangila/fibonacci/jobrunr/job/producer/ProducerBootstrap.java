@@ -36,14 +36,14 @@ public class ProducerBootstrap {
                     RedisConfig.DEFAULT_BLOOM_FILTER_ERROR_RATE,
                     RedisConfig.DEFAULT_BLOOM_FILTER_CAPACITY);
         } catch (Exception e) {
-            log.error("Err creating bloom filter", e);
+            log.warn("Err creating bloom filter", e);
         }
         try {
             @Language("Lua")
             String code = produceSequenceScript.getContentAsString(StandardCharsets.UTF_8);
             redisRepository.functionLoad(code);
         } catch (Exception e) {
-            log.error("Err loading function: {}", produceSequenceScript.getFilename(), e);
+            log.warn("Err loading function: {}", produceSequenceScript.getFilename(), e);
         }
     }
 }

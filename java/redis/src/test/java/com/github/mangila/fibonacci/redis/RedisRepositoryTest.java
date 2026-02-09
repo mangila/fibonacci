@@ -12,8 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataRedisTest
 @RedisTestContainer
 @Import({RedisRepository.class,
-        RedisConfig.class,
-        RedisBootstrap.class})
+        RedisConfig.class})
 class RedisRepositoryTest {
 
     @Autowired
@@ -27,13 +26,6 @@ class RedisRepositoryTest {
 
     @Autowired
     private RedisKey zset;
-
-    @Test
-    void afterBootstrapTest() {
-        assertThat(jedis.exists(bloomFilter.value())).isTrue();
-        assertThat(jedis.functionList())
-                .hasSize(2);
-    }
 
     @Test
     void addZset() {

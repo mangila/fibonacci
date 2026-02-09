@@ -56,12 +56,22 @@ public class ProduceSequenceFunctionTest {
 
     @Test
     void test() {
+        // given
         var sequence = "100";
         var payload = "hello";
         var args = List.of(sequence, payload);
+        repository.createBloomFilter(bloomFilter,
+                RedisConfig.DEFAULT_BLOOM_FILTER_ERROR_RATE,
+                RedisConfig.DEFAULT_BLOOM_FILTER_CAPACITY);
+        // then
         var result = repository.functionCall(produceSequence, keys, args);
+        // assert
         assertThat(result).isEqualTo("OK: %s".formatted(sequence));
+        // given 2
+        repository.addBloomFilter(bloomFilter, Integer.parseInt(sequence));
+        // then 2
         result = repository.functionCall(produceSequence, keys, args);
+        // assert 2
         assertThat(result).isEqualTo("EXISTS: %s".formatted(sequence));
         assertThat(jedis.rpop(queue.value())).isEqualTo(payload);
     }
