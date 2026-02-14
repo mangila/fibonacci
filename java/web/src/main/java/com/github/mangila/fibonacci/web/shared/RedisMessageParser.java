@@ -2,6 +2,8 @@ package com.github.mangila.fibonacci.web.shared;
 
 import io.github.mangila.ensure4j.Ensure;
 import org.intellij.lang.annotations.Language;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -11,6 +13,7 @@ import tools.jackson.databind.node.ObjectNode;
 @Component
 public class RedisMessageParser {
 
+    private static final Logger log = LoggerFactory.getLogger(RedisMessageParser.class);
     private final JsonMapper jsonMapper;
 
     public RedisMessageParser(JsonMapper jsonMapper) {

@@ -16,11 +16,7 @@ import type {
 import { FibonacciCard } from "../../_components/FibonacciCard";
 import { StatusCard } from "../../_components/StatusCard";
 import { CountCard } from "../../_components/CountCard";
-import {
-  createStompClient,
-  STOMP_URL,
-  TEXT_DECODER,
-} from "../../_shared/shared";
+import { createStompClient, STOMP_URL } from "../../_shared/shared";
 import { QueryForm } from "../../_components/QueryForm";
 
 function handleSubmit(_, formData: FormData) {
@@ -52,10 +48,6 @@ export const WsQuery = () => {
         const data: FibonacciDto = JSON.parse(frame.body);
         setModalData(data);
       });
-      client.subscribe("/user/queue/errors", (frame: IFrame) => {
-        const decoded: string = TEXT_DECODER.decode(frame.binaryBody);
-        console.error(decoded);
-      });
     };
     client.onWebSocketError = () => {
       setStatus("error");
@@ -74,8 +66,9 @@ export const WsQuery = () => {
 
   useUpdateEffect(() => {
     if (state) {
+      resetList([]);
       stompClient.publish({
-        destination: "/app/fibonacci/list",
+        destination: "/app/stream",
         body: JSON.stringify({
           offset: state.offset,
           limit: state.limit,
@@ -106,8 +99,8 @@ export const WsQuery = () => {
               key={value.id}
               onClick={() => {
                 stompClient.publish({
-                  destination: "/app/fibonacci/id",
-                  body: value.id.toString(),
+                  destination: "/app/id",
+                  body: JSON.stringify({ id: value.id }),
                 });
               }}
             >
