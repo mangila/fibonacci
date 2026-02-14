@@ -9,11 +9,11 @@ import tools.jackson.databind.node.ObjectNode;
 
 
 @Component
-public class JsonOptionUtils {
+public class RedisMessageParser {
 
     private final JsonMapper jsonMapper;
 
-    public JsonOptionUtils(JsonMapper jsonMapper) {
+    public RedisMessageParser(JsonMapper jsonMapper) {
         this.jsonMapper = jsonMapper;
     }
 

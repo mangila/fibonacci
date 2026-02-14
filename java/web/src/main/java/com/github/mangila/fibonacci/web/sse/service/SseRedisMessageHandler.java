@@ -6,7 +6,7 @@ import com.github.mangila.fibonacci.redis.RedisKey;
 import com.github.mangila.fibonacci.web.shared.FibonacciIdOption;
 import com.github.mangila.fibonacci.web.shared.FibonacciMapper;
 import com.github.mangila.fibonacci.web.shared.FibonacciStreamOption;
-import com.github.mangila.fibonacci.web.shared.JsonOptionUtils;
+import com.github.mangila.fibonacci.web.shared.RedisMessageParser;
 import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ public class SseRedisMessageHandler {
     private static final Logger log = LoggerFactory.getLogger(SseRedisMessageHandler.class);
 
     private final JsonMapper jsonMapper;
-    private final JsonOptionUtils jsonOptionUtils;
+    private final RedisMessageParser redisMessageParser;
     private final RedisKey stream;
     private final StringRedisTemplate stringRedisTemplate;
     private final PostgresRepository postgresRepository;
@@ -35,14 +35,14 @@ public class SseRedisMessageHandler {
     private final SseSessionRegistry registry;
 
     public SseRedisMessageHandler(JsonMapper jsonMapper,
-                                  JsonOptionUtils jsonOptionUtils,
+                                  RedisMessageParser redisMessageParser,
                                   RedisKey stream,
                                   StringRedisTemplate stringRedisTemplate,
                                   PostgresRepository postgresRepository,
                                   FibonacciMapper mapper,
                                   SseSessionRegistry registry) {
         this.jsonMapper = jsonMapper;
-        this.jsonOptionUtils = jsonOptionUtils;
+        this.redisMessageParser = redisMessageParser;
         this.stream = stream;
         this.stringRedisTemplate = stringRedisTemplate;
         this.postgresRepository = postgresRepository;
@@ -53,7 +53,7 @@ public class SseRedisMessageHandler {
     public void handleSseMessage(@Language("JSON") String message, String channel) {
         log.info("Handle message - {} - {}", message, channel);
         try {
-            var optionNode = jsonOptionUtils.determineOption(message);
+            var optionNode = redisMessageParser.determineOption(message);
             switch (optionNode.optionType()) {
                 case STREAM_OPTION -> {
                     var sseStreamOption = jsonMapper.treeToValue(optionNode.node(), FibonacciStreamOption.class);

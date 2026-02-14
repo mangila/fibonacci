@@ -6,7 +6,7 @@ import com.github.mangila.fibonacci.redis.RedisKey;
 import com.github.mangila.fibonacci.web.shared.FibonacciIdOption;
 import com.github.mangila.fibonacci.web.shared.FibonacciMapper;
 import com.github.mangila.fibonacci.web.shared.FibonacciStreamOption;
-import com.github.mangila.fibonacci.web.shared.JsonOptionUtils;
+import com.github.mangila.fibonacci.web.shared.RedisMessageParser;
 import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class WsRedisMessageHandler {
     private final FibonacciMapper mapper;
     private final PostgresRepository postgresRepository;
     private final JsonMapper jsonMapper;
-    private final JsonOptionUtils jsonOptionUtils;
+    private final RedisMessageParser redisMessageParser;
     private final SimpMessagingTemplate template;
 
     public WsRedisMessageHandler(RedisKey stream,
@@ -38,20 +38,20 @@ public class WsRedisMessageHandler {
                                  FibonacciMapper mapper,
                                  PostgresRepository postgresRepository,
                                  JsonMapper jsonMapper,
-                                 JsonOptionUtils jsonOptionUtils,
+                                 RedisMessageParser redisMessageParser,
                                  SimpMessagingTemplate template) {
         this.stream = stream;
         this.stringRedisTemplate = stringRedisTemplate;
         this.mapper = mapper;
         this.postgresRepository = postgresRepository;
         this.jsonMapper = jsonMapper;
-        this.jsonOptionUtils = jsonOptionUtils;
+        this.redisMessageParser = redisMessageParser;
         this.template = template;
     }
 
     public void handleWsMessage(@Language("JSON") String message, String channel) {
         log.info("Handle message - {} - {}", message, channel);
-        var optionNode = jsonOptionUtils.determineOption(message);
+        var optionNode = redisMessageParser.determineOption(message);
         switch (optionNode.optionType()) {
             case STREAM_OPTION -> {
                 var streamOption = jsonMapper.treeToValue(optionNode.node(), FibonacciStreamOption.class);
