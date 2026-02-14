@@ -4,8 +4,8 @@ import com.github.mangila.fibonacci.postgres.FibonacciProjection;
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
 import com.github.mangila.fibonacci.redis.RedisKey;
 import com.github.mangila.fibonacci.web.shared.FibonacciMapper;
-import com.github.mangila.fibonacci.web.sse.model.SseIdOption;
-import com.github.mangila.fibonacci.web.sse.model.SseStreamOption;
+import com.github.mangila.fibonacci.web.shared.FibonacciIdOption;
+import com.github.mangila.fibonacci.web.shared.FibonacciStreamOption;
 import io.github.mangila.ensure4j.Ensure;
 import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
@@ -23,9 +23,9 @@ import java.time.Duration;
 
 
 @Component
-public class SseMessageHandler {
+public class SseRedisMessageHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(SseMessageHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(SseRedisMessageHandler.class);
 
     private final JsonMapper jsonMapper;
     private final RedisKey stream;
@@ -34,12 +34,12 @@ public class SseMessageHandler {
     private final FibonacciMapper mapper;
     private final SseSessionRegistry registry;
 
-    public SseMessageHandler(JsonMapper jsonMapper,
-                             RedisKey stream,
-                             StringRedisTemplate stringRedisTemplate,
-                             PostgresRepository postgresRepository,
-                             FibonacciMapper mapper,
-                             SseSessionRegistry registry) {
+    public SseRedisMessageHandler(JsonMapper jsonMapper,
+                                  RedisKey stream,
+                                  StringRedisTemplate stringRedisTemplate,
+                                  PostgresRepository postgresRepository,
+                                  FibonacciMapper mapper,
+                                  SseSessionRegistry registry) {
         this.jsonMapper = jsonMapper;
         this.stream = stream;
         this.stringRedisTemplate = stringRedisTemplate;
@@ -48,16 +48,16 @@ public class SseMessageHandler {
         this.registry = registry;
     }
 
-    public void handleMessage(@Language("JSON") String message, String channel) {
+    public void handleSseMessage(@Language("JSON") String message, String channel) {
         log.info("Handle message - {} - {}", message, channel);
         try {
             var node = jsonMapper.readTree(message);
             Ensure.isTrue(node.isObject(), "json node must be an object");
             if (isStreamOption(node)) {
-                var sseStreamOption = jsonMapper.treeToValue(node, SseStreamOption.class);
+                var sseStreamOption = jsonMapper.treeToValue(node, FibonacciStreamOption.class);
                 processStream(sseStreamOption, channel);
             } else if (isIdOption(node)) {
-                var sseIdOption = jsonMapper.treeToValue(node, SseIdOption.class);
+                var sseIdOption = jsonMapper.treeToValue(node, FibonacciIdOption.class);
                 processId(sseIdOption, channel);
             } else {
                 log.warn("Unknown node property");
@@ -75,7 +75,7 @@ public class SseMessageHandler {
         return node.hasNonNull("id");
     }
 
-    private void processStream(SseStreamOption option, String channel) {
+    private void processStream(FibonacciStreamOption option, String channel) {
         final int offset = option.offset();
         final int limit = option.limit();
         var sessions = registry.getSessions(channel);
@@ -111,7 +111,7 @@ public class SseMessageHandler {
         }
     }
 
-    private void processId(SseIdOption option, String channel) {
+    private void processId(FibonacciIdOption option, String channel) {
         final int id = option.id();
         var sessions = registry.getSessions(channel);
         if (!CollectionUtils.isEmpty(sessions)) {

@@ -1,11 +1,13 @@
 package com.github.mangila.fibonacci.web.sse.service;
 
+import com.github.mangila.fibonacci.web.shared.RedisPublisher;
 import com.github.mangila.fibonacci.web.sse.model.SseIdQuery;
 import com.github.mangila.fibonacci.web.sse.model.SseSession;
 import com.github.mangila.fibonacci.web.sse.model.SseStreamQuery;
 import com.github.mangila.fibonacci.web.sse.model.SseSubscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
@@ -19,15 +21,15 @@ public class SseService {
 
     private static final Logger log = LoggerFactory.getLogger(SseService.class);
 
-    private final SseRedisPublisher publisher;
+    private final RedisPublisher publisher;
     private final SseSessionRegistry registry;
     private final RedisMessageListenerContainer container;
     private final MessageListenerAdapter adapter;
 
-    public SseService(SseRedisPublisher publisher,
+    public SseService(RedisPublisher publisher,
                       SseSessionRegistry registry,
                       RedisMessageListenerContainer container,
-                      MessageListenerAdapter adapter) {
+                     @Qualifier("sseListenerAdapter") MessageListenerAdapter adapter) {
         this.publisher = publisher;
         this.registry = registry;
         this.container = container;
