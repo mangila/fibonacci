@@ -53,7 +53,7 @@ public class SseRedisMessageHandler {
     public void handleSseMessage(@Language("JSON") String message, String channel) {
         log.info("Handle message - {} - {}", message, channel);
         try {
-            var optionNode = redisMessageParser.determineOption(message);
+            var optionNode = redisMessageParser.parse(message);
             switch (optionNode.optionType()) {
                 case STREAM_OPTION -> {
                     var sseStreamOption = jsonMapper.treeToValue(optionNode.node(), FibonacciStreamOption.class);

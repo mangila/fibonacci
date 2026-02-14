@@ -51,7 +51,7 @@ public class WsRedisMessageHandler {
 
     public void handleWsMessage(@Language("JSON") String message, String channel) {
         log.info("Handle message - {} - {}", message, channel);
-        var optionNode = redisMessageParser.determineOption(message);
+        var optionNode = redisMessageParser.parse(message);
         switch (optionNode.optionType()) {
             case STREAM_OPTION -> {
                 var streamOption = jsonMapper.treeToValue(optionNode.node(), FibonacciStreamOption.class);

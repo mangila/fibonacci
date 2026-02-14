@@ -31,7 +31,7 @@ public class RedisMessageParser {
         }
     }
 
-    public OptionNode determineOption(@Language("JSON") String json) {
+    public OptionNode parse(@Language("JSON") String json) {
         var node = jsonMapper.readTree(json);
         Ensure.isTrue(node.isObject(), "json node must be an object");
         if (isStreamOption(node)) {
