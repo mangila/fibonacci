@@ -29,7 +29,7 @@ public class SseService {
     public SseService(RedisPublisher publisher,
                       SseSessionRegistry registry,
                       RedisMessageListenerContainer container,
-                     @Qualifier("sseListenerAdapter") MessageListenerAdapter adapter) {
+                      @Qualifier("sseListenerAdapter") MessageListenerAdapter adapter) {
         this.publisher = publisher;
         this.registry = registry;
         this.container = container;
@@ -46,14 +46,12 @@ public class SseService {
     }
 
     public void queryByStream(SseStreamQuery streamQuery) {
-        log.info("Querying for {}", streamQuery);
         final var option = streamQuery.option();
         final var subscription = streamQuery.sseSubscription();
         publisher.publish(subscription.channel(), option);
     }
 
     public void queryById(SseIdQuery idQuery) {
-        log.info("Querying for {}", idQuery);
         final var option = idQuery.option();
         final var subscription = idQuery.sseSubscription();
         publisher.publish(subscription.channel(), option);

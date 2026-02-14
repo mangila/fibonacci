@@ -1,6 +1,5 @@
 package com.github.mangila.fibonacci.web.ws.config;
 
-import com.github.mangila.fibonacci.web.sse.service.SseRedisMessageHandler;
 import com.github.mangila.fibonacci.web.ws.model.AnonymousHandshakeHandler;
 import com.github.mangila.fibonacci.web.ws.service.WsRedisMessageHandler;
 import org.jspecify.annotations.Nullable;

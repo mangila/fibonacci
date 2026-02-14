@@ -26,12 +26,12 @@ public class WebSocketController {
     @MessageMapping("stream")
     public void wsQueryByStream(@NotNull @Valid FibonacciStreamOption option, Principal principal) {
         log.info("ws query by stream - {} - {}", option, principal.getName());
-        service.queryByStream(option);
+        service.queryByStream(principal, option);
     }
 
     @MessageMapping("id")
     public void wsQueryById(@NotNull @Valid FibonacciIdOption option, Principal principal) {
         log.info("ws query by id - {} - {}", option, principal.getName());
-        service.queryById(option);
+        service.queryById(principal, option);
     }
 }
