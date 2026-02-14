@@ -1,6 +1,8 @@
 package com.github.mangila.fibonacci.postgres;
 
 import io.github.mangila.ensure4j.Ensure;
+import io.github.mangila.ensure4j.ops.EnsureCollectionOps;
+import io.github.mangila.ensure4j.ops.EnsureNumberOps;
 import org.intellij.lang.annotations.Language;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
@@ -17,7 +19,9 @@ import java.util.stream.Stream;
 @Repository
 public class PostgresRepository {
 
-    // NamedParameterJdbcTemplate must be used for batch operations
+    private static final EnsureNumberOps ENSURE_NUMBER_OPS = Ensure.numbers();
+    private static final EnsureCollectionOps ENSURE_COLLECTION_OPS = Ensure.collections();
+    // NamedParameterJdbcTemplate or JdbcTemplate must be used for batch operations
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final JdbcClient jdbcClient;
 
@@ -27,7 +31,7 @@ public class PostgresRepository {
     }
 
     public Optional<FibonacciEntity> queryById(int id) {
-        Ensure.positive(id);
+        ENSURE_NUMBER_OPS.positive(id);
         @Language("PostgreSQL") final String sql = """
                 SELECT id, sequence, result, precision
                 FROM fibonacci_results
@@ -40,7 +44,7 @@ public class PostgresRepository {
     }
 
     public Optional<FibonacciProjection> queryBySequence(int sequence) {
-        Ensure.positive(sequence);
+        ENSURE_NUMBER_OPS.positive(sequence);
         @Language("PostgreSQL") final String sql = """
                 SELECT id, sequence, precision
                 FROM fibonacci_results
@@ -51,10 +55,10 @@ public class PostgresRepository {
                 .query(FibonacciProjection.class)
                 .optional();
     }
-    
+
     @Transactional
     public void streamMetadataWhereSentToZsetIsFalseLocked(int limit, Consumer<Stream<Integer>> consumer) {
-        Ensure.positive(limit);
+        ENSURE_NUMBER_OPS.positive(limit);
         Ensure.notNull(consumer);
         @Language("PostgreSQL") final String sql = """
                 SELECT id
@@ -74,9 +78,9 @@ public class PostgresRepository {
     }
 
     public Optional<FibonacciProjection> insert(int sequence, BigDecimal result, int precision) {
-        Ensure.positive(sequence);
+        ENSURE_NUMBER_OPS.positive(sequence);
         Ensure.notNull(result);
-        Ensure.positive(precision);
+        ENSURE_NUMBER_OPS.positive(precision);
         @Language("PostgreSQL") final String sql = """
                 INSERT INTO fibonacci_results
                 (sequence, result, precision)
@@ -93,7 +97,7 @@ public class PostgresRepository {
     }
 
     public void batchUpsertMetadata(List<FibonacciMetadataProjection> metadataProjections) {
-        Ensure.notEmpty(metadataProjections);
+        ENSURE_COLLECTION_OPS.notEmpty(metadataProjections);
         @Language("PostgreSQL") final String sql = """
                 INSERT INTO fibonacci_metadata
                 (id,sent_to_zset,sent_to_stream)
@@ -109,7 +113,7 @@ public class PostgresRepository {
 
     public void upsertMetadata(FibonacciMetadataProjection metadataProjection) {
         Ensure.notNull(metadataProjection);
-        Ensure.positive(metadataProjection.id());
+        ENSURE_NUMBER_OPS.positive(metadataProjection.id());
         @Language("PostgreSQL") final String sql = """
                 INSERT INTO fibonacci_metadata
                 (id, sent_to_zset, sent_to_stream)

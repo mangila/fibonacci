@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.postgres;
 
 import io.github.mangila.ensure4j.Ensure;
+import io.github.mangila.ensure4j.ops.EnsureNumberOps;
 
 import java.math.BigDecimal;
 
@@ -8,10 +9,13 @@ public record FibonacciEntity(int id,
                               int sequence,
                               BigDecimal result,
                               int precision) {
+
+    private static final EnsureNumberOps ENSURE_NUMBER_OPS = Ensure.numbers();
+
     public FibonacciEntity {
-        Ensure.positive(id);
-        Ensure.positive(precision);
+        ENSURE_NUMBER_OPS.positive(id);
+        ENSURE_NUMBER_OPS.positive(precision);
         Ensure.notNull(result);
-        Ensure.positive(sequence);
+        ENSURE_NUMBER_OPS.positive(sequence);
     }
 }

@@ -1,6 +1,8 @@
 package com.github.mangila.fibonacci.redis;
 
 import io.github.mangila.ensure4j.Ensure;
+import io.github.mangila.ensure4j.ops.EnsureNumberOps;
+import io.github.mangila.ensure4j.ops.EnsureStringOps;
 import org.intellij.lang.annotations.Language;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -15,6 +17,8 @@ import java.util.List;
 public class RedisRepository {
 
     private static final Logger log = LoggerFactory.getLogger(RedisRepository.class);
+    private static final EnsureStringOps ENSURE_STRING_OPS = Ensure.strings();
+    private static final EnsureNumberOps ENSURE_NUMBER_OPS = Ensure.numbers();
 
     private final JedisPooled jedis;
 
@@ -25,14 +29,14 @@ public class RedisRepository {
     public String createBloomFilter(RedisKey key, double errorRate, int capacity) {
         Ensure.notNull(key, "Key must not be null");
         // TODO: ensure with floats
-        Ensure.positive(capacity, "Capacity must be positive");
+        ENSURE_NUMBER_OPS.positive(capacity, "Capacity must be positive");
         return jedis.bfReserve(key.value(), errorRate, capacity);
     }
 
     public long addZset(RedisKey key, int score, String member) {
         Ensure.notNull(key, "Key must not be null");
-        Ensure.positive(score, "Score must be positive");
-        Ensure.notBlank(member, "Member must not be blank");
+        ENSURE_NUMBER_OPS.positive(score, "Score must be positive");
+        ENSURE_STRING_OPS.notBlank(member, "Member must not be blank");
         return jedis.zadd(key.value(),
                 score,
                 member,
@@ -42,7 +46,7 @@ public class RedisRepository {
     public String functionLoad(@Language("Lua") String code) {
         // TODO: ensure string start with and end with
         // Ensure.startsWith("#!lua name=", code);
-        Ensure.notBlank(code, "Code must not be blank");
+        ENSURE_STRING_OPS.notBlank(code, "Code must not be blank");
         return jedis.functionLoad(code);
     }
 
