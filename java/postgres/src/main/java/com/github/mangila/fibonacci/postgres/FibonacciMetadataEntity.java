@@ -4,8 +4,7 @@ import java.time.Instant;
 
 public record FibonacciMetadataEntity(
         int id,
-        boolean sentToZset,
-        boolean sentToStream,
+        boolean computed,
         Instant updatedAt,
         Instant createdAt
 ) {

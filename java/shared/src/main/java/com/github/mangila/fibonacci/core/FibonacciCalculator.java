@@ -2,16 +2,8 @@ package com.github.mangila.fibonacci.core;
 
 import java.math.BigInteger;
 
-public final class FibonacciCalculator {
-
-    private static final FibonacciCalculator INSTANCE = new FibonacciCalculator();
-
-    private FibonacciCalculator() {
-    }
-
-    public static FibonacciCalculator getInstance() {
-        return INSTANCE;
-    }
+public enum FibonacciCalculator {
+    INSTANCE;
 
     /**
      * Naive recursive approach to calculate Fibonacci sequence.

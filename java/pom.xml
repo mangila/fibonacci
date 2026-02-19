@@ -13,9 +13,7 @@
         <module>shared</module>
         <module>jobrunr</module>
         <module>postgres</module>
-        <module>redis</module>
         <module>postgres-test</module>
-        <module>redis-test</module>
     </modules>
 
     <properties>
@@ -48,21 +46,11 @@
                 <artifactId>postgres-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.github.mangila.fibonacci</groupId>
-                <artifactId>redis</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.mangila.fibonacci</groupId>
-                <artifactId>redis-test</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <!-- Source: https://mvnrepository.com/artifact/io.github.mangila/ensure4j -->
             <dependency>
                 <groupId>io.github.mangila</groupId>
                 <artifactId>ensure4j</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.2</version>
             </dependency>
             <!-- Source: https://mvnrepository.com/artifact/net.javacrumbs.json-unit/json-unit-assertj -->
             <dependency>

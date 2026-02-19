@@ -39,14 +39,6 @@ spring:
       - classpath:db/migration
     postgresql:
       transactional-lock: true
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      client-name: ${spring.application.name}
-      jedis:
-        pool:
-          enabled: true
   docker:
     compose:
       skip:

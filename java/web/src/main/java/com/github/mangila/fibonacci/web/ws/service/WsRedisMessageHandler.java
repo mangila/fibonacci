@@ -15,6 +15,7 @@ import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.connection.stream.StreamReadOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -32,6 +33,7 @@ public class WsRedisMessageHandler {
     private final JsonMapper jsonMapper;
     private final RedisMessageParser redisMessageParser;
     private final SimpMessagingTemplate template;
+    private final SimpUserRegistry simpUserRegistry;
 
     public WsRedisMessageHandler(RedisKey stream,
                                  StringRedisTemplate stringRedisTemplate,
@@ -39,7 +41,8 @@ public class WsRedisMessageHandler {
                                  PostgresRepository postgresRepository,
                                  JsonMapper jsonMapper,
                                  RedisMessageParser redisMessageParser,
-                                 SimpMessagingTemplate template) {
+                                 SimpMessagingTemplate template,
+                                 SimpUserRegistry simpUserRegistry) {
         this.stream = stream;
         this.stringRedisTemplate = stringRedisTemplate;
         this.mapper = mapper;
@@ -47,10 +50,15 @@ public class WsRedisMessageHandler {
         this.jsonMapper = jsonMapper;
         this.redisMessageParser = redisMessageParser;
         this.template = template;
+        this.simpUserRegistry = simpUserRegistry;
     }
 
     public void handleWsMessage(@Language("JSON") String message, String channel) {
         log.info("Handle message - {} - {}", message, channel);
+        if (simpUserRegistry.getUser(channel) == null) {
+            log.warn("User {} not found", channel);
+            return;
+        }
         var optionNode = redisMessageParser.parse(message);
         switch (optionNode.optionType()) {
             case STREAM_OPTION -> {

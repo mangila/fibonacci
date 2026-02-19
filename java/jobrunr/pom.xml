@@ -26,10 +26,6 @@
             <artifactId>postgres</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.mangila.fibonacci</groupId>
-            <artifactId>redis</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jobrunr</groupId>
             <artifactId>jobrunr-spring-boot-4-starter</artifactId>
         </dependency>
@@ -69,11 +65,6 @@
         <dependency>
             <groupId>com.github.mangila.fibonacci</groupId>
             <artifactId>postgres-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.mangila.fibonacci</groupId>
-            <artifactId>redis-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

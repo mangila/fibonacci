@@ -7,6 +7,7 @@ import com.github.mangila.fibonacci.web.shared.FibonacciIdOption;
 import com.github.mangila.fibonacci.web.shared.FibonacciMapper;
 import com.github.mangila.fibonacci.web.shared.FibonacciStreamOption;
 import com.github.mangila.fibonacci.web.shared.RedisMessageParser;
+import com.github.mangila.fibonacci.web.sse.model.SseSession;
 import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 @Component
@@ -52,16 +54,22 @@ public class SseRedisMessageHandler {
 
     public void handleSseMessage(@Language("JSON") String message, String channel) {
         log.info("Handle message - {} - {}", message, channel);
+        var sessions = registry.getSessions(channel);
+        if (CollectionUtils.isEmpty(sessions)) {
+            log.warn("No sse sessions for channel - {}", channel);
+            return;
+        }
         try {
             var optionNode = redisMessageParser.parse(message);
+
             switch (optionNode.optionType()) {
                 case STREAM_OPTION -> {
                     var sseStreamOption = jsonMapper.treeToValue(optionNode.node(), FibonacciStreamOption.class);
-                    processStream(sseStreamOption, channel);
+                    processStream(sessions, sseStreamOption, channel);
                 }
                 case ID_OPTION -> {
                     var sseIdOption = jsonMapper.treeToValue(optionNode.node(), FibonacciIdOption.class);
-                    processId(sseIdOption, channel);
+                    processId(sessions, sseIdOption, channel);
                 }
                 case UNKNOWN -> log.warn("Unknown option - {}", message);
             }
@@ -70,55 +78,45 @@ public class SseRedisMessageHandler {
         }
     }
 
-    private void processStream(FibonacciStreamOption option, String channel) {
+    private void processStream(CopyOnWriteArrayList<SseSession> sessions, FibonacciStreamOption option, String channel) {
         final int offset = option.offset();
         final int limit = option.limit();
-        var sessions = registry.getSessions(channel);
-        if (!CollectionUtils.isEmpty(sessions)) {
-            var readOptions = StreamReadOptions.empty()
-                    .count(limit)
-                    .noack()
-                    .block(Duration.ofSeconds(5));
-            // stream timeline structure: 1-0, 2-0, 3-0 .. etc
-            var timeLineOffset = String.valueOf(offset).concat("-0");
-            var readOffset = ReadOffset.from(timeLineOffset);
-            var streamOptions = StreamOffset.create(stream.value(), readOffset);
-            for (var session : sessions) {
-                session.sendStreamStart();
-            }
-            //noinspection unchecked
-            stringRedisTemplate.opsForStream()
-                    .read(readOptions, streamOptions)
-                    .forEach(record -> {
-                        log.info("Received record: {}", record);
-                        final var data = record.getValue();
-                        @Language("JSON") final var member = data.get("member").toString();
-                        final var event = jsonMapper.readValue(member, FibonacciProjection.class);
-                        for (var session : sessions) {
-                            session.send(event);
-                        }
-                    });
-            for (var session : sessions) {
-                session.sendStreamEnd();
-            }
-        } else {
-            log.warn("No sse sessions for channel - {}", channel);
+        var readOptions = StreamReadOptions.empty()
+                .count(limit)
+                .noack()
+                .block(Duration.ofSeconds(5));
+        // stream timeline structure: 1-0, 2-0, 3-0 .. etc
+        var timeLineOffset = String.valueOf(offset).concat("-0");
+        var readOffset = ReadOffset.from(timeLineOffset);
+        var streamOptions = StreamOffset.create(stream.value(), readOffset);
+        for (var session : sessions) {
+            session.sendStreamStart();
+        }
+        //noinspection unchecked
+        stringRedisTemplate.opsForStream()
+                .read(readOptions, streamOptions)
+                .forEach(record -> {
+                    log.info("Received record: {}", record);
+                    final var data = record.getValue();
+                    @Language("JSON") final var member = data.get("member").toString();
+                    final var event = jsonMapper.readValue(member, FibonacciProjection.class);
+                    for (var session : sessions) {
+                        session.send(event);
+                    }
+                });
+        for (var session : sessions) {
+            session.sendStreamEnd();
         }
     }
 
-    private void processId(FibonacciIdOption option, String channel) {
+    private void processId(CopyOnWriteArrayList<SseSession> sessions, FibonacciIdOption option, String channel) {
         final int id = option.id();
-        var sessions = registry.getSessions(channel);
-        if (!CollectionUtils.isEmpty(sessions)) {
-            postgresRepository.queryById(id)
-                    .ifPresentOrElse(entity -> {
-                        var dto = mapper.toDto(entity);
-                        for (var session : sessions) {
-                            session.send(dto);
-                        }
-                    }, () -> log.warn("{} - not found", option));
-        } else {
-            log.warn("No sse sessions for channel - {}", channel);
-        }
+        postgresRepository.queryById(id)
+                .ifPresentOrElse(entity -> {
+                    var dto = mapper.toDto(entity);
+                    for (var session : sessions) {
+                        session.send(dto);
+                    }
+                }, () -> log.warn("{} - not found", option));
     }
 }

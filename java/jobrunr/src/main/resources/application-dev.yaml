@@ -12,15 +12,6 @@ app:
       enabled: true
       limit: 50
       cron: "0/45 * * * * *"
-    zset:
-      drain:
-        enabled: true
-        limit: 50
-        cron: "0/30 * * * * *"
-      insert:
-        enabled: true
-        limit: 50
-        cron: "0/60 * * * * *"
 # Spring Properties
 spring:
   flyway:

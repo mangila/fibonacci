@@ -3,8 +3,7 @@ package com.github.mangila.fibonacci.jobrunr.job.consumer;
 import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.ComputeJobRequest;
 import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.ComputeScheduler;
 import com.github.mangila.fibonacci.jobrunr.job.model.FibonacciComputeRequest;
-import com.github.mangila.fibonacci.redis.RedisKey;
-import com.github.mangila.fibonacci.redis.RedisRepository;
+import com.github.mangila.fibonacci.postgres.PostgresRepository;
 import org.intellij.lang.annotations.Language;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
@@ -18,20 +17,14 @@ public class ConsumerJobHandler implements JobRequestHandler<ConsumerJobRequest>
 
     private final JsonMapper jsonMapper;
     private final ComputeScheduler computeScheduler;
-    private final RedisKey queue;
-    private final RedisKey bloomFilter;
-    private final RedisRepository redisRepository;
+    private final PostgresRepository postgresRepository;
 
     public ConsumerJobHandler(JsonMapper jsonMapper,
                               ComputeScheduler computeScheduler,
-                              RedisKey queue,
-                              RedisKey bloomFilter,
-                              RedisRepository redisRepository) {
+                              PostgresRepository postgresRepository) {
         this.jsonMapper = jsonMapper;
         this.computeScheduler = computeScheduler;
-        this.queue = queue;
-        this.bloomFilter = bloomFilter;
-        this.redisRepository = redisRepository;
+        this.postgresRepository = postgresRepository;
     }
 
     @Override
