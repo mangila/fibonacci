@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class WebSocketLivestreamListener {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketLivestreamListener.class);
+
     private final SimpMessagingTemplate template;
     private final SimpUserRegistry registry;
 
@@ -24,6 +25,8 @@ public class WebSocketLivestreamListener {
     @EventListener
     public void wsLivestream(FibonacciProjection projection) {
         log.info("Received fibonacci projection: {}", projection);
+        registry.getUsers()
+                .forEach(user -> template.convertAndSendToUser(user.getName(), "/topic/fibonacci", projection));
     }
 
 }

@@ -4,7 +4,6 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.mangila.fibonacci.web.sse.model.SseSession;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -50,11 +49,6 @@ public class SseSessionRegistry {
         emitter.onError(throwable -> {
             log.error("Error in SseSession emitter: {}", throwable.getMessage());
         });
-    }
-
-    @Nullable
-    public CopyOnWriteArrayList<SseSession> getSessions(String channel) {
-        return sessions.getIfPresent(channel);
     }
 
     public Stream<SseSession> getAllSessions() {
