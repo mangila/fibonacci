@@ -1,6 +1,6 @@
 package com.github.mangila.fibonacci.jobrunr.job.consumer;
 
-import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
+import com.github.mangila.fibonacci.shared.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.ComputeJobRequest;
 import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.ComputeScheduler;
 import com.github.mangila.fibonacci.postgres.PostgresRepository;

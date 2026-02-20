@@ -29,6 +29,7 @@ public class ProducerJobHandler implements JobRequestHandler<ProducerJobRequest>
         var metadataProjections = new ArrayList<FibonacciMetadataProjection>();
         for (int i = 1; i <= limit; i++) {
             var metadata = new FibonacciMetadataProjection(i, false, algorithm.name());
+            log.info("Produce fibonacci number: {}", metadata);
             metadataProjections.add(metadata);
             if (metadataProjections.size() >= BATCH_SIZE) {
                 repository.batchInsertMetadata(metadataProjections);

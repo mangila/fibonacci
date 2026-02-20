@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.core.annotation;
+package com.github.mangila.fibonacci.shared.annotation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

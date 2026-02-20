@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.core;
 
 
+import com.github.mangila.fibonacci.shared.FibonacciCalculator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

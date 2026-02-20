@@ -1,4 +1,4 @@
-package com.github.mangila.fibonacci.core;
+package com.github.mangila.fibonacci.shared;
 
 import io.github.mangila.ensure4j.Ensure;
 import io.github.mangila.ensure4j.ops.EnsureNumberOps;

@@ -1,5 +1,6 @@
 package com.github.mangila.fibonacci.core;
 
+import com.github.mangila.fibonacci.shared.FibonacciAlgorithm;
 import io.github.mangila.ensure4j.EnsureException;
 import org.junit.jupiter.api.Test;
 

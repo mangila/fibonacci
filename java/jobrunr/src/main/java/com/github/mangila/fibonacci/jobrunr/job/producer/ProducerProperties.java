@@ -1,6 +1,6 @@
 package com.github.mangila.fibonacci.jobrunr.job.producer;
 
-import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
+import com.github.mangila.fibonacci.shared.FibonacciAlgorithm;
 import org.intellij.lang.annotations.Language;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

@@ -1,7 +1,7 @@
 package com.github.mangila.fibonacci.jobrunr.job.consumer.compute;
 
-import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.core.FibonacciCalculator;
+import com.github.mangila.fibonacci.shared.FibonacciAlgorithm;
+import com.github.mangila.fibonacci.shared.FibonacciCalculator;
 import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.model.FibonacciComputeResult;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

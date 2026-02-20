@@ -1,6 +1,6 @@
 package com.github.mangila.fibonacci.jobrunr.job.consumer;
 
-import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
+import com.github.mangila.fibonacci.shared.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.jobrunr.job.model.FibonacciComputeRequest;
 import com.github.mangila.fibonacci.postgres.test.PostgresTestContainer;
 import com.github.mangila.fibonacci.redis.RedisKey;
