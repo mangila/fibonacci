@@ -1,9 +1,9 @@
 package com.github.mangila.fibonacci.jobrunr.job.consumer;
 
-import com.github.mangila.fibonacci.shared.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.ComputeJobRequest;
 import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.ComputeScheduler;
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
+import com.github.mangila.fibonacci.shared.FibonacciAlgorithm;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.slf4j.Logger;
@@ -29,6 +29,9 @@ public class ConsumerJobHandler implements JobRequestHandler<ConsumerJobRequest>
         final int limit = jobRequest.limit();
         postgresRepository.streamMetadataWhereComputedFalseLocked(limit, metadataStream -> {
             metadataStream.forEach(projection -> {
+                if (log.isDebugEnabled()) {
+                    log.debug("Processing: {}", projection);
+                }
                 var fibonacciAlgorithm = FibonacciAlgorithm.valueOf(projection.algorithm());
                 var uuid = computeScheduler.schedule(new ComputeJobRequest(projection.id(), fibonacciAlgorithm));
                 log.info("Scheduled for computation: {} - {}", uuid, projection);

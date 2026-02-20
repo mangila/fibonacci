@@ -1,17 +1,20 @@
 package com.github.mangila.fibonacci.jobrunr.job.producer;
 
 import com.github.mangila.fibonacci.shared.FibonacciAlgorithm;
-import org.intellij.lang.annotations.Language;
+import jakarta.validation.constraints.Positive;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 @ConfigurationProperties(prefix = "app.job.producer")
+@Validated
 public class ProducerProperties {
 
     private boolean enabled = false;
+    @Positive
     private int limit = 50;
+    @Positive
+    private int batchSize = 100;
     private FibonacciAlgorithm algorithm = FibonacciAlgorithm.ITERATIVE;
-    @Language("CronExp")
-    private String cron = "0 0/1 * * * *";
 
     public int getLimit() {
         return limit;
@@ -26,6 +29,7 @@ public class ProducerProperties {
     }
 
     public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public FibonacciAlgorithm getAlgorithm() {
@@ -36,11 +40,11 @@ public class ProducerProperties {
         this.algorithm = algorithm;
     }
 
-    public String getCron() {
-        return cron;
+    public int getBatchSize() {
+        return batchSize;
     }
 
-    public void setCron(@Language("CronExp") String cron) {
-        this.cron = cron;
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
     }
 }

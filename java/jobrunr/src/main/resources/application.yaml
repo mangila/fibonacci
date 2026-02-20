@@ -7,6 +7,7 @@ app:
       enabled: false
       limit: 200
       algorithm: iterative
+      batch-size: 100
     consumer:
       enabled: false
       limit: 50

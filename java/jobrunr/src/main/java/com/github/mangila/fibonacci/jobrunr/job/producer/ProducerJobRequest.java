@@ -5,7 +5,7 @@ import io.github.mangila.ensure4j.Ensure;
 import io.github.mangila.ensure4j.ops.EnsureNumberOps;
 import org.jobrunr.jobs.lambdas.JobRequest;
 
-public record ProducerJobRequest(int limit, FibonacciAlgorithm algorithm) implements JobRequest {
+public record ProducerJobRequest(int batchSize, int limit, FibonacciAlgorithm algorithm) implements JobRequest {
 
     private static final EnsureNumberOps ENSURE_NUMBER_OPS = Ensure.numbers();
 

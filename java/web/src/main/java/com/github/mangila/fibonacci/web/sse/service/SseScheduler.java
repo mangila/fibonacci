@@ -13,6 +13,7 @@ import java.util.Map;
 public class SseScheduler {
 
     private static final Logger log = LoggerFactory.getLogger(SseScheduler.class);
+
     private final SseProperties sseProperties;
     private final SimpleAsyncTaskScheduler sseTaskScheduler;
     private final SseSessionRegistry sessionRegistry;

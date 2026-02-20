@@ -12,15 +12,15 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ComputeTaskTest {
 
+    private final int sequence = 10;
+
     @Test
     void callRecursive() {
-        int sequence = 10;
         try (MockedStatic<FibonacciCalculator> mockedStatic = mockStatic(FibonacciCalculator.class, CALLS_REAL_METHODS)) {
             var task = new ComputeTask(FibonacciAlgorithm.RECURSIVE, sequence);
             FibonacciComputeResult computeResult = task.call();
@@ -32,7 +32,6 @@ class ComputeTaskTest {
 
     @Test
     void callIterative() {
-        int sequence = 10;
         try (MockedStatic<FibonacciCalculator> mockedStatic = mockStatic(FibonacciCalculator.class, CALLS_REAL_METHODS)) {
             var task = new ComputeTask(FibonacciAlgorithm.ITERATIVE, sequence);
             FibonacciComputeResult computeResult = task.call();
@@ -44,7 +43,6 @@ class ComputeTaskTest {
 
     @Test
     void callFastDoubling() {
-        int sequence = 10;
         try (MockedStatic<FibonacciCalculator> mockedStatic = mockStatic(FibonacciCalculator.class, CALLS_REAL_METHODS)) {
             var task = new ComputeTask(FibonacciAlgorithm.FAST_DOUBLING, sequence);
             FibonacciComputeResult computeResult = task.call();

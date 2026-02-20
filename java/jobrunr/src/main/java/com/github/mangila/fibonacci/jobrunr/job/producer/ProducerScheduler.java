@@ -29,7 +29,8 @@ public class ProducerScheduler {
         log.info("Producer is enabled");
         final var limit = properties.getLimit();
         final var algorithm = properties.getAlgorithm();
-        ProducerJobRequest request = new ProducerJobRequest(limit, algorithm);
+        final var batchSize = properties.getBatchSize();
+        ProducerJobRequest request = new ProducerJobRequest(batchSize, limit, algorithm);
         UUID uuid = jobRequestScheduler.create(aJob()
                         .scheduleIn(Duration.ofSeconds(1))
                         .withName("Produce Fibonacci Calculations Limit: %s".formatted(limit))

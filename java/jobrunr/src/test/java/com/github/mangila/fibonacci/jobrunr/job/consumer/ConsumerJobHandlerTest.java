@@ -1,34 +1,50 @@
 package com.github.mangila.fibonacci.jobrunr.job.consumer;
 
 import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.ComputeScheduler;
+import com.github.mangila.fibonacci.postgres.FibonacciMetadataProjection;
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
-import com.github.mangila.fibonacci.postgres.test.PostgresTestContainer;
+import com.github.mangila.fibonacci.shared.FibonacciAlgorithm;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@PostgresTestContainer
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
-        properties = {
-                "app.job.producer.enabled=true",
-                "app.job.consumer.enabled=false",
-        })
-class ConsumerJobHandlerTest {
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
-    @Autowired
-    private ConsumerJobHandler handler;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.*;
 
-    @MockitoSpyBean
-    private PostgresRepository repository;
+@ExtendWith({
+        MockitoExtension.class,
+        SpringExtension.class
+})
+public class ConsumerJobHandlerTest {
 
-    @MockitoSpyBean
+    @MockitoBean
+    private PostgresRepository postgresRepository;
+
+    @MockitoBean
     private ComputeScheduler computeScheduler;
 
-
     @Test
-    void run() throws Exception {
-        var jobRequest = new ConsumerJobRequest(10);
-        handler.run(jobRequest);
+    void test() throws Exception {
+        when(computeScheduler.schedule(any())).thenReturn(UUID.randomUUID());
+        var stream = Stream.of(
+                new FibonacciMetadataProjection(1, false, FibonacciAlgorithm.ITERATIVE.name()),
+                new FibonacciMetadataProjection(2, false, FibonacciAlgorithm.ITERATIVE.name())
+        );
+        doAnswer(invocation -> {
+            Consumer<Stream<FibonacciMetadataProjection>> consumer = invocation.getArgument(1);
+            consumer.accept(stream);
+            return null;
+        }).when(postgresRepository).streamMetadataWhereComputedFalseLocked(anyInt(), any());
+        var handler = new ConsumerJobHandler(computeScheduler, postgresRepository);
+        var request = new ConsumerJobRequest(10);
+        handler.run(request);
+        verify(computeScheduler, times(2)).schedule(any());
     }
 }

@@ -17,6 +17,7 @@ import java.security.Principal;
 public class WebSocketEventListener {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketEventListener.class);
+
     private static final EnsureStringOps ENSURE_STRING_OPS = Ensure.strings();
 
     @EventListener
