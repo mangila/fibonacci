@@ -5,6 +5,7 @@ import com.github.mangila.fibonacci.postgres.PostgresRepository;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 
@@ -24,7 +25,7 @@ public class ProducerJobHandler implements JobRequestHandler<ProducerJobRequest>
     public void run(ProducerJobRequest jobRequest) throws Exception {
         final var limit = jobRequest.limit();
         final var algorithm = jobRequest.algorithm();
-        log.info("Scheduling {} Fibonacci calculations", limit);
+        log.info("Generating {} fibonacci numbers with algorithm {}", limit, algorithm);
         var metadataProjections = new ArrayList<FibonacciMetadataProjection>();
         for (int i = 1; i <= limit; i++) {
             var metadata = new FibonacciMetadataProjection(i, false, algorithm.name());
@@ -34,6 +35,8 @@ public class ProducerJobHandler implements JobRequestHandler<ProducerJobRequest>
                 metadataProjections.clear();
             }
         }
-        repository.batchInsertMetadata(metadataProjections);
+        if (!CollectionUtils.isEmpty(metadataProjections)) {
+            repository.batchInsertMetadata(metadataProjections);
+        }
     }
 }

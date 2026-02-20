@@ -21,7 +21,6 @@ public class ComputeScheduler {
     }
 
     public UUID schedule(ComputeJobRequest request) {
-        log.info("Scheduling Fibonacci calculation for sequence: {}", request.sequence());
         final var sequence = request.sequence();
         final var jitter = ThreadLocalRandom.current().nextInt(1, 10);
         return jobRequestScheduler.create(aJob()

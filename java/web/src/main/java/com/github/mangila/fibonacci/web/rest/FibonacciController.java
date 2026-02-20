@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.web.rest;
 
 import com.github.mangila.fibonacci.postgres.FibonacciEntity;
+import com.github.mangila.fibonacci.postgres.FibonacciProjection;
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
 import com.github.mangila.fibonacci.web.shared.FibonacciDto;
 import com.github.mangila.fibonacci.web.shared.FibonacciMapper;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import java.util.List;
 
 @RestController
 public class FibonacciController {
@@ -28,11 +29,11 @@ public class FibonacciController {
     }
 
     @GetMapping("list")
-    public ResponseEntity<Map<String, String>> queryList(@RequestParam int limit,
-                                                         @RequestParam int offset) {
+    public ResponseEntity<List<FibonacciProjection>> queryList(@RequestParam int limit,
+                                       @RequestParam int offset) {
         log.info("Querying list of fibonacci numbers: limit={}, offset={}", limit, offset);
-        service.queryByStream(streamQuery);
-        return ResponseEntity.ok("");
+        List<FibonacciProjection> projections = repository.queryList(limit, offset);
+        return ResponseEntity.ok(projections);
     }
 
     @GetMapping("id")

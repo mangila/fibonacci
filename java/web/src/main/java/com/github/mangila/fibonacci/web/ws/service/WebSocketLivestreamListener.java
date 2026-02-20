@@ -1,5 +1,6 @@
 package com.github.mangila.fibonacci.web.ws.service;
 
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
@@ -17,7 +18,7 @@ public class WebSocketLivestreamListener {
         this.registry = registry;
     }
 
-    @EventListener
+    @EventListener(ApplicationReadyEvent.class)
     public void wsLivestream() {
     }
 

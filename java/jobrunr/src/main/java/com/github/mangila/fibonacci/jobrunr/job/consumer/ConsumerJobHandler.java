@@ -31,7 +31,7 @@ public class ConsumerJobHandler implements JobRequestHandler<ConsumerJobRequest>
             metadataStream.forEach(projection -> {
                 var fibonacciAlgorithm = FibonacciAlgorithm.valueOf(projection.algorithm());
                 var uuid = computeScheduler.schedule(new ComputeJobRequest(projection.id(), fibonacciAlgorithm));
-                log.info("Scheduled: {} - {}", uuid, projection);
+                log.info("Scheduled for computation: {} - {}", uuid, projection);
             });
         });
     }

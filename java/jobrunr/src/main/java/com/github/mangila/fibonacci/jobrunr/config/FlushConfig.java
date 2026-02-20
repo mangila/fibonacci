@@ -1,6 +1,5 @@
 package com.github.mangila.fibonacci.jobrunr.config;
 
-import com.github.mangila.fibonacci.redis.RedisRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
