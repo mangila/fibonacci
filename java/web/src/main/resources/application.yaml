@@ -2,6 +2,9 @@
 app:
   flush:
     enabled: false
+  pg-listen:
+    enabled: true
+    channel: "fibonacci"
   sse:
     enabled: true
     heartbeat:
