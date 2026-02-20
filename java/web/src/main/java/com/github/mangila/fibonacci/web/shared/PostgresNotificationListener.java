@@ -61,7 +61,6 @@ public class PostgresNotificationListener {
                         var notifications = pgConnection.getNotifications(blockingDuration);
                         Ensure.notNull(notifications, "Notifications are null");
                         for (PGNotification notification : notifications) {
-                            log.info("Received notification: {}", notification);
                             final String payload = notification.getParameter();
                             var projection = jsonMapper.readValue(payload, FibonacciProjection.class);
                             publisher.publishEvent(projection);
