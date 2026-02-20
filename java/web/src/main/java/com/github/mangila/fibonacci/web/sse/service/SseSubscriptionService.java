@@ -17,19 +17,19 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.List;
 
 @Service
-public class SseService {
+public class SseSubscriptionService {
 
-    private static final Logger log = LoggerFactory.getLogger(SseService.class);
+    private static final Logger log = LoggerFactory.getLogger(SseSubscriptionService.class);
 
     private final RedisPublisher publisher;
     private final SseSessionRegistry registry;
     private final RedisMessageListenerContainer container;
     private final MessageListenerAdapter adapter;
 
-    public SseService(RedisPublisher publisher,
-                      SseSessionRegistry registry,
-                      RedisMessageListenerContainer container,
-                      @Qualifier("sseListenerAdapter") MessageListenerAdapter adapter) {
+    public SseSubscriptionService(RedisPublisher publisher,
+                                  SseSessionRegistry registry,
+                                  RedisMessageListenerContainer container,
+                                  @Qualifier("sseListenerAdapter") MessageListenerAdapter adapter) {
         this.publisher = publisher;
         this.registry = registry;
         this.container = container;

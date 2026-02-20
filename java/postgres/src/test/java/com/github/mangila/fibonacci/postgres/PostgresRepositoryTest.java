@@ -61,14 +61,14 @@ class PostgresRepositoryTest {
     }
 
     @Test
-    void streamMetadataWhereSentToZsetIsFalseLocked() {
+    void streamMetadataWhereComputedFalseLocked() {
         int sequenceId = 1;
         repository.insert(sequenceId, BigDecimal.ONE, 1);
         repository.insert(sequenceId + 1, BigDecimal.ONE, 1);
         repository.upsertMetadata(new FibonacciMetadataProjection(sequenceId + 1, false, false));
         repository.upsertMetadata(new FibonacciMetadataProjection(sequenceId, true, true));
         var l = new ArrayList<Integer>();
-        repository.streamMetadataWhereSentToZsetIsFalseLocked(10, stream -> {
+        repository.streamMetadataWhereComputedFalseLocked(10, stream -> {
             stream.forEach(l::add);
         });
         assertThat(l).hasSize(1);
@@ -86,7 +86,7 @@ class PostgresRepositoryTest {
         // Acquires lock; streams metadata IDs; adds to list
         var lockingThread = CompletableFuture.supplyAsync(() -> {
             var l = new ArrayList<Integer>();
-            repository.streamMetadataWhereSentToZsetIsFalseLocked(10, stream -> {
+            repository.streamMetadataWhereComputedFalseLocked(10, stream -> {
                 stream.forEach(integer -> {
                     try {
                         TimeUnit.SECONDS.sleep(1);
@@ -104,7 +104,7 @@ class PostgresRepositoryTest {
 
         var skippedLockThread = new ArrayList<Integer>();
         // Acquires new lock; should skip the first streams lock
-        repository.streamMetadataWhereSentToZsetIsFalseLocked(10, stream -> {
+        repository.streamMetadataWhereComputedFalseLocked(10, stream -> {
             stream.forEach(skippedLockThread::add);
         });
 

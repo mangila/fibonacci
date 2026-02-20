@@ -1,56 +1,39 @@
 package com.github.mangila.fibonacci.jobrunr.job.consumer;
 
+import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.ComputeJobRequest;
 import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.ComputeScheduler;
-import com.github.mangila.fibonacci.jobrunr.job.model.FibonacciComputeRequest;
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
-import org.intellij.lang.annotations.Language;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tools.jackson.databind.json.JsonMapper;
+import org.springframework.transaction.annotation.Transactional;
 
 public class ConsumerJobHandler implements JobRequestHandler<ConsumerJobRequest> {
 
     private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(ConsumerJobHandler.class));
 
-    private final JsonMapper jsonMapper;
     private final ComputeScheduler computeScheduler;
     private final PostgresRepository postgresRepository;
 
-    public ConsumerJobHandler(JsonMapper jsonMapper,
-                              ComputeScheduler computeScheduler,
+    public ConsumerJobHandler(ComputeScheduler computeScheduler,
                               PostgresRepository postgresRepository) {
-        this.jsonMapper = jsonMapper;
         this.computeScheduler = computeScheduler;
         this.postgresRepository = postgresRepository;
     }
 
+    @Transactional
     @Override
     public void run(ConsumerJobRequest jobRequest) throws Exception {
         final int limit = jobRequest.limit();
-        for (int i = 0; i < limit; i++) {
-            try {
-                @Language("JSON")
-                String json = redisRepository.popQueue(queue);
-                if (json != null) {
-                    final var payload = jsonMapper.readValue(json, FibonacciComputeRequest.class);
-                    final var sequence = payload.sequence();
-                    if (redisRepository.checkBloomFilter(bloomFilter, sequence)) {
-                        log.info("Skipping: {} - {}", sequence, json);
-                        continue;
-                    }
-                    final var algorithm = payload.algorithm();
-                    var uuid = computeScheduler.schedule(new ComputeJobRequest(sequence, algorithm));
-                    redisRepository.addBloomFilter(bloomFilter, sequence);
-                    log.info("Scheduled: {} - {}", uuid, json);
-                }
-            } catch (Exception e) {
-                log.error("Error while processing queue: {}", e.getMessage(), e);
-            }
-        }
+        postgresRepository.streamMetadataWhereComputedFalseLocked(limit, metadataStream -> {
+            metadataStream.forEach(projection -> {
+                var fibonacciAlgorithm = FibonacciAlgorithm.valueOf(projection.algorithm());
+                var uuid = computeScheduler.schedule(new ComputeJobRequest(projection.id(), fibonacciAlgorithm));
+                log.info("Scheduled: {} - {}", uuid, projection);
+            });
+        });
     }
-
 }
 

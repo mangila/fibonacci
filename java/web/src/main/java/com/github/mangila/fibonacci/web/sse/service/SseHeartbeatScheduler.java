@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Service
-public class SseScheduler {
+public class SseHeartbeatScheduler {
 
     private final SseSessionRegistry sessionRegistry;
 
-    public SseScheduler(SseSessionRegistry sessionRegistry) {
+    public SseHeartbeatScheduler(SseSessionRegistry sessionRegistry) {
         this.sessionRegistry = sessionRegistry;
     }
 
@@ -20,7 +20,7 @@ public class SseScheduler {
             fixedRate = 10,
             timeUnit = SECONDS
     )
-    void heartbeat() {
+    void sendHeartbeats() {
         sessionRegistry.getAllSessions()
                 .forEach(SseSession::sendHeartbeat);
     }

@@ -19,11 +19,4 @@ public class SseConfig {
         scheduler.setVirtualThreads(true);
         return scheduler;
     }
-
-    @Bean("sseListenerAdapter")
-    MessageListenerAdapter sseListenerAdapter(SseRedisMessageHandler sseRedisMessageHandler) {
-        var adapter = new MessageListenerAdapter(sseRedisMessageHandler, "handleSseMessage");
-        adapter.setSerializer(new StringRedisSerializer(StandardCharsets.UTF_8));
-        return adapter;
-    }
 }

@@ -57,13 +57,13 @@ public class PostgresRepository {
     }
 
     @Transactional
-    public void streamMetadataWhereSentToZsetIsFalseLocked(int limit, Consumer<Stream<Integer>> consumer) {
+    public void streamMetadataWhereComputedFalseLocked(int limit, Consumer<Stream<FibonacciMetadataProjection>> consumer) {
         ENSURE_NUMBER_OPS.positive(limit);
         Ensure.notNull(consumer);
         @Language("PostgreSQL") final String sql = """
-                SELECT id
+                SELECT id, computed, algorithm
                 FROM fibonacci_metadata
-                WHERE sent_to_zset = false
+                WHERE computed = false
                 ORDER BY id
                 LIMIT :limit
                 FOR UPDATE SKIP LOCKED;
@@ -71,7 +71,7 @@ public class PostgresRepository {
         var stmt = jdbcClient.sql(sql)
                 .param("limit", limit)
                 .withFetchSize(100)
-                .query(Integer.class);
+                .query(FibonacciMetadataProjection.class);
         try (var stream = stmt.stream()) {
             consumer.accept(stream);
         }
@@ -96,17 +96,13 @@ public class PostgresRepository {
                 .optional();
     }
 
-    public void batchUpsertMetadata(List<FibonacciMetadataProjection> metadataProjections) {
+    public void batchInsertMetadata(List<FibonacciMetadataProjection> metadataProjections) {
         ENSURE_COLLECTION_OPS.notEmpty(metadataProjections);
         @Language("PostgreSQL") final String sql = """
                 INSERT INTO fibonacci_metadata
-                (id,sent_to_zset,sent_to_stream)
-                VALUES (:id, :sentToZset, :sentToStream)
-                ON CONFLICT (id)
-                DO UPDATE SET
-                    sent_to_zset = EXCLUDED.sent_to_zset,
-                    sent_to_stream = EXCLUDED.sent_to_stream,
-                    updated_at = now();
+                (id,computed, updated_at)
+                VALUES (:id, :computed, now())
+                ON CONFLICT (id) DO NOTHING
                 """;
         namedParameterJdbcTemplate.batchUpdate(sql, SqlParameterSourceUtils.createBatch(metadataProjections));
     }
@@ -116,18 +112,16 @@ public class PostgresRepository {
         ENSURE_NUMBER_OPS.positive(metadataProjection.id());
         @Language("PostgreSQL") final String sql = """
                 INSERT INTO fibonacci_metadata
-                (id, sent_to_zset, sent_to_stream)
-                VALUES (:id,:sentToZset, :sentToStream)
+                (id, computed)
+                VALUES (:id,:computed)
                 ON CONFLICT (id)
                 DO UPDATE SET
-                    sent_to_zset = EXCLUDED.sent_to_zset,
-                    sent_to_stream = EXCLUDED.sent_to_stream,
+                    computed = EXCLUDED.computed,
                     updated_at = now();
                 """;
         jdbcClient.sql(sql)
                 .param("id", metadataProjection.id())
-                .param("sentToZset", metadataProjection.sentToZset())
-                .param("sentToStream", metadataProjection.sentToStream())
+                .param("computed", metadataProjection.computed())
                 .update();
     }
 }

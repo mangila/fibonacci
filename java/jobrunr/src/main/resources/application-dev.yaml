@@ -7,7 +7,6 @@ app:
       enabled: true
       limit: 1_000
       algorithm: iterative
-      cron: "0/30 * * * * *"
     consumer:
       enabled: true
       limit: 50

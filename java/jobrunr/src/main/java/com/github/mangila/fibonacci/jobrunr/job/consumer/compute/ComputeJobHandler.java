@@ -51,10 +51,7 @@ public class ComputeJobHandler implements JobRequestHandler<ComputeJobRequest> {
         boolean write = transactionTemplate.execute(_ -> {
             var insert = postgresRepository.insert(result.sequence(), result.result(), result.precision());
             if (insert.isPresent()) {
-                var metadata = new FibonacciMetadataProjection(
-                        result.sequence(),
-                        false,
-                        false);
+                var metadata = new FibonacciMetadataProjection(result.sequence(), true, algorithm.name());
                 postgresRepository.upsertMetadata(metadata);
                 return true;
             }

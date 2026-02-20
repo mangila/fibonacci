@@ -1,6 +1,7 @@
 package com.github.mangila.fibonacci.web.shared;
 
 import com.github.mangila.fibonacci.postgres.FibonacciEntity;
+import com.github.mangila.fibonacci.postgres.FibonacciProjection;
 import org.springframework.stereotype.Component;
 
 @Component

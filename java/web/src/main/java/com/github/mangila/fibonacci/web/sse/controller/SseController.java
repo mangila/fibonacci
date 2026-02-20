@@ -3,7 +3,7 @@ package com.github.mangila.fibonacci.web.sse.controller;
 import com.github.mangila.fibonacci.web.sse.model.SseIdQuery;
 import com.github.mangila.fibonacci.web.sse.model.SseStreamQuery;
 import com.github.mangila.fibonacci.web.sse.model.SseSubscription;
-import com.github.mangila.fibonacci.web.sse.service.SseService;
+import com.github.mangila.fibonacci.web.sse.service.SseSubscriptionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -25,28 +25,15 @@ public class SseController {
 
     private static final Map<String, String> OK = Map.of("status", "ok");
 
-    private final SseService service;
+    private final SseSubscriptionService service;
 
-    public SseController(SseService service) {
+    public SseController(SseSubscriptionService service) {
         this.service = service;
     }
 
     @PostMapping("subscribe")
     public SseEmitter sseSubscribe(@RequestBody @NotNull @Valid SseSubscription sseSubscription) {
+        log.info("SSE subscribe: {}", sseSubscription);
         return service.subscribe(sseSubscription);
-    }
-
-    @PostMapping("stream")
-    public ResponseEntity<Map<String, String>> sseQueryByStream(@RequestBody @NotNull @Valid SseStreamQuery streamQuery) {
-        log.info("SSE query by stream: {}", streamQuery);
-        service.queryByStream(streamQuery);
-        return ResponseEntity.ok(OK);
-    }
-
-    @PostMapping("id")
-    public ResponseEntity<?> sseQueryById(@RequestBody @NotNull @Valid SseIdQuery sseIdQuery) {
-        log.info("SSE query by id: {}", sseIdQuery);
-        service.queryById(sseIdQuery);
-        return ResponseEntity.ok(OK);
     }
 }

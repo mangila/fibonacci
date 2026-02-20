@@ -1,11 +1,15 @@
 package com.github.mangila.fibonacci.jobrunr.job.producer;
 
 import org.jobrunr.scheduling.JobRequestScheduler;
-import org.jobrunr.scheduling.RecurringJobBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+
+import java.time.Duration;
+import java.util.UUID;
+
+import static org.jobrunr.scheduling.JobBuilder.aJob;
 
 public class ProducerScheduler {
 
@@ -25,13 +29,14 @@ public class ProducerScheduler {
         log.info("Producer is enabled");
         final var limit = properties.getLimit();
         final var algorithm = properties.getAlgorithm();
-        final var cron = properties.getCron();
-        var job = RecurringJobBuilder.aRecurringJob()
-                .withCron(cron)
-                .withName("Produce fibonacci numbers")
-                .withJobRequest(new ProducerJobRequest(limit, algorithm))
-                .withLabels("producer")
-                .withAmountOfRetries(3);
-        jobRequestScheduler.createRecurrently(job);
+        ProducerJobRequest request = new ProducerJobRequest(limit, algorithm);
+        UUID uuid = jobRequestScheduler.create(aJob()
+                        .scheduleIn(Duration.ofSeconds(1))
+                        .withName("Produce Fibonacci Calculations Limit: %s".formatted(limit))
+                        .withAmountOfRetries(10)
+                        .withLabels("produce")
+                        .withJobRequest(request))
+                .asUUID();
+        log.info("Scheduled producer job: {}", uuid);
     }
 }

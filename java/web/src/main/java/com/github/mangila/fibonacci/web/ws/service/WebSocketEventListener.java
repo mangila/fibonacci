@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
@@ -23,27 +22,16 @@ public class WebSocketEventListener {
     private static final Logger log = LoggerFactory.getLogger(WebSocketEventListener.class);
     private static final EnsureStringOps ENSURE_STRING_OPS = Ensure.strings();
 
-    private final MessageListenerAdapter adapter;
-    private final RedisMessageListenerContainer container;
-
-    public WebSocketEventListener(@Qualifier("wsListenerAdapter") MessageListenerAdapter adapter,
-                                  RedisMessageListenerContainer container) {
-        this.adapter = adapter;
-        this.container = container;
-    }
-
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         String username = getUsernameSafely(event.getUser());
         log.info("Received a new web socket connection from user '{}'", username);
-        container.addMessageListener(adapter, new ChannelTopic(username));
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         String username = getUsernameSafely(event.getUser());
         log.info("User '{}' disconnected", username);
-        container.removeMessageListener(adapter, new ChannelTopic(username));
     }
 
     @EventListener
