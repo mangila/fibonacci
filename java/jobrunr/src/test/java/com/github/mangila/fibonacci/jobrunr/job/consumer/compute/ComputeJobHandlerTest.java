@@ -4,8 +4,6 @@ import com.github.mangila.fibonacci.shared.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.jobrunr.job.model.FibonacciComputeRequest;
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
 import com.github.mangila.fibonacci.postgres.test.PostgresTestContainer;
-import com.github.mangila.fibonacci.redis.RedisKey;
-import com.github.mangila.fibonacci.redis.test.RedisTestContainer;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +14,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.jdbc.JdbcTestUtils;
-import redis.clients.jedis.UnifiedJedis;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
@@ -29,7 +26,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 
 @PostgresTestContainer
-@RedisTestContainer
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
         properties = {
                 "app.job.consumer.enabled=true",
@@ -43,26 +39,13 @@ class ComputeJobHandlerTest {
     @MockitoSpyBean
     private PostgresRepository postgresRepository;
     @Autowired
-    private UnifiedJedis jedis;
-    @Autowired
     private JsonMapper jsonMapper;
     @Autowired
-    private RedisKey queue;
-    @Autowired
     private JdbcTemplate jdbcTemplate;
-    @Language("JSON")
-    private String payload;
 
-    @BeforeEach
-    void setUp() {
-        this.payload = jsonMapper.writeValueAsString(new FibonacciComputeRequest(10, FibonacciAlgorithm.ITERATIVE));
-    }
 
     @Test
     void run() throws Exception {
-        jedis.rpush(queue.value(), payload);
-        var rows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "fibonacci_results");
-        assertThat(rows).isEqualTo(0);
         var inOrder = Mockito.inOrder(computeAsyncTaskExecutor, postgresRepository);
         await().atMost(60, TimeUnit.SECONDS)
                 .untilAsserted(() -> {

@@ -10,7 +10,7 @@ app:
     consumer:
       enabled: false
       limit: 50
-      cron: "0 0/1 * * * *"
+      cron: "0 0/10 * * * *"
 # Spring
 spring:
   application:

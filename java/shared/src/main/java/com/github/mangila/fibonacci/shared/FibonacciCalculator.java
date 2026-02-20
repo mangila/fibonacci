@@ -2,8 +2,10 @@ package com.github.mangila.fibonacci.shared;
 
 import java.math.BigInteger;
 
-public enum FibonacciCalculator {
-    INSTANCE;
+public final class FibonacciCalculator {
+
+    private FibonacciCalculator() {
+    }
 
     /**
      * Naive recursive approach to calculate Fibonacci sequence.
@@ -11,10 +13,10 @@ public enum FibonacciCalculator {
      * @param n The sequence of the Fibonacci number to calculate.
      * @return The n-th Fibonacci number.
      */
-    public BigInteger naiveRecursive(int n) {
+    public static BigInteger recursive(int n) {
         if (n <= 0) return BigInteger.ZERO;
         if (n == 1) return BigInteger.ONE;
-        return naiveRecursive(n - 1).add(naiveRecursive(n - 2));
+        return recursive(n - 1).add(recursive(n - 2));
     }
 
     /**
@@ -23,7 +25,7 @@ public enum FibonacciCalculator {
      * @param n The sequence of the Fibonacci number to calculate.
      * @return The n-th Fibonacci number.
      */
-    public BigInteger iterative(int n) {
+    public static BigInteger iterative(int n) {
         if (n <= 0) return BigInteger.ZERO;
         if (n == 1) return BigInteger.ONE;
 
@@ -47,7 +49,7 @@ public enum FibonacciCalculator {
      * @param n The sequence of the Fibonacci number to calculate.
      * @return The n-th Fibonacci number.
      */
-    public BigInteger fastDoubling(int n) {
+    public static BigInteger fastDoubling(int n) {
         if (n == 0) return BigInteger.ZERO;
         if (n <= 2) return BigInteger.ONE;
 

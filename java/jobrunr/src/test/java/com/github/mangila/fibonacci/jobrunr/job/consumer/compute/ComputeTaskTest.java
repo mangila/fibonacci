@@ -1,8 +1,8 @@
 package com.github.mangila.fibonacci.jobrunr.job.consumer.compute;
 
+import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.model.FibonacciComputeResult;
 import com.github.mangila.fibonacci.shared.FibonacciAlgorithm;
 import com.github.mangila.fibonacci.shared.FibonacciCalculator;
-import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.model.FibonacciComputeResult;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
@@ -19,34 +19,38 @@ import static org.mockito.Mockito.*;
 class ComputeTaskTest {
 
     @Test
-    void call() {
-        var calculator = spy(FibonacciCalculator.getInstance());
+    void callRecursive() {
         int sequence = 10;
-        try (MockedStatic<FibonacciCalculator> mockedStatic = mockStatic(FibonacciCalculator.class)) {
-            mockedStatic.when(FibonacciCalculator::getInstance).thenReturn(calculator);
+        try (MockedStatic<FibonacciCalculator> mockedStatic = mockStatic(FibonacciCalculator.class, CALLS_REAL_METHODS)) {
             var task = new ComputeTask(FibonacciAlgorithm.RECURSIVE, sequence);
-            FibonacciComputeResult result = task.call();
-            assertNotNull(result);
-            assertEquals(new BigDecimal(55), result.result());
-            verify(calculator, atLeastOnce()).naiveRecursive(anyInt());
+            FibonacciComputeResult computeResult = task.call();
+            assertNotNull(computeResult);
+            assertEquals(new BigDecimal(55), computeResult.result());
+            mockedStatic.verify(() -> FibonacciCalculator.recursive(sequence), times(1));
         }
+    }
 
-        try (MockedStatic<FibonacciCalculator> mockedStatic = mockStatic(FibonacciCalculator.class)) {
-            mockedStatic.when(FibonacciCalculator::getInstance).thenReturn(calculator);
+    @Test
+    void callIterative() {
+        int sequence = 10;
+        try (MockedStatic<FibonacciCalculator> mockedStatic = mockStatic(FibonacciCalculator.class, CALLS_REAL_METHODS)) {
             var task = new ComputeTask(FibonacciAlgorithm.ITERATIVE, sequence);
-            FibonacciComputeResult result = task.call();
-            assertNotNull(result);
-            assertEquals(new BigDecimal(55), result.result());
-            verify(calculator, times(1)).iterative(anyInt());
+            FibonacciComputeResult computeResult = task.call();
+            assertNotNull(computeResult);
+            assertEquals(new BigDecimal(55), computeResult.result());
+            mockedStatic.verify(() -> FibonacciCalculator.iterative(sequence), times(1));
         }
+    }
 
-        try (MockedStatic<FibonacciCalculator> mockedStatic = mockStatic(FibonacciCalculator.class)) {
-            mockedStatic.when(FibonacciCalculator::getInstance).thenReturn(calculator);
+    @Test
+    void callFastDoubling() {
+        int sequence = 10;
+        try (MockedStatic<FibonacciCalculator> mockedStatic = mockStatic(FibonacciCalculator.class, CALLS_REAL_METHODS)) {
             var task = new ComputeTask(FibonacciAlgorithm.FAST_DOUBLING, sequence);
-            FibonacciComputeResult result = task.call();
-            assertNotNull(result);
-            assertEquals(new BigDecimal(55), result.result());
-            verify(calculator, times(1)).fastDoubling(anyInt());
+            FibonacciComputeResult computeResult = task.call();
+            assertNotNull(computeResult);
+            assertEquals(new BigDecimal(55), computeResult.result());
+            mockedStatic.verify(() -> FibonacciCalculator.fastDoubling(sequence), times(1));
         }
     }
 }

@@ -30,7 +30,7 @@ class FibonacciCalculatorTest {
     @Test
     void test() {
         int n = 35;
-        var recursiveResult = calculator.naiveRecursive(n);
+        var recursiveResult = calculator.recursive(n);
         var iterativeResult = calculator.iterative(n);
         var fastDoublingResult = calculator.fastDoubling(n);
         assertThat(recursiveResult)
