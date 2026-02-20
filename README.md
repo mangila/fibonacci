@@ -7,7 +7,7 @@ Generates fibonacci sequences with different programming languages and display i
 
 ## 🚀 Overview
 
-The Fibonacci project is designed to handle massive Fibonacci computations efficiently. It leverages a producer-consumer pattern where heavy computations are offloaded to background workers, and results are streamed back to the client on-demand.
+The Fibonacci project is designed to handle massive Fibonacci computations efficiently. It leverages a producer-consumer pattern where heavy computations are offloaded to background workers, and results are livestreamed back to the client using Postgres LISTEN/NOTIFY functionality.
 
 ### 🌐 Server Implementations
 
