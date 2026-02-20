@@ -2,6 +2,7 @@ app:
   flush:
     enabled: false
   sse:
+    enabled: true
     heartbeat:
       enabled: true
       interval: 10s
@@ -20,8 +21,8 @@ spring:
 logging:
   level:
     root: INFO
-    com.github.mangila.fibonacci.web.sse: INFO
-    com.github.mangila.fibonacci.web.ws: INFO
+    com.github.mangila.fibonacci.web.sse: DEBUG
+    com.github.mangila.fibonacci.web.ws: DEBUG
 # Server
 server:
   port: 8080

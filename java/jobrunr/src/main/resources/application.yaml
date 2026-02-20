@@ -73,4 +73,3 @@ logging:
     com.github.mangila.fibonacci.jobrunr.job: INFO
     com.github.mangila.fibonacci.jobrunr.job.consumer: INFO
     com.github.mangila.fibonacci.jobrunr.job.producer: INFO
-    com.github.mangila.fibonacci.jobrunr.job.zset: INFO

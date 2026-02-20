@@ -23,6 +23,10 @@ Datapipeline is a distributed workflow that generates Fibonacci numbers using Jo
 
 The API exposes the Fibonacci numbers via REST, SSE and WebSockets through STOMP.
 
+Opt in to an SSE or STOMP Websocket livestream of the Fibonacci numbers.
+
+NOTE: The Fibonacci numbers are generated in a distributed fashion using JobRunr. 
+
 ### Links
 
 The application is exposing JobRunr dashboard and a swagger UI.
@@ -60,6 +64,7 @@ graph TD
 
     Scheduler <--> DB
     Web <--> DB
+    DB -- LISTEN/NOTIFY --> Web
     Web <--> Client
 
 

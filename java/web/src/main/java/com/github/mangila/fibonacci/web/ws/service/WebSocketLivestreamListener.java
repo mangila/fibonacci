@@ -24,7 +24,9 @@ public class WebSocketLivestreamListener {
 
     @EventListener
     public void wsLivestream(FibonacciProjection projection) {
-        log.info("Received fibonacci projection: {}", projection);
+        if (log.isDebugEnabled()) {
+            log.debug("Received fibonacci projection: {}", projection);
+        }
         registry.getUsers()
                 .forEach(user -> template.convertAndSendToUser(user.getName(), "/topic/fibonacci", projection));
     }

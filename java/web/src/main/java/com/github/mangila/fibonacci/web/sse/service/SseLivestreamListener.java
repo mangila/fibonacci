@@ -4,9 +4,7 @@ import com.github.mangila.fibonacci.postgres.FibonacciProjection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
 
-@Service
 public class SseLivestreamListener {
 
     private static final Logger log = LoggerFactory.getLogger(SseLivestreamListener.class);
@@ -19,9 +17,10 @@ public class SseLivestreamListener {
 
     @EventListener
     public void sseLivestream(FibonacciProjection projection) {
-        log.info("Received fibonacci projection: {}", projection);
+        if (log.isDebugEnabled()) {
+            log.debug("Received fibonacci projection: {}", projection);
+        }
         registry.getAllSessions()
                 .forEach(session -> session.send(projection));
     }
-
 }

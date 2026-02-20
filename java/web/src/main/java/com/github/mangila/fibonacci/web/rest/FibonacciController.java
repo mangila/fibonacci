@@ -5,9 +5,12 @@ import com.github.mangila.fibonacci.postgres.FibonacciProjection;
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
 import com.github.mangila.fibonacci.web.shared.FibonacciDto;
 import com.github.mangila.fibonacci.web.shared.FibonacciMapper;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@Validated
 public class FibonacciController {
 
     private static final Logger log = LoggerFactory.getLogger(FibonacciController.class);
@@ -29,8 +33,9 @@ public class FibonacciController {
     }
 
     @GetMapping("list")
-    public ResponseEntity<List<FibonacciProjection>> queryList(@RequestParam int limit,
-                                       @RequestParam int offset) {
+    public ResponseEntity<List<FibonacciProjection>> queryList(
+            @RequestParam @Positive @Max(50) int limit,
+            @RequestParam @Positive int offset) {
         log.info("Querying list of fibonacci numbers: limit={}, offset={}", limit, offset);
         List<FibonacciProjection> projections = repository.queryList(limit, offset);
         return ResponseEntity.ok(projections);

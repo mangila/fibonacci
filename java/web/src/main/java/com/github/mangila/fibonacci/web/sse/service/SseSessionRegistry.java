@@ -6,13 +6,13 @@ import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.mangila.fibonacci.web.sse.model.SseSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
-@Service
 public class SseSessionRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(SseSessionRegistry.class);
@@ -40,15 +40,23 @@ public class SseSessionRegistry {
         emitter.onTimeout(() -> {
             log.info("SseSession timed out: {}", sseSession);
             emitter.complete();
-            remove(sseSession);
+            removeSession(sseSession);
         });
         emitter.onCompletion(() -> {
             log.info("SseSession completed: {}", sseSession);
-            remove(sseSession);
+            removeSession(sseSession);
         });
         emitter.onError(throwable -> {
             log.error("Error in SseSession emitter: {}", throwable.getMessage());
         });
+    }
+
+    public void removeChannel(String channel) {
+        sessions.invalidate(channel);
+    }
+
+    public Set<Map.Entry<String, CopyOnWriteArrayList<SseSession>>> getAllEntries() {
+        return sessions.asMap().entrySet();
     }
 
     public Stream<SseSession> getAllSessions() {
@@ -58,7 +66,7 @@ public class SseSessionRegistry {
                 .flatMap(List::stream);
     }
 
-    private void remove(SseSession sseSession) {
+    private void removeSession(SseSession sseSession) {
         final var channel = sseSession.sseSubscription().channel();
         sessions.asMap()
                 .computeIfPresent(channel, (_, list) -> {

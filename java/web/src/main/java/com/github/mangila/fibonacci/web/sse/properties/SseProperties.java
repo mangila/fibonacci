@@ -13,6 +13,9 @@ public class SseProperties {
     private Duration cleanupPeriod = Duration.ofMinutes(10);
     private final Heartbeat heartbeat = new Heartbeat();
 
+    /**
+     * Clean up idle channels
+     */
     public Duration getCleanupPeriod() {
         return cleanupPeriod;
     }

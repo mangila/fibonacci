@@ -21,23 +21,31 @@ public class ProducerJobHandler implements JobRequestHandler<ProducerJobRequest>
         this.repository = repository;
     }
 
+    /**
+     * if an exception occurs, the job will be retried
+     * trade some resources for NO-OP batches for simplicity
+     */
     @Override
     public void run(ProducerJobRequest jobRequest) throws Exception {
         final var limit = jobRequest.limit();
         final var algorithm = jobRequest.algorithm();
         log.info("Generating {} fibonacci numbers with algorithm {}", limit, algorithm);
-        var metadataProjections = new ArrayList<FibonacciMetadataProjection>();
+        var batchBuffer = new ArrayList<FibonacciMetadataProjection>(BATCH_SIZE);
         for (int i = 1; i <= limit; i++) {
             var metadata = new FibonacciMetadataProjection(i, false, algorithm.name());
-            log.info("Produce fibonacci number: {}", metadata);
-            metadataProjections.add(metadata);
-            if (metadataProjections.size() >= BATCH_SIZE) {
-                repository.batchInsertMetadata(metadataProjections);
-                metadataProjections.clear();
+            if (log.isDebugEnabled()) {
+                log.debug("Produce fibonacci number: {}", metadata);
+            }
+            batchBuffer.add(metadata);
+            // micro batching
+            if (batchBuffer.size() >= BATCH_SIZE) {
+                repository.batchInsertMetadata(batchBuffer);
+                batchBuffer.clear();
             }
         }
-        if (!CollectionUtils.isEmpty(metadataProjections)) {
-            repository.batchInsertMetadata(metadataProjections);
+        // flush the last batch
+        if (!CollectionUtils.isEmpty(batchBuffer)) {
+            repository.batchInsertMetadata(batchBuffer);
         }
     }
 }

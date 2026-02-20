@@ -6,9 +6,9 @@ app:
     enabled: true
     channel: "fibonacci"
   sse:
-    enabled: true
+    enabled: false
     heartbeat:
-      enabled: true
+      enabled: false
       interval: 10s
     cleanup-period: 10m
 # Spring
