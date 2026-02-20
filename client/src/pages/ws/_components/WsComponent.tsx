@@ -1,10 +1,9 @@
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import {
   useCreation,
   useDynamicList,
   useMount,
   useUnmount,
-  useUpdateEffect,
 } from "ahooks";
 import type { IFrame } from "@stomp/stompjs";
 import { ErrorBoundary } from "react-error-boundary";
@@ -16,37 +15,22 @@ import type {
 import { FibonacciCard } from "../../_components/FibonacciCard";
 import { StatusCard } from "../../_components/StatusCard";
 import { CountCard } from "../../_components/CountCard";
-import { createStompClient, STOMP_URL } from "../../_shared/shared";
-import { QueryForm } from "../../_components/QueryForm";
+import {
+  createStompClient,
+  queryById,
+  STOMP_BASE_PATH,
+  URL_BASE,
+} from "../../../_service/service";
 
-function handleSubmit(_, formData: FormData) {
-  const offsetData = formData.get("offset");
-  if (offsetData === null) {
-    throw new Error("err");
-  }
-  const limitData = formData.get("limit");
-  if (limitData === null) {
-    throw new Error("err");
-  }
-
-  const offset = offsetData.toString();
-  const limit = limitData.toString();
-
-  return { offset, limit };
-}
-
-export const WsQuery = () => {
+export const WsComponent = () => {
   const stompClient = useCreation(() => {
-    const client = createStompClient(STOMP_URL);
+    const url = new URL(STOMP_BASE_PATH, URL_BASE);
+    const client = createStompClient(url.href);
     client.onConnect = () => {
       setStatus("open");
-      client.subscribe("/user/queue/stream", (frame: IFrame) => {
+      client.subscribe("/user/topic/fibonacci", (frame: IFrame) => {
         const data: FibonacciProjectionDto = JSON.parse(frame.body);
         push(data);
-      });
-      client.subscribe("/user/queue/id", (frame: IFrame) => {
-        const data: FibonacciDto = JSON.parse(frame.body);
-        setModalData(data);
       });
     };
     client.onWebSocketError = () => {
@@ -54,7 +38,6 @@ export const WsQuery = () => {
     };
     return client;
   }, []);
-  const [state, formAction, isPending] = useActionState(handleSubmit, null);
   const [status, setStatus] = useState<ConnectionStatus>("offline");
   const { list, push, resetList } = useDynamicList<FibonacciProjectionDto>([]);
   const [modalData, setModalData] = useState<FibonacciDto>({
@@ -63,19 +46,6 @@ export const WsQuery = () => {
     precision: 0,
     result: "",
   });
-
-  useUpdateEffect(() => {
-    if (state) {
-      resetList([]);
-      stompClient.publish({
-        destination: "/app/stream",
-        body: JSON.stringify({
-          offset: state.offset,
-          limit: state.limit,
-        }),
-      });
-    }
-  }, [state]);
 
   useMount(() => {
     stompClient.activate();
@@ -87,7 +57,6 @@ export const WsQuery = () => {
 
   return (
     <ErrorBoundary fallback={"the err is human..."}>
-      <QueryForm isPending={isPending} payload={formAction} />
       <div className="flex justify-center m-4">
         <StatusCard status={status} />
         <CountCard count={list.length} />
@@ -98,10 +67,13 @@ export const WsQuery = () => {
             <div
               key={value.id}
               onClick={() => {
-                stompClient.publish({
-                  destination: "/app/id",
-                  body: JSON.stringify({ id: value.id }),
-                });
+                queryById(value.id.toString())
+                  .then((data) => {
+                    setModalData(data);
+                  })
+                  .catch((err) => {
+                    alert(err);
+                  });
               }}
             >
               <FibonacciCard

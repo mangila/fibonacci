@@ -1,22 +1,32 @@
 import axios from "axios";
 import { Client } from "@stomp/stompjs";
-import type { SseIdQuery, SseStreamQuery } from "../_types/types";
 
-export const URL_BASE = new URL(import.meta.env.PUBLIC_FIBONACCI_API_URL);
+export const URL_BASE = new URL(import.meta.env.PUBLIC_BASE_API_URL);
 export const SSE_BASE_PATH = "/api/v1/sse";
-export const STOMP_URL = import.meta.env.PUBLIC_STOMP_URL;
+export const REST_BASE_PATH = "/api/v1/rest";
+export const STOMP_BASE_PATH = "/stomp";
 
-const BASE = new URL(URL_BASE);
-const SSE_API_BASE = SSE_BASE_PATH;
-
-export async function queryByStream(query: SseStreamQuery) {
-  const url = new URL(SSE_API_BASE + `/stream`, BASE);
-  await axios.post(url.href, query);
+export async function queryList(limit: string, offset: string) {
+  const params = new URLSearchParams({
+    limit: limit,
+    offset: offset,
+  });
+  const url = new URL(REST_BASE_PATH + `/list`, URL_BASE);
+  const response = await axios.get(url.href, {
+    params: params,
+  });
+  return response.data;
 }
 
-export async function queryById(query: SseIdQuery) {
-  const url = new URL(SSE_API_BASE + `/id`, BASE);
-  await axios.post(url.href, query);
+export async function queryById(id: string) {
+  const params = new URLSearchParams({
+    id: id,
+  });
+  const url = new URL(REST_BASE_PATH + `/id`, URL_BASE);
+  const response = await axios.get(url.href, {
+    params: params,
+  });
+  return response.data;
 }
 
 export function createStompClient(url: string) {

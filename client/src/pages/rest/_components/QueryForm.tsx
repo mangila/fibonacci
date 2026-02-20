@@ -22,7 +22,7 @@ export const QueryForm = ({ isPending, payload }: Props) => {
           placeholder="Limit"
           className="input validator"
           min="1"
-          max="100"
+          max="50"
           required
         />
         <input type="submit" disabled={isPending} />

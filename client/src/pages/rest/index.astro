@@ -1,12 +1,12 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import DatasourceMenu from "../_components/DatasourceMenu.astro";
-import { WsComponent } from "./_components/WsComponent";
+import { RestComponent } from "./_components/RestComponent";
 ---
 
 <Layout>
   <div class="prose mx-auto text-center mt-4">
-    <DatasourceMenu title="WS" />
+    <DatasourceMenu title="REST" />
   </div>
-  <WsComponent client:load />
+  <RestComponent client:load />
 </Layout>
