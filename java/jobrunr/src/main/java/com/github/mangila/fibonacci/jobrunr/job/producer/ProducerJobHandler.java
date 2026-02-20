@@ -6,10 +6,12 @@ import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 
+@Service
 public class ProducerJobHandler implements JobRequestHandler<ProducerJobRequest> {
 
     private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(ProducerJobHandler.class));
@@ -32,7 +34,7 @@ public class ProducerJobHandler implements JobRequestHandler<ProducerJobRequest>
         log.info("Generating {} fibonacci numbers with algorithm {}", limit, algorithm);
         var batchBuffer = new ArrayList<FibonacciMetadataProjection>(batchSize);
         for (int i = 1; i <= limit; i++) {
-            var metadata = new FibonacciMetadataProjection(i, false, algorithm.name());
+            var metadata = FibonacciMetadataProjection.newInsert(i, algorithm.name());
             if (log.isDebugEnabled()) {
                 log.debug("Produce fibonacci number: {}", metadata);
             }

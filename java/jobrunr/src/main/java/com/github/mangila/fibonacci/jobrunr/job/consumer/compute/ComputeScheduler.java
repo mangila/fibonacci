@@ -1,8 +1,7 @@
 package com.github.mangila.fibonacci.jobrunr.job.consumer.compute;
 
 import org.jobrunr.scheduling.JobRequestScheduler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -10,9 +9,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static org.jobrunr.scheduling.JobBuilder.aJob;
 
+@Service
 public class ComputeScheduler {
-
-    private static final Logger log = LoggerFactory.getLogger(ComputeScheduler.class);
 
     private final JobRequestScheduler jobRequestScheduler;
 
@@ -25,7 +23,7 @@ public class ComputeScheduler {
         final var jitter = ThreadLocalRandom.current().nextInt(5, 60);
         return jobRequestScheduler.create(aJob()
                         .scheduleIn(Duration.ofSeconds(jitter))
-                        .withName("Fibonacci Calculation for sequence: (%s)".formatted(sequence))
+                        .withName("Fibonacci Calculation for sequence: %s".formatted(sequence))
                         .withAmountOfRetries(3)
                         .withLabels("compute")
                         .withJobRequest(request))

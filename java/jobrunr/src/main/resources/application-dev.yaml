@@ -10,7 +10,7 @@ app:
       batchSize: 100
     consumer:
       enabled: true
-      limit: 50
+      limit: 10
       cron: "0/45 * * * * *"
 # Spring Properties
 spring:

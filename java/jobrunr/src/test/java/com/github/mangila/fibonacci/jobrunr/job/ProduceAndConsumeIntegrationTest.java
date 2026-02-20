@@ -1,8 +1,7 @@
-package com.github.mangila.fibonacci.jobrunr.job.producer;
+package com.github.mangila.fibonacci.jobrunr.job;
 
 import com.github.mangila.fibonacci.postgres.PostgresRepository;
 import com.github.mangila.fibonacci.postgres.test.PostgresTestContainer;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,17 +13,22 @@ import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.Mockito.*;
 
 @PostgresTestContainer
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
         properties = {
+                // Producer
                 "app.job.producer.enabled=true",
-                "app.job.producer.limit=50",
-                "app.job.producer.batchSize=10",
+                "app.job.producer.limit=10",
+                "app.job.producer.batchSize=100",
+                // Consumer
+                "app.job.consumer.enabled=true",
+                "app.job.consumer.limit=10",
+                "app.job.consumer.cron=0/20 * * * * *",
+                // JobRunr
                 "jobrunr.background-job-server.poll-interval-in-seconds=15"
         })
-class ProducerJobHandlerIntegrationTest {
+public class ProduceAndConsumeIntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -32,17 +36,18 @@ class ProducerJobHandlerIntegrationTest {
     @MockitoSpyBean
     private PostgresRepository postgresRepository;
 
-    @DisplayName("Wait and produce some Fibonacci sequences with JobRunr and verify in database")
     @Test
     void test() {
         await()
                 .atMost(Duration.ofSeconds(60))
                 .untilAsserted(() -> {
-                    verify(postgresRepository, times(5)).batchInsertMetadata(anyList());
-                    var rows = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate,
+                    int rows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "fibonacci_results");
+                    assertThat(rows).isGreaterThan(1);
+                    rows = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate,
                             "fibonacci_metadata",
-                            "computed = false");
-                    assertThat(rows).isEqualTo(50);
+                            "scheduled = true AND computed = true");
+                    assertThat(rows).isGreaterThan(1);
                 });
     }
+
 }

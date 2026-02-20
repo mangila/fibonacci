@@ -11,7 +11,7 @@ public class ConsumerProperties {
 
     private boolean enabled = false;
     @Positive
-    private int limit = 50;
+    private int limit = 10;
     @Language("CronExp")
     private String cron = "0 0/1 * * * *";
 

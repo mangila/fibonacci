@@ -34,14 +34,14 @@ public class ConsumerJobHandlerTest {
     void test() throws Exception {
         when(computeScheduler.schedule(any())).thenReturn(UUID.randomUUID());
         var stream = Stream.of(
-                new FibonacciMetadataProjection(1, false, FibonacciAlgorithm.ITERATIVE.name()),
-                new FibonacciMetadataProjection(2, false, FibonacciAlgorithm.ITERATIVE.name())
+                FibonacciMetadataProjection.newInsert(1, FibonacciAlgorithm.ITERATIVE.name()),
+                FibonacciMetadataProjection.newInsert(2, FibonacciAlgorithm.ITERATIVE.name())
         );
         doAnswer(invocation -> {
             Consumer<Stream<FibonacciMetadataProjection>> consumer = invocation.getArgument(1);
             consumer.accept(stream);
             return null;
-        }).when(postgresRepository).streamMetadataWhereComputedFalseLocked(anyInt(), any());
+        }).when(postgresRepository).streamMetadataWhereScheduledFalseLocked(anyInt(), any());
         var handler = new ConsumerJobHandler(computeScheduler, postgresRepository);
         var request = new ConsumerJobRequest(10);
         handler.run(request);

@@ -3,7 +3,7 @@ app:
   flush:
     enabled: false
   pg-listen:
-    enabled: true
+    enabled: false
     channel: "fibonacci"
   sse:
     enabled: false

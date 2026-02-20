@@ -9,10 +9,12 @@ import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.concurrent.TimeUnit;
 
+@Service
 public class ComputeJobHandler implements JobRequestHandler<ComputeJobRequest> {
 
     private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(ComputeJobHandler.class));
@@ -49,9 +51,9 @@ public class ComputeJobHandler implements JobRequestHandler<ComputeJobRequest> {
         // Start a new transaction after the compute task is finished
         // no need to wrap it inside a @Transactional and take a connection during the compute time
         boolean write = transactionTemplate.execute(_ -> {
-            var insert = postgresRepository.insert(result.sequence(), result.result(), result.precision());
+            var insert = postgresRepository.insertResult(result.sequence(), result.result(), result.precision());
             if (insert.isPresent()) {
-                var metadata = new FibonacciMetadataProjection(result.sequence(), true, algorithm.name());
+                var metadata = FibonacciMetadataProjection.computed(result.sequence(), algorithm.name());
                 postgresRepository.upsertMetadata(metadata);
                 return true;
             }

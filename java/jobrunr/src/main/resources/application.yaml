@@ -10,8 +10,8 @@ app:
       batch-size: 100
     consumer:
       enabled: false
-      limit: 50
-      cron: "0 0/10 * * * *"
+      limit: 10
+      cron: "0 0/1 * * * *"
 # Spring
 spring:
   application:
@@ -29,7 +29,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: ${spring.application.name}
-      maximum-pool-size: 30
+      maximum-pool-size: 12
       connection-test-query: "SELECT 1"
   flyway:
     enabled: true

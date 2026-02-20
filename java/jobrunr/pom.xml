@@ -80,7 +80,7 @@
                 <artifactId>jib-maven-plugin</artifactId>
                 <configuration>
                     <to>
-                        <image>fibonacci-java-scheduler</image>
+                        <image>fibonacci-java-jobrunr</image>
                     </to>
                 </configuration>
                 <executions>

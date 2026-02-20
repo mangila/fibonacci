@@ -43,14 +43,31 @@ public class PostgresRepository {
                 .optional();
     }
 
+    public List<FibonacciProjection> queryProjectionList(int limit, int offset) {
+        ENSURE_NUMBER_OPS.positive(limit);
+        ENSURE_NUMBER_OPS.positiveWithZero(offset);
+        @Language("PostgreSQL") final String sql = """
+                SELECT id, sequence, precision
+                FROM fibonacci_results
+                ORDER BY sequence
+                LIMIT :limit
+                OFFSET :offset;
+                """;
+        return jdbcClient.sql(sql)
+                .param("limit", limit)
+                .param("offset", offset)
+                .query(FibonacciProjection.class)
+                .list();
+    }
+
     @Transactional
-    public void streamMetadataWhereComputedFalseLocked(int limit, Consumer<Stream<FibonacciMetadataProjection>> consumer) {
+    public void streamMetadataWhereScheduledFalseLocked(int limit, Consumer<Stream<FibonacciMetadataProjection>> consumer) {
         ENSURE_NUMBER_OPS.positive(limit);
         Ensure.notNull(consumer);
         @Language("PostgreSQL") final String sql = """
-                SELECT id, computed, algorithm
+                SELECT id, scheduled, computed, algorithm
                 FROM fibonacci_metadata
-                WHERE computed = false
+                WHERE scheduled = false
                 ORDER BY id
                 LIMIT :limit
                 FOR UPDATE SKIP LOCKED;
@@ -64,7 +81,7 @@ public class PostgresRepository {
         }
     }
 
-    public Optional<FibonacciProjection> insert(int sequence, BigDecimal result, int precision) {
+    public Optional<FibonacciEntity> insertResult(int sequence, BigDecimal result, int precision) {
         ENSURE_NUMBER_OPS.positive(sequence);
         Ensure.notNull(result);
         ENSURE_NUMBER_OPS.positive(precision);
@@ -73,13 +90,13 @@ public class PostgresRepository {
                 (sequence, result, precision)
                 VALUES (:sequence, :result, :precision)
                 ON CONFLICT (sequence) DO NOTHING
-                RETURNING id, sequence, precision;
+                RETURNING id, sequence, result, precision;
                 """;
         return jdbcClient.sql(sql)
                 .param("sequence", sequence)
                 .param("result", result)
                 .param("precision", precision)
-                .query(FibonacciProjection.class)
+                .query(FibonacciEntity.class)
                 .optional();
     }
 
@@ -87,8 +104,8 @@ public class PostgresRepository {
         ENSURE_COLLECTION_OPS.notEmpty(metadataProjections);
         @Language("PostgreSQL") final String sql = """
                 INSERT INTO fibonacci_metadata
-                (id,computed, algorithm,updated_at)
-                VALUES (:id, :computed, :algorithm, now())
+                (id, scheduled, computed, algorithm, updated_at)
+                VALUES (:id, :scheduled, :computed, :algorithm, now())
                 ON CONFLICT (id) DO NOTHING
                 """;
         namedParameterJdbcTemplate.batchUpdate(sql, SqlParameterSourceUtils.createBatch(metadataProjections));
@@ -99,34 +116,19 @@ public class PostgresRepository {
         ENSURE_NUMBER_OPS.positive(metadataProjection.id());
         @Language("PostgreSQL") final String sql = """
                 INSERT INTO fibonacci_metadata
-                (id, computed, algorithm)
-                VALUES (:id, :computed, :algorithm)
+                (id, scheduled, computed, algorithm)
+                VALUES (:id, :scheduled, :computed, :algorithm)
                 ON CONFLICT (id)
                 DO UPDATE SET
+                    scheduled = EXCLUDED.scheduled,
                     computed = EXCLUDED.computed,
                     updated_at = now();
                 """;
         jdbcClient.sql(sql)
                 .param("id", metadataProjection.id())
+                .param("scheduled", metadataProjection.scheduled())
                 .param("computed", metadataProjection.computed())
                 .param("algorithm", metadataProjection.algorithm())
                 .update();
-    }
-
-    public List<FibonacciProjection> queryList(int limit, int offset) {
-        ENSURE_NUMBER_OPS.positive(limit);
-        ENSURE_NUMBER_OPS.positive(offset);
-        @Language("PostgreSQL") final String sql = """
-                SELECT id, sequence, precision
-                FROM fibonacci_results
-                ORDER BY sequence
-                LIMIT :limit
-                OFFSET :offset;
-                """;
-        return jdbcClient.sql(sql)
-                .param("limit", limit)
-                .param("offset", offset)
-                .query(FibonacciProjection.class)
-                .list();
     }
 }
