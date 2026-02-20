@@ -34,6 +34,14 @@ The application is exposing JobRunr dashboard and a swagger UI.
 - [JobRunr dashboard] - (http://localhost:8000/) - Hosted from the web module
 - [Swagger UI] - (http://localhost:8080/swagger-ui.html) - Hosted from the web module
 
+### Run with K8s
+
+There is some minikube scripts to run the application in a local cluster.
+
+1. Run the `minikube-start.sh` script.
+2. Run the `minikube-deploy.sh` script.
+3. Run the `minikube-delete.sh` script. When you are done.
+
 ### Modules
 
 #### Process modules
