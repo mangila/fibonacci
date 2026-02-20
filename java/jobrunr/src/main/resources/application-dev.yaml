@@ -7,20 +7,11 @@ app:
       enabled: true
       limit: 1_000
       algorithm: iterative
-      cron: "0/30 * * * * *"
+      batchSize: 100
     consumer:
       enabled: true
-      limit: 50
+      limit: 10
       cron: "0/45 * * * * *"
-    zset:
-      drain:
-        enabled: true
-        limit: 50
-        cron: "0/30 * * * * *"
-      insert:
-        enabled: true
-        limit: 50
-        cron: "0/60 * * * * *"
 # Spring Properties
 spring:
   flyway:
@@ -39,5 +30,4 @@ logging:
     com.github.mangila.fibonacci.jobrunr.config: INFO
     com.github.mangila.fibonacci.jobrunr.job: INFO
     com.github.mangila.fibonacci.jobrunr.job.consumer: INFO
-    com.github.mangila.fibonacci.jobrunr.job.producer: INFO
-    com.github.mangila.fibonacci.jobrunr.job.zset: INFO
+    com.github.mangila.fibonacci.jobrunr.job.producer: DEBUG

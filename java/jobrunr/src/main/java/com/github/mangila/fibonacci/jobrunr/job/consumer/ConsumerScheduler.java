@@ -6,7 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ConsumerScheduler {
 
     private static final Logger log = LoggerFactory.getLogger(ConsumerScheduler.class);
@@ -21,15 +23,17 @@ public class ConsumerScheduler {
 
     @EventListener(ApplicationReadyEvent.class)
     void schedule() {
-        log.info("Consumer scheduling is enabled");
-        final var limit = properties.getLimit();
-        final var cron = properties.getCron();
-        var job = RecurringJobBuilder.aRecurringJob()
-                .withCron(cron)
-                .withName("Consume fibonacci numbers")
-                .withJobRequest(new ConsumerJobRequest(limit))
-                .withLabels("consumer")
-                .withAmountOfRetries(3);
-        jobRequestScheduler.createRecurrently(job);
+        if (properties.isEnabled()) {
+            log.info("Consumer scheduling is enabled");
+            final var limit = properties.getLimit();
+            final var cron = properties.getCron();
+            var job = RecurringJobBuilder.aRecurringJob()
+                    .withCron(cron)
+                    .withName("Consume fibonacci numbers")
+                    .withJobRequest(new ConsumerJobRequest(limit))
+                    .withLabels("consumer")
+                    .withAmountOfRetries(3);
+            jobRequestScheduler.createRecurrently(job);
+        }
     }
 }

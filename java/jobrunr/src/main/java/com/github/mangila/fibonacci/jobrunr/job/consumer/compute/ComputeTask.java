@@ -1,8 +1,8 @@
 package com.github.mangila.fibonacci.jobrunr.job.consumer.compute;
 
-import com.github.mangila.fibonacci.core.FibonacciAlgorithm;
-import com.github.mangila.fibonacci.core.FibonacciCalculator;
 import com.github.mangila.fibonacci.jobrunr.job.consumer.compute.model.FibonacciComputeResult;
+import com.github.mangila.fibonacci.shared.FibonacciAlgorithm;
+import com.github.mangila.fibonacci.shared.FibonacciCalculator;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -18,11 +18,10 @@ public record ComputeTask(FibonacciAlgorithm algorithm, int sequence) implements
 
     @Override
     public FibonacciComputeResult call() {
-        var instance = FibonacciCalculator.getInstance();
         BigInteger fib = switch (algorithm) {
-            case FAST_DOUBLING -> instance.fastDoubling(sequence);
-            case ITERATIVE -> instance.iterative(sequence);
-            case RECURSIVE -> instance.naiveRecursive(sequence);
+            case FAST_DOUBLING -> FibonacciCalculator.fastDoubling(sequence);
+            case ITERATIVE -> FibonacciCalculator.iterative(sequence);
+            case RECURSIVE -> FibonacciCalculator.recursive(sequence);
         };
         return FibonacciComputeResult.of(sequence, new BigDecimal(fib));
     }

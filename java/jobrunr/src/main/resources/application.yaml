@@ -7,20 +7,11 @@ app:
       enabled: false
       limit: 200
       algorithm: iterative
-      cron: "0 0/1 * * * *"
+      batch-size: 100
     consumer:
       enabled: false
-      limit: 50
+      limit: 10
       cron: "0 0/1 * * * *"
-    zset:
-      drain:
-        enabled: false
-        limit: 50
-        cron: "0 0/1 * * * *"
-      insert:
-        enabled: false
-        limit: 50
-        cron: "0 0/1 * * * *"
 # Spring
 spring:
   application:
@@ -38,7 +29,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: ${spring.application.name}
-      maximum-pool-size: 10
+      maximum-pool-size: 12
       connection-test-query: "SELECT 1"
   flyway:
     enabled: true
@@ -53,14 +44,6 @@ spring:
       - classpath:db/migration
     postgresql:
       transactional-lock: true
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      client-name: ${spring.application.name}
-      jedis:
-        pool:
-          enabled: true
   docker:
     compose:
       skip:
@@ -91,4 +74,3 @@ logging:
     com.github.mangila.fibonacci.jobrunr.job: INFO
     com.github.mangila.fibonacci.jobrunr.job.consumer: INFO
     com.github.mangila.fibonacci.jobrunr.job.producer: INFO
-    com.github.mangila.fibonacci.jobrunr.job.zset: INFO

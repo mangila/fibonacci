@@ -9,7 +9,6 @@ Datapipeline is a distributed workflow that generates Fibonacci numbers using Jo
 #### Drawbacks with a Distributed workflow
 
 - Operational complexity.
-- Stream timeline synchronization. Ensuring that the stream maintains the correct order of Fibonacci sequences is crucial for accurate results.
 - Latency and partial failure.
 - Race conditions.
 
@@ -24,25 +23,34 @@ Datapipeline is a distributed workflow that generates Fibonacci numbers using Jo
 
 The API exposes the Fibonacci numbers via REST, SSE and WebSockets through STOMP.
 
+Opt in to an SSE or STOMP Websocket livestream of the Fibonacci numbers.
+
+NOTE: The Fibonacci numbers are generated in a distributed fashion using JobRunr. 
+
 ### Links
 
-The application is exposing Redis Insight, JobRunr dashboard and a swagger UI.
+The application is exposing JobRunr dashboard and a swagger UI.
 
-- [Redis Insight] - (http://localhost:8001/) - Hosted from the docker image `redis/redis-stack`
 - [JobRunr dashboard] - (http://localhost:8000/) - Hosted from the web module
 - [Swagger UI] - (http://localhost:8080/swagger-ui.html) - Hosted from the web module
+
+### Run with K8s
+
+There is some minikube scripts to run the application in a local cluster.
+
+1. Run the `minikube-start.sh` script.
+2. Run the `minikube-deploy.sh` script.
+3. Run the `minikube-delete.sh` script. When you are done.
 
 ### Modules
 
 #### Process modules
 
 - `jobrunr`: jobrunr scheduler service that can act as a producer node, worker node or both. (headless)
-- `web`: web api component that exposes the Fibonacci numbers via REST and SSE, uses the Redis stream (web server)
+- `web`: web api component that exposes the Fibonacci numbers via REST and SSE (web server)
 
 #### Code modules
 
-- `redis` : Everything redis related.
-- `redis-test`: Test module for Redis.
 - `postgres` : Everything Postgres related.
 - `postgres-test`: Test module for Postgres.
 - `shared` : Code shared between modules.
@@ -56,7 +64,6 @@ graph TD
         Scheduler[JobRunr]
         Scheduler[JobRunr]
         DB[(PostgreSQL)]
-        DB2[(Redis)]
     end
 
     subgraph "Frontend"
@@ -64,9 +71,8 @@ graph TD
     end
 
     Scheduler <--> DB
-    Scheduler <--> DB2
     Web <--> DB
-    Web <--> DB2
+    DB -- LISTEN/NOTIFY --> Web
     Web <--> Client
 
 

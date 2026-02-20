@@ -1,0 +1,5 @@
+### GET list with Fibonacci
+GET http://{{baseUrl}}/api/v1/rest/list?limit=50&offset=1
+
+### GET Fibonacci with Database row id
+GET http://{{baseUrl}}/api/v1/rest/id?id=1

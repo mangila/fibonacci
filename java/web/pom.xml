@@ -23,10 +23,6 @@
         </dependency>
         <dependency>
             <groupId>com.github.mangila.fibonacci</groupId>
-            <artifactId>redis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.mangila.fibonacci</groupId>
             <artifactId>postgres</artifactId>
         </dependency>
         <dependency>
@@ -98,11 +94,6 @@
         <dependency>
             <groupId>com.github.mangila.fibonacci</groupId>
             <artifactId>postgres-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.mangila.fibonacci</groupId>
-            <artifactId>redis-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -1,0 +1,12 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import DatasourceMenu from "../_components/DatasourceMenu.astro";
+import { RestComponent } from "./_components/RestComponent";
+---
+
+<Layout>
+  <div class="prose mx-auto text-center mt-4">
+    <DatasourceMenu title="REST" />
+  </div>
+  <RestComponent client:load />
+</Layout>

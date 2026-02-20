@@ -2,10 +2,13 @@
 app:
   flush:
     enabled: false
+  pg-listen:
+    enabled: false
+    channel: "fibonacci"
   sse:
-    enabled: true
+    enabled: false
     heartbeat:
-      enabled: true
+      enabled: false
       interval: 10s
     cleanup-period: 10m
 # Spring
@@ -39,14 +42,6 @@ spring:
       - classpath:db/migration
     postgresql:
       transactional-lock: true
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      client-name: ${spring.application.name}
-      jedis:
-        pool:
-          enabled: true
   docker:
     compose:
       skip:

@@ -1,41 +1,31 @@
 package com.github.mangila.fibonacci.jobrunr.job.producer;
 
-import com.github.mangila.fibonacci.postgres.test.PostgresTestContainer;
-import com.github.mangila.fibonacci.redis.FunctionName;
-import com.github.mangila.fibonacci.redis.test.RedisTestContainer;
+import com.github.mangila.fibonacci.postgres.PostgresRepository;
+import com.github.mangila.fibonacci.shared.FibonacciAlgorithm;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
-import tools.jackson.databind.json.JsonMapper;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.Duration;
-
-import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@PostgresTestContainer
-@RedisTestContainer
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
-        properties = {
-                "app.job.producer.enabled=true",
-                "app.job.producer.limit=50",
-                "app.job.producer.cron=0/15 * * * * *",
-        })
-class ProducerJobHandlerTest {
+@ExtendWith({
+        MockitoExtension.class,
+        SpringExtension.class
+})
+public class ProducerJobHandlerTest {
 
-    @MockitoSpyBean
-    private JsonMapper jsonMapper;
-    @MockitoSpyBean
-    private FunctionName produceSequence;
+    @MockitoBean
+    private PostgresRepository postgresRepository;
 
     @Test
-    void run() {
-        await()
-                .atMost(Duration.ofSeconds(30))
-                .untilAsserted(() -> {
-                    verify(jsonMapper, times(50));
-                });
-
+    void test() throws Exception {
+        var handler = new ProducerJobHandler(postgresRepository);
+        var request = new ProducerJobRequest(10, 50, FibonacciAlgorithm.ITERATIVE);
+        handler.run(request);
+        verify(postgresRepository, times(5)).batchInsertMetadata(anyList());
     }
 }

@@ -1,52 +1,40 @@
 package com.github.mangila.fibonacci.web.sse.controller;
 
-import com.github.mangila.fibonacci.web.sse.model.SseIdQuery;
-import com.github.mangila.fibonacci.web.sse.model.SseStreamQuery;
 import com.github.mangila.fibonacci.web.sse.model.SseSubscription;
-import com.github.mangila.fibonacci.web.sse.service.SseService;
+import com.github.mangila.fibonacci.web.sse.service.SseSubscriptionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.Map;
-
+/**
+ * SSE controller for subscribing to fibonacci number events
+ * Designed for the microsoft-sse-fetcher library on the client side
+ */
 @RestController
 @RequestMapping("api/v1/sse")
+@Validated
+@ConditionalOnProperty(prefix = "app.sse", name = "enabled", havingValue = "true")
 public class SseController {
 
     private static final Logger log = LoggerFactory.getLogger(SseController.class);
 
-    private static final Map<String, String> OK = Map.of("status", "ok");
+    private final SseSubscriptionService service;
 
-    private final SseService service;
-
-    public SseController(SseService service) {
+    public SseController(SseSubscriptionService service) {
         this.service = service;
     }
 
     @PostMapping("subscribe")
     public SseEmitter sseSubscribe(@RequestBody @NotNull @Valid SseSubscription sseSubscription) {
+        log.info("SSE subscribe: {}", sseSubscription);
         return service.subscribe(sseSubscription);
-    }
-
-    @PostMapping("stream")
-    public ResponseEntity<Map<String, String>> sseQueryByStream(@RequestBody @NotNull @Valid SseStreamQuery streamQuery) {
-        log.info("SSE query by stream: {}", streamQuery);
-        service.queryByStream(streamQuery);
-        return ResponseEntity.ok(OK);
-    }
-
-    @PostMapping("id")
-    public ResponseEntity<?> sseQueryById(@RequestBody @NotNull @Valid SseIdQuery sseIdQuery) {
-        log.info("SSE query by id: {}", sseIdQuery);
-        service.queryById(sseIdQuery);
-        return ResponseEntity.ok(OK);
     }
 }

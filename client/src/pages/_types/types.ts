@@ -23,22 +23,3 @@ export interface SseSubscription {
   channel: string;
   username: string;
 }
-
-export interface SseStreamQuery {
-  sseSubscription: SseSubscription;
-  option: SseStreamOption;
-}
-
-export interface SseStreamOption {
-  offset: number;
-  limit: number;
-}
-
-export interface SseIdQuery {
-  sseSubscription: SseSubscription;
-  option: SseIdOption;
-}
-
-export interface SseIdOption {
-  id: number;
-}

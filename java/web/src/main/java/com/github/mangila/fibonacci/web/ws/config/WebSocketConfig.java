@@ -1,12 +1,9 @@
 package com.github.mangila.fibonacci.web.ws.config;
 
 import com.github.mangila.fibonacci.web.ws.model.AnonymousHandshakeHandler;
-import com.github.mangila.fibonacci.web.ws.service.WsRedisMessageHandler;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.messaging.handler.invocation.HandlerMethodReturnValueHandler;
@@ -18,7 +15,6 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Configuration
@@ -31,13 +27,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         scheduler.setThreadNamePrefix("ws-scheduler-");
         scheduler.setVirtualThreads(true);
         return scheduler;
-    }
-
-    @Bean("wsListenerAdapter")
-    MessageListenerAdapter wsListenerAdapter(WsRedisMessageHandler wsRedisMessageHandler) {
-        var adapter = new MessageListenerAdapter(wsRedisMessageHandler, "handleWsMessage");
-        adapter.setSerializer(new StringRedisSerializer(StandardCharsets.UTF_8));
-        return adapter;
     }
 
     @Override

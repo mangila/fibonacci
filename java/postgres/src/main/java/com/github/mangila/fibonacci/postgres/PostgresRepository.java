@@ -43,27 +43,31 @@ public class PostgresRepository {
                 .optional();
     }
 
-    public Optional<FibonacciProjection> queryBySequence(int sequence) {
-        ENSURE_NUMBER_OPS.positive(sequence);
+    public List<FibonacciProjection> queryProjectionList(int limit, int offset) {
+        ENSURE_NUMBER_OPS.positive(limit);
+        ENSURE_NUMBER_OPS.positiveWithZero(offset);
         @Language("PostgreSQL") final String sql = """
                 SELECT id, sequence, precision
                 FROM fibonacci_results
-                WHERE sequence = :sequence
+                ORDER BY sequence
+                LIMIT :limit
+                OFFSET :offset;
                 """;
         return jdbcClient.sql(sql)
-                .param("sequence", sequence)
+                .param("limit", limit)
+                .param("offset", offset)
                 .query(FibonacciProjection.class)
-                .optional();
+                .list();
     }
 
     @Transactional
-    public void streamMetadataWhereSentToZsetIsFalseLocked(int limit, Consumer<Stream<Integer>> consumer) {
+    public void streamMetadataWhereScheduledFalseLocked(int limit, Consumer<Stream<FibonacciMetadataProjection>> consumer) {
         ENSURE_NUMBER_OPS.positive(limit);
         Ensure.notNull(consumer);
         @Language("PostgreSQL") final String sql = """
-                SELECT id
+                SELECT id, scheduled, computed, algorithm
                 FROM fibonacci_metadata
-                WHERE sent_to_zset = false
+                WHERE scheduled = false
                 ORDER BY id
                 LIMIT :limit
                 FOR UPDATE SKIP LOCKED;
@@ -71,13 +75,13 @@ public class PostgresRepository {
         var stmt = jdbcClient.sql(sql)
                 .param("limit", limit)
                 .withFetchSize(100)
-                .query(Integer.class);
+                .query(FibonacciMetadataProjection.class);
         try (var stream = stmt.stream()) {
             consumer.accept(stream);
         }
     }
 
-    public Optional<FibonacciProjection> insert(int sequence, BigDecimal result, int precision) {
+    public Optional<FibonacciEntity> insertResult(int sequence, BigDecimal result, int precision) {
         ENSURE_NUMBER_OPS.positive(sequence);
         Ensure.notNull(result);
         ENSURE_NUMBER_OPS.positive(precision);
@@ -86,27 +90,23 @@ public class PostgresRepository {
                 (sequence, result, precision)
                 VALUES (:sequence, :result, :precision)
                 ON CONFLICT (sequence) DO NOTHING
-                RETURNING id, sequence, precision;
+                RETURNING id, sequence, result, precision;
                 """;
         return jdbcClient.sql(sql)
                 .param("sequence", sequence)
                 .param("result", result)
                 .param("precision", precision)
-                .query(FibonacciProjection.class)
+                .query(FibonacciEntity.class)
                 .optional();
     }
 
-    public void batchUpsertMetadata(List<FibonacciMetadataProjection> metadataProjections) {
+    public void batchInsertMetadata(List<FibonacciMetadataProjection> metadataProjections) {
         ENSURE_COLLECTION_OPS.notEmpty(metadataProjections);
         @Language("PostgreSQL") final String sql = """
                 INSERT INTO fibonacci_metadata
-                (id,sent_to_zset,sent_to_stream)
-                VALUES (:id, :sentToZset, :sentToStream)
-                ON CONFLICT (id)
-                DO UPDATE SET
-                    sent_to_zset = EXCLUDED.sent_to_zset,
-                    sent_to_stream = EXCLUDED.sent_to_stream,
-                    updated_at = now();
+                (id, scheduled, computed, algorithm, updated_at)
+                VALUES (:id, :scheduled, :computed, :algorithm, now())
+                ON CONFLICT (id) DO NOTHING
                 """;
         namedParameterJdbcTemplate.batchUpdate(sql, SqlParameterSourceUtils.createBatch(metadataProjections));
     }
@@ -116,18 +116,19 @@ public class PostgresRepository {
         ENSURE_NUMBER_OPS.positive(metadataProjection.id());
         @Language("PostgreSQL") final String sql = """
                 INSERT INTO fibonacci_metadata
-                (id, sent_to_zset, sent_to_stream)
-                VALUES (:id,:sentToZset, :sentToStream)
+                (id, scheduled, computed, algorithm)
+                VALUES (:id, :scheduled, :computed, :algorithm)
                 ON CONFLICT (id)
                 DO UPDATE SET
-                    sent_to_zset = EXCLUDED.sent_to_zset,
-                    sent_to_stream = EXCLUDED.sent_to_stream,
+                    scheduled = EXCLUDED.scheduled,
+                    computed = EXCLUDED.computed,
                     updated_at = now();
                 """;
         jdbcClient.sql(sql)
                 .param("id", metadataProjection.id())
-                .param("sentToZset", metadataProjection.sentToZset())
-                .param("sentToStream", metadataProjection.sentToStream())
+                .param("scheduled", metadataProjection.scheduled())
+                .param("computed", metadataProjection.computed())
+                .param("algorithm", metadataProjection.algorithm())
                 .update();
     }
 }
