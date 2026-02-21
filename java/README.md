@@ -32,15 +32,34 @@ NOTE: The Fibonacci numbers are livestreamed in an unordered fashion. Query the 
 The application is exposing JobRunr dashboard and a swagger UI.
 
 - [JobRunr dashboard] - (http://localhost:8000/) - Hosted from the web module
-- [Swagger UI] - (http://localhost:8080/swagger-ui.html) - Hosted from the web module
+- [Swagger UI] - (http://localhost:8080/swagger-ui.html) - Hosted from the web module - Must be enabled in the config
+
+### Run with Docker Compose
+
+Run the docker-compose.yml file.
+
+```bash
+docker compose up --force-recreate -d
+```
 
 ### Run with K8s
 
 There is some minikube scripts to run the application in a local cluster.
 
-1. Run the `minikube-start.sh` script.
-2. Run the `minikube-deploy.sh` script.
-3. Run the `minikube-delete.sh` script. When you are done.
+Start Minikube
+```bash
+minikube-start.sh
+```
+
+Deploy to K8s cluster
+```bash
+minikube-deploy.sh
+```
+
+Delete the cluster and deployments
+```bash
+minikube-delete.sh
+```
 
 ### Modules
 
