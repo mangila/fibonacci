@@ -36,21 +36,11 @@ services:
       start_period: 10s
     networks:
       - fibonacci-net
-  producer:
+  jobrunr:
     image: fibonacci-java-jobrunr:latest
     environment:
-      SPRING_APPLICATION_NAME: producer
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fibonacci
       APP_JOB_PRODUCER_ENABLED: "true"
-    depends_on:
-      - postgres
-    networks:
-      - fibonacci-net
-  consumer:
-    image: fibonacci-java-jobrunr:latest
-    environment:
-      SPRING_APPLICATION_NAME: consumer
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fibonacci
       APP_JOB_CONSUMER_ENABLED: "true"
     depends_on:
       - postgres
